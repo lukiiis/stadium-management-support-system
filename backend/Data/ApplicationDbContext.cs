@@ -10,6 +10,10 @@ namespace backend.Data
         {
         }
 
-        public DbSet<TestModel> TestModel { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Address> Addresses { get; set; }
     }
 }
