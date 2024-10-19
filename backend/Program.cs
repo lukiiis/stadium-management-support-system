@@ -1,4 +1,6 @@
+using backend.Auth;
 using backend.Data;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +12,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
            .EnableSensitiveDataLogging()
            .LogTo(Console.WriteLine, LogLevel.Information));
 
+// auth
+builder.Services.AddSingleton<TokenProvider>();
+builder.Services.AddSingleton<PasswordHasher>();
+builder.Services.AddSingleton<LoginUser>();
+
 builder.Services.AddControllers();
+builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
