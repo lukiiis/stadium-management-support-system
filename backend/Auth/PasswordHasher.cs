@@ -11,7 +11,7 @@ namespace backend.Auth
 
             return hashedReqPassword == userPassword;
         }
-        private string HashPassword(string password)
+        private static string HashPassword(string password)
         {
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
 

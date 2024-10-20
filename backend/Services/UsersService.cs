@@ -19,5 +19,10 @@ namespace backend.Services
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<bool> IsEmailTaken(string email)
+        {
+            return await _context.Set<User>()
+                .AnyAsync(u => u.Email == email);
+        }
     }
 }

@@ -6,7 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
+using backend.Auth;
 using backend.Models;
+using backend.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -14,95 +18,75 @@ namespace backend.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUsersService _usersService;
+        private readonly LoginUser _loginUser;
+        private readonly RegisterUser _registerUser;
 
-        public UsersController(ApplicationDbContext context)
+        public UsersController(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider)
         {
-            _context = context;
+            _usersService = usersService;
+            _loginUser = new LoginUser(usersService, passwordHasher, tokenProvider);
+            _registerUser = new RegisterUser(usersService, passwordHasher, tokenProvider);
         }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUser.Request request)
         {
-            return await _context.Users.ToListAsync();
-        }
-
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
-
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
-        {
-            if (id != user.UserId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                string token = await _loginUser.Handle(request);
+
+                return Ok(new { Token = token });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(new { Error = ex.Message });
             }
-
-            return NoContent();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUser.ClientRequest request)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                string response = await _registerUser.RegisterClient(request);
 
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+                //todo  rework messages sent (if error happened, only message, if no error then message and token)
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpGet("{email}")]
+        public async Task<IActionResult> GetByEmail(string email)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _usersService.GetUserByEmail(email);
             if (user == null)
-            {
                 return NotFound();
-            }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(user);
         }
 
-        private bool UserExists(int id)
+
+
+
+
+
+
+
+        //works fine, for testing purpose
+        [HttpGet("auth/{email}")]
+        [Authorize(Policy = "ClientOnly")]
+        public async Task<IActionResult> GetByEmailAuth(string email)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            var user = await _usersService.GetUserByEmail(email);
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
         }
     }
 }
