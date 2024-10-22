@@ -49,10 +49,9 @@ namespace backend.Controllers
         {
             try
             {
-                string response = await _registerUser.RegisterClient(request);
+                string token = await _registerUser.RegisterClient(request);
 
-                //todo  rework messages sent (if error happened, only message, if no error then message and token)
-                return Ok(response);
+                return Ok(new { message = "Account created succesfully", token });
             }
             catch (Exception ex)
             {
@@ -72,21 +71,16 @@ namespace backend.Controllers
 
 
 
-
-
-
-
-
         //works fine, for testing purpose
-        [HttpGet("auth/{email}")]
-        [Authorize(Policy = "ClientOnly")]
-        public async Task<IActionResult> GetByEmailAuth(string email)
-        {
-            var user = await _usersService.GetUserByEmail(email);
-            if (user == null)
-                return NotFound();
+        //[HttpGet("auth/{email}")]
+        //[Authorize(Policy = "ClientOnly")]
+        //public async Task<IActionResult> GetByEmailAuth(string email)
+        //{
+        //    var user = await _usersService.GetUserByEmail(email);
+        //    if (user == null)
+        //        return NotFound();
 
-            return Ok(user);
-        }
+        //    return Ok(user);
+        //}
     }
 }

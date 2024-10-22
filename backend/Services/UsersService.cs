@@ -1,6 +1,7 @@
 ﻿using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace backend.Services
 {
@@ -8,6 +9,7 @@ namespace backend.Services
     {
         Task<User?> GetUserByEmail(string email);
         Task<bool> IsEmailTaken(string email);
+        Task<bool> IsPhoneTaken(int phone);
         Task AddUser(User user);
     }
 
@@ -36,6 +38,12 @@ namespace backend.Services
         {
             return await _context.Set<User>()
                 .AnyAsync(u => u.Email == email);
+        }
+
+        public async Task<bool> IsPhoneTaken(int phone)
+        {
+            return await _context.Set<User>()
+                .AnyAsync(u => u.Phone == phone);
         }
     }
 }

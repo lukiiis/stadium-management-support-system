@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using backend.Models;
 
 namespace backend.Data
@@ -29,7 +29,11 @@ namespace backend.Data
                 eb.Property(u => u.Email).HasColumnName("email").HasMaxLength(200).IsRequired();
                 eb.Property(u => u.Password).HasColumnName("password").HasMaxLength(250).IsRequired();
                 eb.Property(u => u.Role).HasConversion<string>().HasColumnName("role").IsRequired();
-                eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date");
+                eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date").HasDefaultValue(DateTime.Today);
+                eb.Property(u => u.Wallet).HasColumnName("wallet").HasColumnType("decimal(12,2)");
+                eb.Property(u => u.Salary).HasColumnName("salary").HasColumnType("decimal(12,2)");
+                eb.Property(u => u.Position).HasColumnName("position").HasMaxLength(100);
+                eb.Property(u => u.AddressId).HasColumnName("address_id");
             });
 
             modelBuilder.Entity<Address>(eb =>
@@ -41,7 +45,7 @@ namespace backend.Data
                 eb.Property(a => a.City).HasColumnName("city").HasMaxLength(250).IsRequired();
                 eb.Property(a => a.Street).HasColumnName("street").HasMaxLength(250).IsRequired();
                 eb.Property(a => a.Zipcode).HasColumnName("zipcode").HasMaxLength(50).IsRequired();
-                
+
                 //client foreign key
                 eb.HasOne(a => a.User).WithOne(u => u.Address).HasForeignKey<User>(u => u.AddressId).IsRequired(false);
             });

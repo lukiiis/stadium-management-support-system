@@ -32,7 +32,7 @@ namespace backend.Auth
         {
             string validation = await ValidateRequest(request);
             if (validation != "OK")
-                return validation;
+                throw new Exception(validation);
 
             User user = new()
             {
@@ -42,7 +42,8 @@ namespace backend.Auth
                 Phone = request.Phone,
                 Email = request.Email,
                 Password = _passwordHasher.HashPassword(request.Password),
-                Role = request.Role == "CLIENT" ? Role.CLIENT : Role.ADMIN
+                Role = request.Role == "ADMIN" ? Role.ADMIN : request.Role == "EMPLOYEE" ? Role.EMPLOYEE : Role.CLIENT,
+                Wallet = request.Role == "CLIENT" ? 0.0 : null
             };
 
             await _usersService.AddUser(user);
@@ -63,11 +64,14 @@ namespace backend.Auth
             if (!Regex.IsMatch(request.Phone.ToString(), @"^\d{9,9}$"))
                 return "Phone number must be between 9 and 15 digits.";
 
+            if (await _usersService.IsPhoneTaken(request.Phone))
+                return "Provided phone number is taken.";
+
             if (!IsValidEmail(request.Email))
                 return "Invalid email address.";
 
             if (await _usersService.IsEmailTaken(request.Email))
-                return "Email is already registered.";
+                return "Provided email is taken.";
 
             if (request.Password.Length < 8)
                 return "Password must be at least 8 characters long.";
