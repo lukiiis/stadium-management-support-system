@@ -11,10 +11,16 @@
         public string Password { get; set; }
         public Role Role { get; set; }
         public DateTime CreatedAt { get; set; }
-    
+        
+        //only client
+        public double? Wallet {  get; set; }
+
+        // only admin and employee
+        public string? Position {  get; set; }
+        public double? Salary { get; set; }
+
         //foreign keys
-        public Client Client { get; set; }
-        public Admin Admin { get; set; }
-        public Employee Employee { get; set; }
+        public int? AddressId { get; set; }
+        public Address? Address { get; set; }
     }
 }

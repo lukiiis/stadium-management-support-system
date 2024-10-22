@@ -8,6 +8,6 @@
         public string Street { get; set; }
         public string Zipcode { get; set; }
         //optional
-        public Client? Client { get; set; }
+        public User? User { get; set; }
     }
 }

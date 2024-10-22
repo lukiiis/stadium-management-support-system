@@ -45,7 +45,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUser.ClientRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterUser.Request request)
         {
             try
             {

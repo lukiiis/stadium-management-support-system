@@ -1,4 +1,5 @@
-﻿using backend.Services;
+﻿using backend.Models;
+using backend.Services;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -17,27 +18,41 @@ namespace backend.Auth
             _tokenProvider = tokenProvider;
         }
 
-        public sealed record ClientRequest(
+        public sealed record Request(
             [property: JsonPropertyName("first_name")] string FirstName,
             [property: JsonPropertyName("last_name")] string LastName,
             [property: JsonPropertyName("age")] int Age,
             [property: JsonPropertyName("phone")] int Phone,
             [property: JsonPropertyName("email")] string Email,
-            [property: JsonPropertyName("password")] string Password);
-        public sealed record AdminRequest(string FirstName, string LastName, int Age, int Phone, string Email, string Password, string Seniority, double Salary);
-        public sealed record EmployeeRequest(string FirstName, string LastName, int Age, int Phone, string Email, string Password, string Position, double Salary);
+            [property: JsonPropertyName("password")] string Password,
+            [property: JsonPropertyName("role")] string Role
+            );
 
-
-        public async Task<string> RegisterClient(ClientRequest request)
+        public async Task<string> RegisterClient(Request request)
         {
-            //string validation = await ValidateRequest(request);
-            //if (validation != "OK")
-            //    return validation;
+            string validation = await ValidateRequest(request);
+            if (validation != "OK")
+                return validation;
 
-            return "todo";
+            User user = new()
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Age = request.Age,
+                Phone = request.Phone,
+                Email = request.Email,
+                Password = _passwordHasher.HashPassword(request.Password),
+                Role = request.Role == "CLIENT" ? Role.CLIENT : Role.ADMIN
+            };
+
+            await _usersService.AddUser(user);
+
+            var token = _tokenProvider.Create(user);
+
+            return token;
         }
 
-        private async Task<string> ValidateRequest(ClientRequest request)
+        private async Task<string> ValidateRequest(Request request)
         {
             if (string.IsNullOrWhiteSpace(request.FirstName))
                 return "First name cannot be empty.";
