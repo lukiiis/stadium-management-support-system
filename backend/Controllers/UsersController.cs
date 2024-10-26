@@ -34,9 +34,9 @@ namespace backend.Controllers
         {
             try
             {
-                string token = await _loginUser.Handle(request);
+                var response = await _loginUser.Handle(request);
 
-                return Ok(new { Token = token });
+                return Ok(response);
             }
             catch (Exception ex)
             {

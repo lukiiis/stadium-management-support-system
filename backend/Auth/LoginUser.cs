@@ -16,27 +16,30 @@ namespace backend.Auth
             _tokenProvider = tokenProvider;
         }
 
+        public sealed record Response(string FirstName, string LastName, string Role, string Token, string Message);
         public sealed record Request(string Email, string Password);
 
-        public async Task<string> Handle(Request request)
+        public async Task<Response> Handle(Request request)
         {
             User? user = await _usersService.GetUserByEmail(request.Email);
 
             if (user == null)
-            {
                 throw new Exception("User was not found");
-            }
 
             bool verified = _passwordHasher.Verify(request.Password, user.Password);
 
             if (!verified)
-            {
                 throw new Exception("Password is incorrect");
-            }
 
             var token = _tokenProvider.Create(user);
 
-            return token;
+            return new Response (
+                user.FirstName,
+                user.LastName,
+                user.Role.ToString(),
+                token,
+                "Login successful"
+            );
         }
     }
 }
