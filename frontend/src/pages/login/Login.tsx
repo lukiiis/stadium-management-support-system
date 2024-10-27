@@ -3,6 +3,14 @@ import styles from "./Login.module.scss"
 import TextField from '@mui/material/TextField';
 import { LoginData, LoginStatus, useLoginUser } from "./loginFunctions";
 import { useState } from "react";
+import styled from "@emotion/styled";
+import { Button, CircularProgress } from "@mui/material";
+import LoadingSpinner from "../../components/loadingSpinner/LoadingSpinner";
+
+const LoginTextField = styled(TextField)({
+    width: '100%',
+    minHeight: '80px'
+})
 
 const Login = () => {
     // create interfaces
@@ -48,28 +56,48 @@ const Login = () => {
             </div>
             <div className={styles.loginBox}>
                 <div className={styles.left}>
-                    <h1>Hello Again!</h1>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    <form className="flex flex-col" onSubmit={loginForm.handleSubmit(onSubmit)}>
-                        <TextField
-                            id="outlined-standard-input"
-                            label="Email"
-                            error={!!loginForm.formState.errors.email}
-                            helperText={loginForm.formState.errors.email?.message}
-                            {...loginForm.register("email", { required: "Field required", pattern: { value: /\S+@\S+\.\S+/, message: "Entered value does not match email format", } })}
-                        />
-                        <TextField
-                            id="outlined-password-input"
-                            label="Password"
-                            type="password"
-                            autoComplete="current-password"
-                            error={!!loginForm.formState.errors.password}
-                            helperText={loginForm.formState.errors.password?.message}
-                            {...loginForm.register("password", { required: "Field required" })}
-                        />
-                        <button className="auth-button" type="submit">Sign in</button>
-                    </form>
-                    <div>{loginInfo.message}</div>
+                    <div className={styles.leftContainer}>
+                        <div className="flex flex-col gap-2 items-center">
+                            <h1>Hello Again!</h1>
+                            <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        </div>
+                        <form className={styles.loginForm} onSubmit={loginForm.handleSubmit(onSubmit)}>
+                            <div className="flex flex-col gap-3">
+                                <LoginTextField
+                                    label="Email"
+                                    disabled={!!loginMutation.isPending}
+                                    error={!!loginForm.formState.errors.email}
+                                    helperText={loginForm.formState.errors.email?.message}
+                                    {...loginForm.register("email", { required: "Field required", pattern: { value: /\S+@\S+\.\S+/, message: "Entered value does not match email format", } })}
+                                />
+                                <LoginTextField
+                                    label="Password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    disabled={!!loginMutation.isPending}
+                                    error={!!loginForm.formState.errors.password}
+                                    helperText={loginForm.formState.errors.password?.message}
+                                    {...loginForm.register("password", { required: "Field required" })}
+                                />
+                            </div>
+                            <div className="flex items-center justify-center">
+                                <Button
+                                    variant="contained"
+                                    type="submit"
+                                    disabled={!!loginMutation.isPending}
+                                >
+                                    Login
+                                </Button>
+                            </div>
+                            <div className="flex items-center justify-center h-10">
+                                {/* change positioning */}
+                                <LoadingSpinner isLoading={loginMutation.isPending} />
+                                {/* OR FROM MATERIAL-UI BELOW */}
+                                {/* {loginMutation.isPending ? <CircularProgress /> : ""} */}
+                            </div>
+                        </form>
+                        {/* <div>{loginInfo.message}</div> */}
+                    </div>
                 </div>
                 <div className={styles.right}>
 

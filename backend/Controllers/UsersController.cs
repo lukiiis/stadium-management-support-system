@@ -49,14 +49,24 @@ namespace backend.Controllers
         {
             try
             {
-                string token = await _registerUser.RegisterClient(request);
+                var response = await _registerUser.RegisterClient(request);
 
-                return Ok(new { message = "Account created succesfully", token });
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Error = ex.Message });
             }
+        }
+
+        [HttpPost("is-valid/{email}")]
+        public async Task<IActionResult> IsEmailTaken(string email)
+        {
+            var user = await _usersService.GetUserByEmail(email);
+            if (user == null)
+                return Ok(true);
+
+            return Ok(false);
         }
 
         [HttpGet("{email}")]

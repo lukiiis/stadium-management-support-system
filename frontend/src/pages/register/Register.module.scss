@@ -1,0 +1,44 @@
+.registerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background-color: rgb(212,214,234);
+}
+
+.registerBox {
+    width: 1000px;
+    height: 600px;
+    font-size: 1rem;
+    // font-size: clamp(18px, 18px + 2vw, 36px);
+    margin: 0 7px 0 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    -webkit-box-shadow: 1px 1px 100px -14px rgba(40, 40, 42, 1);
+    -moz-box-shadow: 1px 1px 100px -14px rgba(40, 40, 42, 1);
+    box-shadow: 1px 1px 100px -14px rgba(40, 40, 42, 1);
+    background-color: white;
+}
+
+.left, .right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.left {
+    flex-direction: column;
+    width: 45%;
+}
+
+.left h1 {
+    font-size: 3rem;
+}
+
+.right {
+    width: 55%;
+    height: 100%;
+    background-image: url("../../assets/img/login/login.png");
+}

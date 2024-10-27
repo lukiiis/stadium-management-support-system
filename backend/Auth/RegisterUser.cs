@@ -18,17 +18,10 @@ namespace backend.Auth
             _tokenProvider = tokenProvider;
         }
 
-        public sealed record Request(
-            [property: JsonPropertyName("first_name")] string FirstName,
-            [property: JsonPropertyName("last_name")] string LastName,
-            [property: JsonPropertyName("age")] int Age,
-            [property: JsonPropertyName("phone")] int Phone,
-            [property: JsonPropertyName("email")] string Email,
-            [property: JsonPropertyName("password")] string Password,
-            [property: JsonPropertyName("role")] string Role
-            );
+        public sealed record Request(string FirstName, string LastName, int Age, int Phone, string Email, string Password, string RePassword, string Role);
+        public sealed record Response(string Message);
 
-        public async Task<string> RegisterClient(Request request)
+        public async Task<Response> RegisterClient(Request request)
         {
             string validation = await ValidateRequest(request);
             if (validation != "OK")
@@ -42,15 +35,16 @@ namespace backend.Auth
                 Phone = request.Phone,
                 Email = request.Email,
                 Password = _passwordHasher.HashPassword(request.Password),
+                CreatedAt = DateTime.Today,
                 Role = request.Role == "ADMIN" ? Role.ADMIN : request.Role == "EMPLOYEE" ? Role.EMPLOYEE : Role.CLIENT,
                 Wallet = request.Role == "CLIENT" ? 0.0 : null
             };
 
             await _usersService.AddUser(user);
 
-            var token = _tokenProvider.Create(user);
+            //var token = _tokenProvider.Create(user);
 
-            return token;
+            return new Response("Success! You can now log in");
         }
 
         private async Task<string> ValidateRequest(Request request)
@@ -70,14 +64,14 @@ namespace backend.Auth
             if (!IsValidEmail(request.Email))
                 return "Invalid email address.";
 
-            if (await _usersService.IsEmailTaken(request.Email))
-                return "Provided email is taken.";
-
             if (request.Password.Length < 8)
                 return "Password must be at least 8 characters long.";
 
             if (!Regex.IsMatch(request.Password, @"^(?=.*[A-Za-z])(?=.*\d).+$"))
                 return "Password must contain both letters and numbers.";
+
+            if (request.Password != request.RePassword)
+                return "Passwords do not match.";
 
             return "OK";
         }
