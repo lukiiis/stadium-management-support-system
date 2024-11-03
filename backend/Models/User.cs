@@ -22,5 +22,8 @@
         //foreign keys
         public int? AddressId { get; set; }
         public Address? Address { get; set; }
+
+        public ICollection<UserTournament> UserTournaments { get; set; }
+        public ICollection<Reservation> Reservations { get; set; }
     }
 }
