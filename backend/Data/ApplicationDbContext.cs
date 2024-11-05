@@ -134,5 +134,6 @@ namespace backend.Data
                 eb.Property(u => u.ObjectId).HasColumnName("object_id").IsRequired();
             });
         }
+        public DbSet<backend.Models.Tournament> Tournament { get; set; } = default!;
     }
 }

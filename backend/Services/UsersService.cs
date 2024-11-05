@@ -13,14 +13,9 @@ namespace backend.Services
         Task AddUser(User user);
     }
 
-    public class UsersService : IUsersService
+    public class UsersService(ApplicationDbContext context) : IUsersService
     {
-        private readonly ApplicationDbContext _context;
-
-        public UsersService(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        private readonly ApplicationDbContext _context = context;
 
         public async Task AddUser(User user)
         {

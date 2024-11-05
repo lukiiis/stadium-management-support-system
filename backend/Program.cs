@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using backend.Extensions;
+using System.Text.Json;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,12 +21,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddSingleton<TokenProvider>();
 builder.Services.AddSingleton<PasswordHasher>();
 
-//for endpoint authentication etc
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminOnly", policy => policy.RequireRole("ADMIN"))
-    .AddPolicy("ClientOnly", policy => policy.RequireRole("CLIENT"))
-    .AddPolicy("EmployeeOnly", policy => policy.RequireRole("EMPLOYEE"));
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
@@ -35,8 +31,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ClockSkew = TimeSpan.Zero,
+            ValidateLifetime = true
         };
     });
+
+//for endpoint authentication etc
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("ADMIN"))
+    .AddPolicy("ClientOnly", policy => policy.RequireRole("CLIENT"))
+    .AddPolicy("EmployeeOnly", policy => policy.RequireRole("EMPLOYEE"))
+    .AddPolicy("AuthorizedOnly", policy => policy.RequireRole("EMPLOYEE", "ADMIN", "CLIENT"));
 
 builder.Services.AddCors(options =>
 {
@@ -49,8 +53,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<LoginUser>();
 builder.Services.AddScoped<RegisterUser>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IReservationsService, ReservationsService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    //nice way to avoid cycles in responses, but records are better i think
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGenWithAuth();
 

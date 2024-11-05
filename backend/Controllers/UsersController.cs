@@ -1,33 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using backend.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using backend.Auth;
-using backend.Models;
 using backend.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider) : ControllerBase
     {
-        private readonly IUsersService _usersService;
-        private readonly LoginUser _loginUser;
-        private readonly RegisterUser _registerUser;
-
-        public UsersController(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider)
-        {
-            _usersService = usersService;
-            _loginUser = new LoginUser(usersService, passwordHasher, tokenProvider);
-            _registerUser = new RegisterUser(usersService, passwordHasher, tokenProvider);
-        }
+        private readonly IUsersService _usersService = usersService;
+        private readonly LoginUser _loginUser = new(usersService, passwordHasher, tokenProvider);
+        private readonly RegisterUser _registerUser = new(usersService, passwordHasher, tokenProvider);
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUser.Request request)
