@@ -1,4 +1,6 @@
-﻿using backend.Data;
+﻿using AutoMapper;
+using backend.Data;
+using backend.DTOs;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,28 +8,32 @@ namespace backend.Services
 {
     public interface IReservationsService
     {
-        Task<Reservation?> GetReservationsByIdAsync(int reservationId);
-        Task<IEnumerable<Reservation>?> GetReservationsByUserIdAsync(int userId);
+        Task<ReservationDto?> GetReservationsByIdAsync(int reservationId);
+        Task<IEnumerable<ReservationDto>?> GetReservationsByUserIdAsync(int userId);
     }
 
-    public class ReservationsService(ApplicationDbContext context) : IReservationsService
+    public class ReservationsService(ApplicationDbContext context, IMapper mapper) : IReservationsService
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
-        public async Task<IEnumerable<Reservation>?> GetReservationsByUserIdAsync(int userId)
+        public async Task<IEnumerable<ReservationDto>?> GetReservationsByUserIdAsync(int userId)
         {
-            return await _context.Set<Reservation>()
+            var reservations = await _context.Set<Reservation>()
                 .Where(r => r.UserId == userId)
                 .ToListAsync();
+
+            return _mapper.Map<IEnumerable<ReservationDto>>(reservations);
         }
-        public async Task<Reservation?> GetReservationsByIdAsync(int reservationId)
+        public async Task<ReservationDto?> GetReservationsByIdAsync(int reservationId)
         {
             var reservation = await _context.Set<Reservation>()
                 .Include(r => r.ObjectType)
+                .Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
               
 
-            return reservation ?? throw new Exception("Reservation does not exist");
+            return _mapper.Map<ReservationDto>(reservation) ?? throw new Exception("Reservation does not exist");
         }
     }
 }
