@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using backend.Data;
-using backend.DTOs;
+using backend.DTOs.Reservation;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 

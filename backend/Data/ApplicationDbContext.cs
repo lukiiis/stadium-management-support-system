@@ -12,6 +12,11 @@ namespace backend.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<ObjectType> ObjectTypes { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<ReservationTimesheet> ReservationTimesheets { get; set; }
+        public DbSet<Tournament> Tournaments { get; set; }
+        public DbSet<UserTournament> UsersTournaments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

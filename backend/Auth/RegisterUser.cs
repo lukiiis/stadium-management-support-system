@@ -5,18 +5,11 @@ using System.Text.RegularExpressions;
 
 namespace backend.Auth
 {
-    public sealed class RegisterUser
+    public sealed class RegisterUser(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider)
     {
-        private readonly IUsersService _usersService;
-        private readonly PasswordHasher _passwordHasher;
-        private readonly TokenProvider _tokenProvider;
-
-        public RegisterUser(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider)
-        {
-            _usersService = usersService;
-            _passwordHasher = passwordHasher;
-            _tokenProvider = tokenProvider;
-        }
+        private readonly IUsersService _usersService = usersService;
+        private readonly PasswordHasher _passwordHasher = passwordHasher;
+        private readonly TokenProvider _tokenProvider = tokenProvider;
 
         public sealed record Request(string FirstName, string LastName, int Age, int Phone, string Email, string Password, string RePassword, string Role);
         public sealed record Response(string Message);

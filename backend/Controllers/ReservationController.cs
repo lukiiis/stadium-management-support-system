@@ -47,5 +47,8 @@ namespace backend.Controllers
                 return NotFound(new { Error = ex.Message });
             }
         }
+
+        //create reservation (endpoint for clients)
+
     }
 }

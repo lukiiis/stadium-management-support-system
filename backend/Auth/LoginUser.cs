@@ -3,18 +3,11 @@ using backend.Services;
 
 namespace backend.Auth
 {
-    public sealed class LoginUser
+    public sealed class LoginUser(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider)
     {
-        private readonly IUsersService _usersService;
-        private readonly PasswordHasher _passwordHasher;
-        private readonly TokenProvider _tokenProvider;
-
-        public LoginUser(IUsersService usersService, PasswordHasher passwordHasher, TokenProvider tokenProvider)
-        {
-            _usersService = usersService;
-            _passwordHasher = passwordHasher;
-            _tokenProvider = tokenProvider;
-        }
+        private readonly IUsersService _usersService = usersService;
+        private readonly PasswordHasher _passwordHasher = passwordHasher;
+        private readonly TokenProvider _tokenProvider = tokenProvider;
 
         public sealed record Response(string FirstName, string LastName, string Role, string Token, string Message);
         public sealed record Request(string Email, string Password);
