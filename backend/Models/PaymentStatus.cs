@@ -2,7 +2,6 @@
 {
     public enum PaymentStatus
     {
-        OPEN,
         CANCELED,
         FAILED,
         PAID,

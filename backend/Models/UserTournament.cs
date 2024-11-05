@@ -9,6 +9,6 @@
         public Tournament Tournament { get; set; }
 
         public PaymentStatus PaymentStatus { get; set; }
-        public DateTime JoinedAt { get; set; }
+        public DateTime? JoinedAt { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend.Data;
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241105151622_Adds Reservations, ReservationTimesheets, ObjectType, Tournament, UserTournament tables")]
+    partial class AddsReservationsReservationTimesheetsObjectTypeTournamentUserTournamenttables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,6 +107,9 @@ namespace backend.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("object_id");
 
+                    b.Property<int>("ObjectTypeObjectId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
                         .HasColumnType("text")
@@ -137,7 +143,7 @@ namespace backend.Migrations
 
                     b.HasKey("ReservationId");
 
-                    b.HasIndex("ObjectId");
+                    b.HasIndex("ObjectTypeObjectId");
 
                     b.HasIndex("UserId");
 
@@ -165,13 +171,16 @@ namespace backend.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("object_id");
 
+                    b.Property<int>("ObjectTypeObjectId")
+                        .HasColumnType("integer");
+
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time")
                         .HasColumnName("start_time");
 
                     b.HasKey("TimesheetId");
 
-                    b.HasIndex("ObjectId");
+                    b.HasIndex("ObjectTypeObjectId");
 
                     b.ToTable("reservation_timesheets", (string)null);
                 });
@@ -300,14 +309,10 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.UserTournament", b =>
                 {
                     b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("TournamentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("tournament_id");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("JoinedAt")
                         .ValueGeneratedOnAdd()
@@ -331,7 +336,7 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Models.ObjectType", "ObjectType")
                         .WithMany("Reservations")
-                        .HasForeignKey("ObjectId")
+                        .HasForeignKey("ObjectTypeObjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -350,7 +355,7 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Models.ObjectType", "ObjectType")
                         .WithMany("ReservationTimesheets")
-                        .HasForeignKey("ObjectId")
+                        .HasForeignKey("ObjectTypeObjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
