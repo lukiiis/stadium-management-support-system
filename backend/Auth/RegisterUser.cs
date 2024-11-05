@@ -1,4 +1,5 @@
-﻿using backend.Models;
+﻿using backend.Enums;
+using backend.Models;
 using backend.Services;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -30,7 +31,8 @@ namespace backend.Auth
                 Password = _passwordHasher.HashPassword(request.Password),
                 CreatedAt = DateTime.Today,
                 Role = request.Role == "ADMIN" ? Role.ADMIN : request.Role == "EMPLOYEE" ? Role.EMPLOYEE : Role.CLIENT,
-                Wallet = request.Role == "CLIENT" ? 0.0 : null
+                Wallet = request.Role == "CLIENT" ? 0.0 : null,
+                Enabled = true
             };
 
             await _usersService.AddUser(user);

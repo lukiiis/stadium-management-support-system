@@ -1,4 +1,6 @@
-﻿namespace backend.Models
+﻿using backend.Enums;
+
+namespace backend.Models
 {
     public class User
     {
@@ -11,6 +13,7 @@
         public string Password { get; set; }
         public Role Role { get; set; }
         public DateTime? CreatedAt { get; set; }
+        public bool? Enabled { get; set; }
         
         //only client
         public double? Wallet {  get; set; }

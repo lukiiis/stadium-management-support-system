@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using backend.DTOs.Tournament;
 using backend.Services;
+using Humanizer;
 
 namespace backend.Controllers
 {
@@ -24,6 +25,22 @@ namespace backend.Controllers
                 await _tournamentsService.CreateTournament(dto);
 
                 return Ok("Tournament created successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        //get all tournaments
+        [HttpGet]
+        public async Task<IActionResult> GetAllTournaments()
+        {
+            try 
+            {
+                var tournaments = await _tournamentsService.GetAllTournaments();
+
+                return Ok(tournaments);
             }
             catch (Exception ex)
             {

@@ -38,6 +38,7 @@ namespace backend.Data
                 eb.Property(u => u.Wallet).HasColumnName("wallet").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Salary).HasColumnName("salary").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Position).HasColumnName("position").HasMaxLength(100);
+                eb.Property(u => u.Enabled).HasConversion<bool>().HasColumnName("enabled").HasDefaultValue(true);
                 eb.Property(u => u.AddressId).HasColumnName("address_id");
             });
 
@@ -139,6 +140,5 @@ namespace backend.Data
                 eb.Property(u => u.ObjectId).HasColumnName("object_id").IsRequired();
             });
         }
-        public DbSet<backend.Models.Tournament> Tournament { get; set; } = default!;
     }
 }
