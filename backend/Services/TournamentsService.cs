@@ -9,7 +9,7 @@ namespace backend.Services
 {
     public interface ITournamentsService
     {
-        Task CreateTournament(TournamentCreateDto dto);
+        Task CreateTournament(CreateTournamentDto dto);
         Task<IEnumerable<TournamentDto>> GetAllTournaments();
     }
 
@@ -18,7 +18,7 @@ namespace backend.Services
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task CreateTournament(TournamentCreateDto dto)
+        public async Task CreateTournament(CreateTournamentDto dto)
         {
             var tournament = _mapper.Map<Tournament>(dto);
 

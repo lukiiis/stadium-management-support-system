@@ -11,6 +11,7 @@ namespace backend.Services
         Task<bool> IsEmailTaken(string email);
         Task<bool> IsPhoneTaken(int phone);
         Task AddUser(User user);
+        Task<User?> GetUserById(int id);
     }
 
     public class UsersService(ApplicationDbContext context) : IUsersService
@@ -39,6 +40,11 @@ namespace backend.Services
         {
             return await _context.Set<User>()
                 .AnyAsync(u => u.Phone == phone);
+        }
+        public async Task<User?> GetUserById(int id)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == id);
         }
     }
 }

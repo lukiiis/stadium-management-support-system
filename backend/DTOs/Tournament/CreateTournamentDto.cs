@@ -1,6 +1,6 @@
 ﻿namespace backend.DTOs.Tournament
 {
-    public class TournamentCreateDto
+    public class CreateTournamentDto
     {
         public string Sport { get; set; }
         public int MaxSlots { get; set; }

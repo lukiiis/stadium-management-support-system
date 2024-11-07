@@ -15,7 +15,7 @@ namespace backend.Controllers
         //add tournament by an employee
         [HttpPost("create")]
         [Authorize(Policy = "EmployeeOnly")]
-        public async Task<IActionResult> CreateTournament(TournamentCreateDto dto)
+        public async Task<IActionResult> CreateTournament(CreateTournamentDto dto)
         {
             try
             {

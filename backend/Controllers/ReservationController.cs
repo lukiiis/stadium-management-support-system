@@ -1,4 +1,5 @@
 ﻿using backend.Auth;
+using backend.DTOs.Reservation;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,19 @@ namespace backend.Controllers
         }
 
         //create reservation (endpoint for clients)
-
+        [HttpPost("create")]
+        //[Authorize(Policy = "AuthorizedOnly")]
+        public async Task<IActionResult> CreateReservation(CreateReservationDto dto)
+        {
+            try
+            {
+                var status = await _reservationsService.CreateReservation(dto);
+                return Ok(status);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
     }
 }

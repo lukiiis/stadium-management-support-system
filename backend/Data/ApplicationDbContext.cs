@@ -34,7 +34,7 @@ namespace backend.Data
                 eb.Property(u => u.Email).HasColumnName("email").HasMaxLength(200).IsRequired();
                 eb.Property(u => u.Password).HasColumnName("password").HasMaxLength(250).IsRequired();
                 eb.Property(u => u.Role).HasConversion<string>().HasColumnName("role").IsRequired();
-                eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date").HasDefaultValue(DateTime.Today);
+                eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date").HasDefaultValue(DateTime.UtcNow);
                 eb.Property(u => u.Wallet).HasColumnName("wallet").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Salary).HasColumnName("salary").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Position).HasColumnName("position").HasMaxLength(100);
@@ -75,7 +75,7 @@ namespace backend.Data
                 eb.Property(ut => ut.UserId).HasColumnName("user_id").ValueGeneratedOnAdd();
                 eb.Property(ut => ut.TournamentId).HasColumnName("tournament_id").ValueGeneratedOnAdd();
                 eb.Property(ut => ut.PaymentStatus).HasConversion<string>().HasColumnName("payment_status").IsRequired();
-                eb.Property(ut => ut.JoinedAt).HasColumnType("timestamp").HasColumnName("joined_at").HasDefaultValue(DateTime.Today);
+                eb.Property(ut => ut.JoinedAt).HasColumnType("timestamp").HasColumnName("joined_at").HasDefaultValue(DateTime.UtcNow);
             });
 
             modelBuilder.Entity<Tournament>(eb =>
@@ -87,7 +87,7 @@ namespace backend.Data
                 eb.Property(a => a.Sport).HasColumnName("sport").HasMaxLength(250).IsRequired();
                 eb.Property(a => a.MaxSlots).HasColumnName("max_slots").IsRequired();
                 eb.Property(a => a.OccupiedSlots).HasColumnName("occupied_slots").HasDefaultValue(0);
-                eb.Property(ut => ut.StartDate).HasColumnType("timestamp").HasColumnName("start_date").HasDefaultValue(DateTime.Today);
+                eb.Property(ut => ut.StartDate).HasColumnType("timestamp").HasColumnName("start_date").HasDefaultValue(DateTime.UtcNow);
                 eb.Property(a => a.Description).HasColumnName("description").HasMaxLength(2000).IsRequired();
             });
 
@@ -101,7 +101,7 @@ namespace backend.Data
                 eb.Property(u => u.ReservationEnd).HasColumnName("reservation_end").HasColumnType("time").IsRequired();
                 eb.Property(u => u.ReservationDate).HasColumnName("reservation_date").HasColumnType("date").IsRequired();
                 eb.Property(ut => ut.PaymentStatus).HasConversion<string>().HasColumnName("payment_status").IsRequired();
-                eb.Property(u => u.ReservedAt).HasColumnName("reserved_at").HasColumnType("timestamp").HasDefaultValue(DateTime.Today);
+                eb.Property(u => u.ReservedAt).HasColumnName("reserved_at").HasColumnType("timestamp").HasDefaultValue(DateTime.UtcNow);
                 eb.Property(ut => ut.Price).HasColumnName("price").HasColumnType("decimal(12,2)").IsRequired();
 
                 eb.HasOne(r => r.ObjectType)
