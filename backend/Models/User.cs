@@ -22,7 +22,7 @@ namespace backend.Models
         public string? Position {  get; set; }
         public double? Salary { get; set; }
 
-        //foreign keys
+        //only user
         public int? AddressId { get; set; }
         public Address? Address { get; set; }
 

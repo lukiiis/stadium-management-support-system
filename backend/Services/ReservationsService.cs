@@ -37,17 +37,29 @@ namespace backend.Services
             return _mapper.Map<ReservationDto>(reservation) ?? throw new Exception("Reservation does not exist");
         }
 
+        public async Task<IEnumerable<Reservation>> GetReservationsByDateAndObject(DateOnly date, int objectId)
+        {
+            return await _context.Reservations
+                .Where(r => r.ReservationDate == date)
+                .Where(r => r.ObjectId == objectId)
+                .ToListAsync();
+        }
+
+        //creating valid reservation
         public async Task<string> CreateReservation(CreateReservationDto dto)
         {
             var reservation = _mapper.Map<Reservation>(dto);
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserId == dto.UserId) ?? throw new Exception("User not found.");
+                .FirstOrDefaultAsync(u => u.UserId == dto.UserId) ?? throw new Exception("User not found");
             var objectType = await _context.ObjectTypes
-                .FirstOrDefaultAsync(ot => ot.ObjectId == dto.ObjectId) ?? throw new Exception("Object not found.");
+                .FirstOrDefaultAsync(ot => ot.ObjectId == dto.ObjectId) ?? throw new Exception("Object not found");
 
-            //todo if user is not a CLIENT, he cant reserve
-            
-            //todo CHECK IF THERE IS ALREADY A RESERVATION FOR THESE HOURS (GET RESERVATIONS BY DAY AND OBJECT)
+            if (user.Role != Enums.Role.CLIENT)
+                throw new Exception("User must be a Client to create reservation");
+
+            //CHECK IF THERE IS ALREADY A RESERVATION FOR THESE HOURS (GET RESERVATIONS BY DAY AND OBJECT)
+            if (await IsReservationDurationCorrect(dto.ReservationDate, dto.ReservationStart, dto.ReservationEnd, objectType.ObjectId) == false)
+                throw new Exception("Reservation hours intercept with each other, please change reservation hours");
 
             reservation.ObjectType = objectType;
             reservation.User = user;
@@ -57,13 +69,26 @@ namespace backend.Services
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
 
-            return "Reservation created successfully.";
+            return "Reservation created successfully";
         }
 
-        public bool IsReservationDurationCorrect(DateOnly date, TimeOnly start, TimeOnly end, int objectId)
+        public async Task<bool> IsReservationDurationCorrect(DateOnly date, TimeOnly resStart, TimeOnly resEnd, int objectId)
         {
-            // check if hours are ok and not overlapping with already in database
-            return false;
+            var reservations = await GetReservationsByDateAndObject(date, objectId);
+            var timesheet = await _context.ReservationTimesheets
+                .Where(rt => rt.Date == date)
+                .Where(rt => rt.ObjectId == objectId)
+                .FirstAsync();
+
+            if (resStart < timesheet.StartTime || resStart > timesheet.EndTime || resEnd < timesheet.StartTime || resEnd > timesheet.EndTime)
+                throw new Exception("Reservation hours do not contain in timesheet");
+
+            foreach (var reservation in reservations)
+            {
+                if (resStart < reservation.ReservationEnd && resEnd > reservation.ReservationStart)
+                    return false;
+            }
+            return true;
         }
     }
 }

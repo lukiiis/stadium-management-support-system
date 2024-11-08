@@ -51,7 +51,7 @@ namespace backend.Controllers
 
         //create reservation (endpoint for clients)
         [HttpPost("create")]
-        //[Authorize(Policy = "AuthorizedOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> CreateReservation(CreateReservationDto dto)
         {
             try
