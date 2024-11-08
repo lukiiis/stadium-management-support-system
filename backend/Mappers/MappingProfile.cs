@@ -21,12 +21,12 @@ namespace backend.Mappers
                 .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
             CreateMap<CreateReservationDto, Reservation>();
 
-
             CreateMap<Address, AddressDto>();
 
             CreateMap<ObjectType, ObjectTypeDto>();
 
-            CreateMap<ReservationTimesheet, ReservationTimesheetDto>();     
+            CreateMap<ReservationTimesheet, ReservationTimesheetDto>();
+            CreateMap<CreateReservationTimesheetDto, ReservationTimesheet>();
 
             CreateMap<User, UserDto>()
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));

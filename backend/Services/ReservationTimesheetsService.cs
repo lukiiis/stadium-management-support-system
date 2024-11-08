@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend.Data;
+using backend.DTOs.ReservationTimesheet;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace backend.Services
         Task<List<ReservationTimesheet>> GetTimesheetsByDateRangeAndObjectId(DateOnly startDate, DateOnly endDate, int objectId);
         Task<ReservationTimesheet?> GetTimesheetByDateAndObjectId(DateOnly date, int objectId);
         Task CreateTimesheetsForDateRangeAndObjectIdAndFlag(DateOnly startDate, DateOnly endDate, int objectId);
+        Task CreateReservationTimesheet(CreateReservationTimesheetDto dto);
     }
 
     public class ReservationTimesheetsService(ApplicationDbContext context, IMapper mapper) : IReservationTimesheetsService
@@ -51,6 +53,11 @@ namespace backend.Services
 
             await _context.ReservationTimesheets.AddRangeAsync(timesheets);
             await _context.SaveChangesAsync();
+        }
+
+        public Task CreateReservationTimesheet(CreateReservationTimesheetDto dto)
+        {
+            throw new NotImplementedException();
         }
     }
 }
