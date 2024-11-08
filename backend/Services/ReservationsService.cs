@@ -11,11 +11,13 @@ namespace backend.Services
         Task<string> CreateReservation(CreateReservationDto dto);
         Task<ReservationDto?> GetReservationsByIdAsync(int reservationId);
         Task<IEnumerable<ReservationDto>?> GetReservationsByUserIdAsync(int userId);
+        Task<IEnumerable<Reservation>> GetReservationsByDateAndObject(DateOnly date, int objectId);
     }
 
-    public class ReservationsService(ApplicationDbContext context, IMapper mapper) : IReservationsService
+    public class ReservationsService(IReservationTimesheetsService reservationTimesheetsService, ApplicationDbContext context, IMapper mapper) : IReservationsService
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IReservationTimesheetsService _reservationTimesheetsService = reservationTimesheetsService;
         private readonly IMapper _mapper = mapper;
 
         public async Task<IEnumerable<ReservationDto>?> GetReservationsByUserIdAsync(int userId)
@@ -48,6 +50,18 @@ namespace backend.Services
         //creating valid reservation
         public async Task<string> CreateReservation(CreateReservationDto dto)
         {
+            //check if there is timesheet for this date
+            var timesheet = await _reservationTimesheetsService.GetTimesheetByDateAndObjectId(dto.ReservationDate, dto.ObjectId);
+            if (timesheet == null)
+                throw new Exception("There is no timesheet for that date, try again later");
+
+            if(timesheet.IsTournament == true)
+                throw new Exception("There is tournament on that day, please choose different date");
+
+            //CHECK IF THERE IS ALREADY A RESERVATION FOR THESE HOURS (GET RESERVATIONS BY DAY AND OBJECT)
+            if (await IsReservationDurationCorrect(dto.ReservationDate, dto.ReservationStart, dto.ReservationEnd, dto.ObjectId) == false)
+                throw new Exception("Reservation hours intercept with each other, please change reservation hours");
+
             var reservation = _mapper.Map<Reservation>(dto);
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserId == dto.UserId) ?? throw new Exception("User not found");
@@ -56,10 +70,6 @@ namespace backend.Services
 
             if (user.Role != Enums.Role.CLIENT)
                 throw new Exception("User must be a Client to create reservation");
-
-            //CHECK IF THERE IS ALREADY A RESERVATION FOR THESE HOURS (GET RESERVATIONS BY DAY AND OBJECT)
-            if (await IsReservationDurationCorrect(dto.ReservationDate, dto.ReservationStart, dto.ReservationEnd, objectType.ObjectId) == false)
-                throw new Exception("Reservation hours intercept with each other, please change reservation hours");
 
             reservation.ObjectType = objectType;
             reservation.User = user;

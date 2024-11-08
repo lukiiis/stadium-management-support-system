@@ -34,7 +34,7 @@ namespace backend.Data
                 eb.Property(u => u.Email).HasColumnName("email").HasMaxLength(200).IsRequired();
                 eb.Property(u => u.Password).HasColumnName("password").HasMaxLength(250).IsRequired();
                 eb.Property(u => u.Role).HasConversion<string>().HasColumnName("role").IsRequired();
-                eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date").HasDefaultValue(DateTime.UtcNow);
+                eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date").HasDefaultValueSql("CURRENT_DATE");
                 eb.Property(u => u.Wallet).HasColumnName("wallet").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Salary).HasColumnName("salary").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Position).HasColumnName("position").HasMaxLength(100);
@@ -75,7 +75,7 @@ namespace backend.Data
                 eb.Property(ut => ut.UserId).HasColumnName("user_id").ValueGeneratedOnAdd();
                 eb.Property(ut => ut.TournamentId).HasColumnName("tournament_id").ValueGeneratedOnAdd();
                 eb.Property(ut => ut.PaymentStatus).HasConversion<string>().HasColumnName("payment_status").IsRequired();
-                eb.Property(ut => ut.JoinedAt).HasColumnType("timestamp").HasColumnName("joined_at").HasDefaultValue(DateTime.UtcNow);
+                eb.Property(ut => ut.JoinedAt).HasColumnType("timestamp").HasColumnName("joined_at").HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
             modelBuilder.Entity<Tournament>(eb =>
@@ -87,8 +87,15 @@ namespace backend.Data
                 eb.Property(a => a.Sport).HasColumnName("sport").HasMaxLength(250).IsRequired();
                 eb.Property(a => a.MaxSlots).HasColumnName("max_slots").IsRequired();
                 eb.Property(a => a.OccupiedSlots).HasColumnName("occupied_slots").HasDefaultValue(0);
-                eb.Property(ut => ut.StartDate).HasColumnType("timestamp").HasColumnName("start_date").HasDefaultValue(DateTime.UtcNow);
+                eb.Property(ut => ut.StartDate).HasColumnType("date").HasColumnName("start_date").IsRequired();
+                eb.Property(ut => ut.EndDate).HasColumnType("date").HasColumnName("end_date").IsRequired();
                 eb.Property(a => a.Description).HasColumnName("description").HasMaxLength(2000).IsRequired();
+
+                eb.HasOne(r => r.ObjectType)
+                    .WithMany(ot => ot.Tournaments)
+                    .HasForeignKey(r => r.ObjectId);
+
+                eb.Property(u => u.ObjectId).HasColumnName("object_id").IsRequired();
             });
 
             modelBuilder.Entity<Reservation>(eb =>
@@ -101,7 +108,7 @@ namespace backend.Data
                 eb.Property(u => u.ReservationEnd).HasColumnName("reservation_end").HasColumnType("time").IsRequired();
                 eb.Property(u => u.ReservationDate).HasColumnName("reservation_date").HasColumnType("date").IsRequired();
                 eb.Property(ut => ut.PaymentStatus).HasConversion<string>().HasColumnName("payment_status").IsRequired();
-                eb.Property(u => u.ReservedAt).HasColumnName("reserved_at").HasColumnType("timestamp").HasDefaultValue(DateTime.UtcNow);
+                eb.Property(u => u.ReservedAt).HasColumnName("reserved_at").HasColumnType("timestamp").HasDefaultValueSql("CURRENT_TIMESTAMP");
                 eb.Property(ut => ut.Price).HasColumnName("price").HasColumnType("decimal(12,2)").IsRequired();
 
                 eb.HasOne(r => r.ObjectType)
@@ -132,6 +139,7 @@ namespace backend.Data
                 eb.Property(u => u.Date).HasColumnName("date").HasColumnType("date").IsRequired();
                 eb.Property(u => u.StartTime).HasColumnName("start_time").HasColumnType("time").IsRequired();
                 eb.Property(u => u.EndTime).HasColumnName("end_time").HasColumnType("time").IsRequired();
+                eb.Property(u => u.IsTournament).HasConversion<bool>().HasColumnName("is_tournament").HasDefaultValue(false);
 
                 eb.HasOne(rt => rt.ObjectType)
                     .WithMany(ot => ot.ReservationTimesheets)

@@ -51,11 +51,13 @@ namespace backend.Controllers
 
         //create reservation (endpoint for clients)
         [HttpPost("create")]
-        [Authorize(Policy = "ClientOnly")]
+        //[Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> CreateReservation(CreateReservationDto dto)
         {
             try
             {
+                //add token extraction and send the Id to the function (only for prod)
+
                 var status = await _reservationsService.CreateReservation(dto);
                 return Ok(status);
             }

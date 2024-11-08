@@ -8,6 +8,7 @@
         public string? ImageUrl { get; set; }
 
         public ICollection<Reservation> Reservations { get; set; }
+        public ICollection<Tournament> Tournaments { get; set; }
         public ICollection<ReservationTimesheet> ReservationTimesheets { get; set; } 
     }
 }
