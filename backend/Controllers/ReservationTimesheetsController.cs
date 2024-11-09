@@ -12,7 +12,7 @@ namespace backend.Controllers
         private readonly IReservationTimesheetsService _reservationTimesheetsService = reservationTimesheetsService;
 
         [HttpPost("create")]
-        [Authorize(Policy = "EmployeeOnly")]
+        //[Authorize(Policy = "EmployeeOnly")]
         public async Task<IActionResult> CreateReservationTimesheet(CreateReservationTimesheetDto dto)
         {
             try

@@ -55,9 +55,17 @@ namespace backend.Services
             await _context.SaveChangesAsync();
         }
 
-        public Task CreateReservationTimesheet(CreateReservationTimesheetDto dto)
+        public async Task CreateReservationTimesheet(CreateReservationTimesheetDto dto)
         {
-            throw new NotImplementedException();
+            var timesheet = await GetTimesheetByDateAndObjectId(dto.Date, dto.ObjectId);
+            if (timesheet != null)
+                throw new Exception("There is already a timesheet for this day");
+
+            var timesheetToAdd = _mapper.Map<ReservationTimesheet>(dto);
+            timesheetToAdd.IsTournament = false;
+
+            await _context.ReservationTimesheets.AddAsync(timesheetToAdd);
+            await _context.SaveChangesAsync();
         }
     }
 }
