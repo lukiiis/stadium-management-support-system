@@ -66,5 +66,33 @@ namespace backend.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpGet("reservation-schedule-day")]
+        public async Task<IActionResult> GetFreeAndReservedHours([FromQuery] DateOnly date, [FromQuery] int objectId)
+        {
+            try
+            {
+                var result = await _reservationsService.GetReservationScheduleForOneDay(date, objectId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("reservation-schedule-week")]
+        public async Task<IActionResult> GetWeeklyTimesheets([FromQuery] DateOnly startDate, [FromQuery] int objectId)
+        {
+            try
+            {
+                var timesheets = await _reservationsService.GetReservationScheduleForOneWeek(startDate, objectId);
+                return Ok(timesheets);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

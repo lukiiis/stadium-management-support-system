@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
 {
-    public sealed record FreeReservedHoursDto(List<TimeOnly> FreeHours, List<TimeOnly> ReservedHours);
+    //public sealed record FreeReservedHoursDto(List<TimeOnly> FreeHours, List<TimeOnly> ReservedHours, TimeOnly ReservationsStart, TimeOnly ReservationsEnd, int);
 
     public interface IReservationsService
     {
@@ -14,7 +14,8 @@ namespace backend.Services
         Task<ReservationDto?> GetReservationsByIdAsync(int reservationId);
         Task<IEnumerable<ReservationDto>?> GetReservationsByUserIdAsync(int userId);
         Task<IEnumerable<Reservation>> GetReservationsByDateAndObject(DateOnly date, int objectId);
-        Task<FreeReservedHoursDto> GetFreeAndReservedHoursByDayAndObjectId(DateOnly date, int ObjectId);
+        Task<GetReservationListsDto> GetReservationScheduleForOneDay(DateOnly date, int ObjectId);
+        Task<List<GetReservationListsDto>> GetReservationScheduleForOneWeek(DateOnly startDate, int objectId);
     }
 
     public class ReservationsService(IReservationTimesheetsService reservationTimesheetsService, ApplicationDbContext context, IMapper mapper) : IReservationsService
@@ -23,14 +24,22 @@ namespace backend.Services
         private readonly IReservationTimesheetsService _reservationTimesheetsService = reservationTimesheetsService;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<FreeReservedHoursDto> GetFreeAndReservedHoursByDayAndObjectId(DateOnly date, int objectId)
+        public async Task<GetReservationListsDto> GetReservationScheduleForOneDay(DateOnly date, int objectId)
         {
-            var timesheet = await _reservationTimesheetsService.GetTimesheetByDateAndObjectId(date, objectId);
-            if (timesheet == null)
-                throw new Exception("There is no timesheet for that date, specify another date");
+            var timesheet = await _reservationTimesheetsService.GetTimesheetByDateAndObjectId(date, objectId) ?? throw new Exception("There is no timesheet for that date, specify another date");
 
             List<TimeOnly> reservedHours = [];
             List<TimeOnly> freeHours = [];
+
+            if(timesheet.IsTournament == true)
+                return new GetReservationListsDto
+                {
+                    ReservedHours = reservedHours,
+                    FreeHours = freeHours,
+                    ReservationsStart = timesheet.StartTime,
+                    ReservationsEnd = timesheet.EndTime,
+                    IsTournament = true
+                };
 
             var reservations = await GetReservationsByDateAndObject(date, objectId);
             if (reservations == null) //every hour is free
@@ -39,12 +48,58 @@ namespace backend.Services
                 {
                     freeHours.Add(hour);
                 }
+                return new GetReservationListsDto
+                {
+                    ReservedHours = reservedHours,
+                    FreeHours = freeHours,
+                    ReservationsStart = timesheet.StartTime,
+                    ReservationsEnd = timesheet.EndTime,
+                    IsTournament = false
+                };
             }
 
-            //todo
+            // counting reserved hours
+            foreach (var reservation in reservations)
+            {
+                var hour = reservation.ReservationStart;
+                while (hour < reservation.ReservationEnd)
+                {
+                    reservedHours.Add(hour);
+                    hour = hour.AddHours(1);
+                }
+            }
 
+            // counting free hours
+            for (var hour = timesheet.StartTime; hour < timesheet.EndTime; hour = hour.AddHours(1))
+            {
+                if (!reservedHours.Contains(hour))
+                {
+                    freeHours.Add(hour);
+                }
+            }
 
-            return new FreeReservedHoursDto(reservedHours, freeHours);
+            return new GetReservationListsDto
+            {
+                ReservedHours = reservedHours,
+                FreeHours = freeHours,
+                ReservationsStart = timesheet.StartTime,
+                ReservationsEnd = timesheet.EndTime,
+                IsTournament = false
+            };
+        }
+
+        public async Task<List<GetReservationListsDto>> GetReservationScheduleForOneWeek(DateOnly startDate, int objectId)
+        {
+            var timesheets = new List<GetReservationListsDto>();
+
+            for (var i = 0; i < 7; i++)
+            {
+                var date = startDate.AddDays(i);
+                var timesheet = await GetReservationScheduleForOneDay(date, objectId);
+                timesheets.Add(timesheet);
+            }
+
+            return timesheets;
         }
 
         //creating valid reservation
