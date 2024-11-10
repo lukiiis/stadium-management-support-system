@@ -32,6 +32,36 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPost("join")]
+        //[Authorize(Policy = "ClientOnly")]
+        public async Task<IActionResult> JoinTournament([FromBody] JoinTournamentDto dto)
+        {
+            try
+            {
+                await _tournamentsService.JoinTournamentAsync(dto);
+                return Ok(new { message = "User successfully joined the tournament." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpDelete("leave")]
+        //[Authorize(Policy = "ClientOnly")]
+        public async Task<IActionResult> RemoveUserFromTournament([FromQuery] int tournamentId, [FromQuery] int userId)
+        {
+            try
+            {
+                await _tournamentsService.LeaveTournamentAsync(userId, tournamentId);
+                return Ok(new { Message = "User has successfully left the tournament." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         //get all tournaments
         [HttpGet]
         public async Task<IActionResult> GetAllTournaments()
