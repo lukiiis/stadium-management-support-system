@@ -7,6 +7,8 @@ namespace backend.Services
 {
     public interface IUsersService
     {
+        Task BlockUserAsync(int userId);
+        Task UnblockUserAsync(int userId);
         Task<User?> GetUserByEmail(string email);
         Task<bool> IsEmailTaken(string email);
         Task<bool> IsPhoneTaken(int phone);
@@ -17,6 +19,28 @@ namespace backend.Services
     public class UsersService(ApplicationDbContext context) : IUsersService
     {
         private readonly ApplicationDbContext _context = context;
+
+        public async Task BlockUserAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (user.Enabled == false) throw new Exception("User is already blocked");
+
+            user.Enabled = false;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UnblockUserAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (user.Enabled == true) throw new Exception("User is already unblocked");
+
+            user.Enabled = true;
+            await _context.SaveChangesAsync();
+        }
 
         public async Task AddUser(User user)
         {

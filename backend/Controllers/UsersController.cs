@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using backend.Auth;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -42,6 +43,36 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPut("{userId}/block")]
+        //[Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> BlockUser(int userId)
+        {
+            try
+            {
+                await _usersService.BlockUserAsync(userId);
+                return Ok(new { Message = "User has been blocked." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpPut("{userId}/unblock")]
+        //[Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> UnblockUser(int userId)
+        {
+            try
+            {
+                await _usersService.UnblockUserAsync(userId);
+                return Ok(new { Message = "User has been unblocked." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         [HttpPost("is-valid/{email}")]
         public async Task<IActionResult> IsEmailTaken(string email)
         {
@@ -61,19 +92,5 @@ namespace backend.Controllers
 
             return Ok(user);
         }
-
-
-
-        //works fine, for testing purpose
-        //[HttpGet("auth/{email}")]
-        //[Authorize(Policy = "ClientOnly")]
-        //public async Task<IActionResult> GetByEmailAuth(string email)
-        //{
-        //    var user = await _usersService.GetUserByEmail(email);
-        //    if (user == null)
-        //        return NotFound();
-
-        //    return Ok(user);
-        //}
     }
 }
