@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.DTOs;
 using backend.DTOs.Tournament;
+using backend.Enums;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,15 @@ namespace backend.Services
         Task CreateTournament(CreateTournamentDto dto);
         Task<IEnumerable<TournamentDto>> GetAllTournaments();
         Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto);
+        Task JoinTournamentAsync(JoinTournamentDto dto);
+        Task LeaveTournamentAsync(int userId, int tournamentId);
+        Task<Tournament?> GetTournamentByIdAsync(int tournamentId);
     }
 
-    public class TournamentsService(IReservationTimesheetsService reservationTimesheetsService, IReservationsService reservationsService, ApplicationDbContext context, IMapper mapper) : ITournamentsService
+    public class TournamentsService(IUsersService usersService, IReservationTimesheetsService reservationTimesheetsService, IReservationsService reservationsService, ApplicationDbContext context, IMapper mapper) : ITournamentsService
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IUsersService _usersService = usersService;
         private readonly IReservationTimesheetsService _reservationTimesheetsService = reservationTimesheetsService;
         private readonly IReservationsService _reservationsService = reservationsService;
         private readonly IMapper _mapper = mapper;
@@ -72,6 +77,64 @@ namespace backend.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task JoinTournamentAsync(JoinTournamentDto dto)
+        {
+            var user = await _usersService.GetUserById(dto.UserId);
+            var tournament = await GetTournamentByIdAsync(dto.TournamentId);
+
+            if (user == null || tournament == null)
+                throw new Exception("User or Tournament not found.");
+
+            var existingEntry = await _context.UsersTournaments
+                .AnyAsync(ut => ut.UserId == dto.UserId && ut.TournamentId == dto.TournamentId);
+
+            if (existingEntry)
+                throw new Exception("User has already joined this tournament.");
+
+            if (tournament.StartDate <= DateOnly.FromDateTime(DateTime.Now))
+                throw new Exception("Tournament has already started.");
+
+            if (tournament.OccupiedSlots >= tournament.MaxSlots)
+                throw new Exception("No slots available in this tournament.");
+
+            var userTournament = new UserTournament
+            {
+                UserId = dto.UserId,
+                TournamentId = dto.TournamentId,
+                PaymentStatus = PaymentStatus.PENDING,
+                JoinedAt = DateTime.Now
+            };
+
+            _context.UsersTournaments.Add(userTournament);
+
+            tournament.OccupiedSlots += 1;
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task LeaveTournamentAsync(int userId, int tournamentId)
+        {
+            var tournament = await GetTournamentByIdAsync(tournamentId);
+            if (tournament == null)
+                throw new Exception("Tournament not found.");
+
+            var userTournament = await _context.UsersTournaments
+                .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TournamentId == tournamentId);
+
+            if (userTournament == null)
+                throw new Exception("User is not enrolled in the tournament.");
+
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            if (today >= tournament.StartDate)
+                throw new Exception("Cannot leave the tournament after it has started.");
+
+            _context.UsersTournaments.Remove(userTournament);
+
+            tournament.OccupiedSlots--;
+            _context.Tournaments.Update(tournament);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<TournamentDto>> GetAllTournaments()
         {
             var tournaments = await _context.Tournaments
@@ -88,6 +151,13 @@ namespace backend.Services
                 .FirstOrDefaultAsync();
 
             return conflictingTournament == null;
+        }
+
+        public async Task<Tournament?> GetTournamentByIdAsync(int tournamentId)
+        {
+            return await _context.Tournaments
+                .Where(t => t.TournamentId == tournamentId)
+                .FirstOrDefaultAsync();
         }
     }
 }
