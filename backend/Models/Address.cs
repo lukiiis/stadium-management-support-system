@@ -7,7 +7,6 @@
         public string City { get; set; }
         public string Street { get; set; }
         public string Zipcode { get; set; }
-        //optional
         public User? User { get; set; }
     }
 }
