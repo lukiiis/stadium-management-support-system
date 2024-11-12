@@ -22,6 +22,7 @@ namespace backend.Mappers
             CreateMap<CreateReservationDto, Reservation>();
 
             CreateMap<Address, AddressDto>();
+            CreateMap<CreateAddressDto, Address>();
 
             CreateMap<ObjectType, ObjectTypeDto>();
 
