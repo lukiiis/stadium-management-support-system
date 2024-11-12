@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.DTOs;
 using backend.DTOs.Tournament;
+using backend.DTOs.UserTournament;
 using backend.Enums;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +12,12 @@ namespace backend.Services
     public interface ITournamentsService
     {
         Task CreateTournament(CreateTournamentDto dto);
-        Task<IEnumerable<TournamentDto>> GetAllTournaments();
-        Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto);
         Task JoinTournamentAsync(JoinTournamentDto dto);
         Task LeaveTournamentAsync(int userId, int tournamentId);
+        Task<IEnumerable<UserTournamentDto>> GetUserTournamentsAsync(int userId);
         Task<Tournament?> GetTournamentByIdAsync(int tournamentId);
+        Task<IEnumerable<TournamentDto>> GetAllTournaments();
+        Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto);
     }
 
     public class TournamentsService(IUsersService usersService, IReservationTimesheetsService reservationTimesheetsService, IReservationsService reservationsService, ApplicationDbContext context, IMapper mapper) : ITournamentsService
@@ -101,7 +103,7 @@ namespace backend.Services
             {
                 UserId = dto.UserId,
                 TournamentId = dto.TournamentId,
-                PaymentStatus = PaymentStatus.PENDING,
+                PaymentStatus = dto.IsPaid ? PaymentStatus.PAID : PaymentStatus.PENDING,
                 JoinedAt = DateTime.Now
             };
 
@@ -133,6 +135,17 @@ namespace backend.Services
             _context.Tournaments.Update(tournament);
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<UserTournamentDto>> GetUserTournamentsAsync(int userId)
+        {
+            var userTournaments = await _context.UsersTournaments
+                .Where(ut => ut.UserId == userId)
+                .Include(ut => ut.Tournament)
+                .Include(ut => ut.Tournament.ObjectType)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<UserTournamentDto>>(userTournaments);
         }
 
         public async Task<IEnumerable<TournamentDto>> GetAllTournaments()

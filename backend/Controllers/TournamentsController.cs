@@ -62,6 +62,26 @@ namespace backend.Controllers
             }
         }
 
+        //get users tournaments
+        [HttpGet("joined-tournaments")]
+        public async Task<IActionResult> GetUserTournaments([FromQuery] int userId)
+        {
+            try
+            {
+                var tournaments = await _tournamentsService.GetUserTournamentsAsync(userId);
+                if (tournaments == null || !tournaments.Any())
+                {
+                    return NotFound(new { Message = "User is not registered for any tournaments." });
+                }
+
+                return Ok(tournaments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         //get all tournaments
         [HttpGet]
         public async Task<IActionResult> GetAllTournaments()
