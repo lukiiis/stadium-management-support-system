@@ -38,6 +38,7 @@ namespace backend.Services
                     FreeHours = freeHours,
                     ReservationsStart = timesheet.StartTime,
                     ReservationsEnd = timesheet.EndTime,
+                    Date = timesheet.Date,
                     IsTournament = true
                 };
 
@@ -54,6 +55,7 @@ namespace backend.Services
                     FreeHours = freeHours,
                     ReservationsStart = timesheet.StartTime,
                     ReservationsEnd = timesheet.EndTime,
+                    Date = timesheet.Date,
                     IsTournament = false
                 };
             }
@@ -84,6 +86,7 @@ namespace backend.Services
                 FreeHours = freeHours,
                 ReservationsStart = timesheet.StartTime,
                 ReservationsEnd = timesheet.EndTime,
+                Date = timesheet.Date,
                 IsTournament = false
             };
         }

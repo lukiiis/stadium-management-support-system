@@ -8,6 +8,7 @@ import Login from './pages/login/Login'
 import Register from './pages/register/Register'
 import ErrorPage from './pages/error/ErrorPage'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import Reservation from './pages/reservation/Reservation'
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home />
       },
+      {
+        path: "/reservations",
+        element: <Reservation />
+      }
     ]
   },
   {
