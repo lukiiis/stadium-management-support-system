@@ -1,0 +1,17 @@
+.main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.daysList {
+    display: flex;
+    gap:30px;
+}
+
+.hoursList {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
