@@ -96,7 +96,7 @@ const Login = () => {
                                 {/* {loginMutation.isPending ? <CircularProgress /> : ""} */}
                             </div>
                         </form>
-                        {/* <div>{loginInfo.message}</div> */}
+                        <div>{loginInfo.message}</div>
                     </div>
                 </div>
                 <div className={styles.right}>
