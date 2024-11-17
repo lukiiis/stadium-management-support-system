@@ -1,4 +1,7 @@
 import GoogleIcon from '@mui/icons-material/Google';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 const Footer = () => {
     return (
@@ -84,19 +87,13 @@ const Footer = () => {
                             <GoogleIcon />
                         </a>
                         <a href="/" className="text-gray-400 hover:text-gray-500">
-                            <GoogleIcon />
+                            <YouTubeIcon />
                         </a>
                         <a href="/" className="text-gray-400 hover:text-gray-500">
-                            <GoogleIcon />
+                            <InstagramIcon />
                         </a>
                         <a href="/" className="text-gray-400 hover:text-gray-500">
-                            <GoogleIcon />
-                        </a>
-                        <a href="/" className="text-gray-400 hover:text-gray-500">
-                            <GoogleIcon />
-                        </a>
-                        <a href="/" className="text-gray-400 hover:text-gray-500">
-                            <GoogleIcon />
+                            <GitHubIcon />
                         </a>
                     </div>
                 </div>

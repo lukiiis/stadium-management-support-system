@@ -15,7 +15,9 @@ import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 
 const pages = ['Reservations', 'Tournaments', 'Objects'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const clientSettings = ['Profile', 'Logout'];
+const employeeSettings = ['Dashboard', 'Logout'];
+const adminSettings = ['Dashboard', 'Logout'];
 
 const Navbar = () => {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
@@ -24,6 +26,7 @@ const Navbar = () => {
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
     };
+
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
@@ -36,11 +39,16 @@ const Navbar = () => {
         setAnchorElUser(null);
     };
 
+    const handleLogout = () => {
+        localStorage.clear();
+        setAnchorElUser(null);
+    };
+
     return (
-        <AppBar position="static" color='error'>
+        <AppBar position="static" sx={{ backgroundColor: '#111827' }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <Link to="/" className='flex items-center'>
+                    <Link to="/" className="flex items-center">
                         <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
                         <Typography
                             variant="h6"
@@ -90,13 +98,15 @@ const Navbar = () => {
 
                                 return (
                                     <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                        <Typography sx={{ textAlign: 'center' }}><Link to={`${pageLink}`}>{page}</Link></Typography>
+                                        <Typography sx={{ textAlign: 'center' }}>
+                                            <Link to={`${pageLink}`}>{page}</Link>
+                                        </Typography>
                                     </MenuItem>
-                                )
+                                );
                             })}
                         </Menu>
                     </Box>
-                    <Link to="/" className='flex justify-start items-start'>
+                    <Link to="/" className="flex justify-start items-start">
                         <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
                         <Typography
                             variant="h5"
@@ -127,7 +137,7 @@ const Navbar = () => {
                                 >
                                     <Link to={`${pageLink}`}>{page}</Link>
                                 </Button>
-                            )
+                            );
                         })}
                     </Box>
                     {localStorage.getItem("token") ? (
@@ -138,7 +148,7 @@ const Navbar = () => {
                                 </IconButton>
                             </Tooltip>
                             <Menu
-                                sx={{ mt: '45px' }}
+                                sx={{ mt: '45px', padding: "100px" }}
                                 id="menu-appbar"
                                 anchorEl={anchorElUser}
                                 anchorOrigin={{
@@ -153,11 +163,48 @@ const Navbar = () => {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
-                                {settings.map((setting) => (
-                                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                        <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                                    </MenuItem>
-                                ))}
+                                {localStorage.getItem("role") === "CLIENT" && (
+                                    clientSettings.map((setting) => (
+                                        <MenuItem
+                                            key={setting}
+                                            onClick={
+                                                setting === 'Logout' ? handleLogout : handleCloseUserMenu
+                                            }
+                                        >
+                                            <Typography sx={{ textAlign: 'center' }}>
+                                                {setting}
+                                            </Typography>
+                                        </MenuItem>
+                                    ))
+                                )}
+                                {localStorage.getItem("role") === "ADMIN" && (
+                                    adminSettings.map((setting) => (
+                                        <MenuItem
+                                            key={setting}
+                                            onClick={
+                                                setting === 'Logout' ? handleLogout : handleCloseUserMenu
+                                            }
+                                        >
+                                            <Typography sx={{ textAlign: 'center' }}>
+                                                {setting}
+                                            </Typography>
+                                        </MenuItem>
+                                    ))
+                                )}
+                                {localStorage.getItem("role") === "EMPLOYEE" && (
+                                    employeeSettings.map((setting) => (
+                                        <MenuItem
+                                            key={setting}
+                                            onClick={
+                                                setting === 'Logout' ? handleLogout : handleCloseUserMenu
+                                            }
+                                        >
+                                            <Typography sx={{ textAlign: 'center' }}>
+                                                {setting}
+                                            </Typography>
+                                        </MenuItem>
+                                    ))
+                                )}
                             </Menu>
                         </Box>
                     ) : (
@@ -180,5 +227,6 @@ const Navbar = () => {
             </Container>
         </AppBar>
     );
-}
+};
+
 export default Navbar;
