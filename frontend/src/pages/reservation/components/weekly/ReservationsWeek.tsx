@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ReservationContext, ReservationListsResponse, ReservationScheduleProps, useGetWeekSchedule } from "../../reservationsService";
 import { CircularProgress } from '@mui/material';
 import styles from "./ReservationsWeek.module.scss";
@@ -6,6 +6,13 @@ import styles from "./ReservationsWeek.module.scss";
 const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }) => {
     const weekSchedule = useGetWeekSchedule(date, objectId);
     const reservationContext = useContext(ReservationContext);
+
+    useEffect(() => {
+        // Sprawdzamy, czy selectedHours jest puste, jeśli tak, resetujemy selectedDate
+        if (reservationContext?.selectedHours.length === 0) {
+            reservationContext?.setSelectedDate('');
+        }
+    }, [reservationContext?.selectedHours]);
 
     const handleHourClick = (hour: string, date: string) => {
         // Jeśli selectedDate jest pustym stringiem, oznacza to, że użytkownik wybiera datę
@@ -16,20 +23,27 @@ const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }
         } else {
             // Jeśli selectedDate jest już ustawiony, sprawdzamy, czy kliknięta data jest zgodna z selectedDate
             if (date === reservationContext?.selectedDate) {
+                // Sprawdzamy, czy zaznaczone godziny sąsiednie
+                const isAdjacent = reservationContext.selectedHours.some(selectedHour => {
+                    const selectedHourInt = parseInt(selectedHour.split(":")[0], 10); // Konwertujemy godziny na liczby
+                    const hourInt = parseInt(hour.split(":")[0], 10); // Robimy to samo z nową godziną
+                    return Math.abs(selectedHourInt - hourInt) === 1; // Godziny sąsiednie (różnica 1 godzina)
+                });
+
                 if (reservationContext?.selectedHours.includes(hour)) {
                     // Jeśli godzina jest już zaznaczona, usuwamy ją
                     reservationContext?.removeSelectedHour(hour);
-                    // Jeśli wszystkie godziny zostały odznaczone, resetujemy selectedDate na pusty string
-                    if (reservationContext.selectedHours.length === 0) {
-                        reservationContext?.setSelectedDate('');
-                    }
                 } else {
-                    // Jeśli godzina nie była zaznaczona, dodajemy ją
-                    reservationContext?.addSelectedHour(hour);
+                    // Jeśli godzina nie była zaznaczona, dodajemy ją, tylko jeśli jest sąsiednia do zaznaczonej
+                    if (reservationContext.selectedHours.length === 0 || isAdjacent) {
+                        reservationContext?.addSelectedHour(hour);
+                    }
                 }
             }
         }
     };
+
+
     console.log(reservationContext);
 
     return (
@@ -47,22 +61,38 @@ const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }
                                         let tileColor = 'gray';
 
                                         if (daySchedule.isTournament)
-                                            tileColor = 'gray';
+                                            tileColor = 'black';
                                         else if (hourStr < daySchedule.reservationsStart || hourStr >= daySchedule.reservationsEnd)
                                             tileColor = 'gray';
                                         else if (daySchedule.reservedHours.includes(hourStr))
                                             tileColor = 'red';
-                                        else if (daySchedule.freeHours.includes(hourStr))
-                                            tileColor = 'green';
+                                        // else if (daySchedule.freeHours.includes(hourStr))
+                                        //     tileColor = 'green';
+                                        else if (daySchedule.freeHours.includes(hourStr)) {
+                                            // Pierwszy etap: jeśli brak zaznaczonej godziny, wszystkie godziny są dostępne
+                                            if (reservationContext?.selectedHours.length === 0) {
+                                                tileColor = 'green';
+                                            } else {
+                                                // Drugi etap: sprawdzamy, czy godzina jest sąsiednia do zaznaczonej
+                                                const isAdjacent = reservationContext?.selectedHours.some(selectedHour => {
+                                                    const selectedHourInt = parseInt(selectedHour.split(":")[0], 10);
+                                                    const hourInt = parseInt(hourStr.split(":")[0], 10);
+                                                    return Math.abs(selectedHourInt - hourInt) === 1;
+                                                });
+                                                // Jeśli godzina jest sąsiednia, zmieniamy kolor na zielony, w przeciwnym razie ciemnozielony
+                                                tileColor = isAdjacent && daySchedule.date === reservationContext?.selectedDate ? 'green' : 'darkgreen';
+                                            }
+                                        }
 
-                                        if (tileColor === 'green' && reservationContext?.selectedHours.includes(hourStr) && reservationContext?.selectedDate === daySchedule.date) {
+
+                                        if ((tileColor === 'green' || tileColor === 'darkgreen') && reservationContext?.selectedHours.includes(hourStr) && reservationContext?.selectedDate === daySchedule.date) {
                                             tileColor = 'blue'; // Zmiana koloru dla zaznaczonej godziny
                                         }
 
                                         return (
                                             <div
                                                 key={hour}
-                                                style={{ width: '38px', height: '38px', backgroundColor: tileColor, margin: '4px', cursor: 'pointer' }}
+                                                style={{ width: '38px', height: '38px', backgroundColor: tileColor, margin: '4px', cursor: 'pointer', borderRadius:'6px' }}
                                                 onClick={() => (tileColor === 'green' || tileColor === 'blue') && handleHourClick(hourStr, daySchedule.date)} // Tylko dla zielonych (wolnych godzin)
                                             >
                                                 {/* {hour} */}
