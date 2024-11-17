@@ -60,6 +60,7 @@ builder.Services.AddScoped<IReservationsService, ReservationsService>();
 builder.Services.AddScoped<ITournamentsService, TournamentsService>();
 builder.Services.AddScoped<IReservationTimesheetsService, ReservationTimesheetsService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IObjectTypeService, ObjectTypesService>();
 
 builder.Services.AddControllers()
     //nice way to avoid cycles in responses, but records are better i think
