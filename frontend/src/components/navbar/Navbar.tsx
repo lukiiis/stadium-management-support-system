@@ -130,9 +130,8 @@ const Navbar = () => {
                             const pageLink = page.toLowerCase();
 
                             return (
-                                <Link to={`${pageLink}`}>
+                                <Link to={`${pageLink}`} key={page}>
                                     <Button
-                                        key={page}
                                         onClick={handleCloseNavMenu}
                                         sx={{ my: 2, color: 'white', display: 'block' }}
                                     >

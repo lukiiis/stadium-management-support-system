@@ -3,7 +3,7 @@ import ReservationsWeek from "./components/weekly/ReservationsWeek";
 import { Button, CircularProgress } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { ObjectTypeDto, ReservationContext, useGetAllObjectTypes } from "./reservationsService";
+import { calculateTimeRangeAndPrice, CreateReservationData, CreateReservationResponse, ObjectTypeDto, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
 
 const Reservation: React.FC = () => {
     const [step, setStep] = useState<number>(1);
@@ -38,10 +38,51 @@ const Reservation: React.FC = () => {
         setSelectedHours((prev) => prev.filter((h) => h !== hour));
     };
 
+    const { startTime, endTime, price } = calculateTimeRangeAndPrice(selectedHours);
+
+    const [payNow, setPayNow] = useState<boolean>(true);
+
+    // mutation
+    const [createReservationInfo, setCreateReservationInfo] = useState<string>('');
+    const createReservationMutation = useCreateReservation();
+
+    const createReservation = async () => {
+        const reservationData: CreateReservationData = {
+            reservationStart: startTime,
+            reservationEnd: endTime,
+            reservationDate: selectedDate,
+            price: price,
+            objectId: selectedObjectId,
+            userId: localStorage.getItem("userId"),
+            isPaid: payNow,
+        }
+
+        try{
+            createReservationMutation.mutate(reservationData, {
+                onSuccess: (data: CreateReservationResponse) => {
+                    setCreateReservationInfo(data.message);
+                }
+            })
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
-        <ReservationContext.Provider value={{ selectedDate, setSelectedDate, selectedHours, addSelectedHour, removeSelectedHour }}>
+        <ReservationContext.Provider value={{ selectedDate, setSelectedDate, selectedHours, addSelectedHour, removeSelectedHour, payNow, setPayNow }}>
             {step === 1 && (
                 <>
+                    <div className="flex justify-end">
+                        <Button
+                            variant="outlined"
+                            endIcon={<ArrowForwardIcon />}
+                            onClick={nextStep}
+                            disabled={!selectedObjectId}
+                        >
+                            Next
+                        </Button>
+                    </div>
                     <h1>Reservation Page</h1>
 
                     {objectTypes.data ? (
@@ -63,34 +104,23 @@ const Reservation: React.FC = () => {
                     ) : (
                         <CircularProgress />
                     )}
-
-                    <div>
-                        <Button 
-                            variant="outlined" 
-                            endIcon={<ArrowForwardIcon />} 
-                            onClick={nextStep} 
-                            disabled={!selectedObjectId}
-                        >
-                            Next
-                        </Button>
-                    </div>
                 </>
             )}
             {step === 2 && (
                 <>
-                    <div>
-                        <Button 
-                            variant="outlined" 
-                            startIcon={<ArrowBackIcon />} 
+                    <div className="flex justify-between">
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBackIcon />}
                             onClick={prevStep}
                         >
                             Back
                         </Button>
-                        <Button 
-                            variant="outlined" 
-                            endIcon={<ArrowForwardIcon />} 
-                            onClick={nextStep} 
-                            disabled={!selectedObjectId}
+                        <Button
+                            variant="outlined"
+                            endIcon={<ArrowForwardIcon />}
+                            onClick={nextStep}
+                            disabled={selectedHours.length === 0}
                         >
                             Next
                         </Button>
@@ -100,6 +130,42 @@ const Reservation: React.FC = () => {
                     )}
                 </>
             )}
+
+            {step === 3 && (() => {
+                const selectedObject = objectTypes.data?.find(
+                    obj => obj.objectId === selectedObjectId
+                );
+
+                return (
+                    <>
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBackIcon />}
+                            onClick={prevStep}
+                        >
+                            Back
+                        </Button>
+                        {/* Komponent potwierdzenia rezerwacji */}
+                        <h1>Confirm reservation</h1>
+                        <p>Start time: {startTime}</p>
+                        <p>End time: {endTime}</p>
+                        <p>Date: {selectedDate}</p>
+                        <p>Price: {price}</p>
+                        <p>Object: {selectedObject?.type || 'Unknown'}</p>
+                        <p>Name: {localStorage.getItem("firstName") || 'Unknown'} {localStorage.getItem("lastName")}</p>
+                        <p>Pay now: {payNow ? 'yes' : 'no'}</p>
+
+                        <Button
+                            variant="outlined"
+                            startIcon={<ArrowBackIcon />}
+                            onClick={createReservation}
+                        >
+                            Create
+                        </Button>
+                        {createReservationInfo}
+                    </>
+                );
+            })()}
 
             <div ref={scrollRef}></div>
         </ReservationContext.Provider>

@@ -59,7 +59,7 @@ namespace backend.Controllers
                 //add token extraction and send the Id to the function (only for prod)
 
                 var status = await _reservationsService.CreateReservation(dto);
-                return Ok(status);
+                return Ok(new { Message = status });
             }
             catch (Exception ex)
             {

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 import { createContext } from "react";
 
 export interface ReservationListsResponse {
@@ -76,6 +76,63 @@ interface ReservationContextType {
     selectedHours: string[];
     addSelectedHour: (hour: string) => void;
     removeSelectedHour: (hour: string) => void;
+    payNow: boolean;
+    setPayNow: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ReservationContext = createContext<ReservationContextType | undefined>(undefined);
+
+export const calculateTimeRangeAndPrice = (selectedHours: string[]) => {
+    if (selectedHours.length === 0) {
+        return { startTime: null, endTime: null };
+    }
+    const sortedHours = selectedHours.slice().sort();
+
+    const startTime = sortedHours[0];
+
+    const lastHour = sortedHours[sortedHours.length - 1];
+    const [hour, minute, second] = lastHour.split(':').map(Number);
+
+    const adjustedEndHour = (hour + 1).toString().padStart(2, '0');
+    const endTime = `${adjustedEndHour}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+
+    const price = selectedHours.length * 50;
+
+    return { startTime, endTime, price };
+};
+
+// ------------- CREATE RESERVATION -------------------
+export interface CreateReservationData {
+    reservationStart: string | null;
+    reservationEnd: string | null;
+    reservationDate: string;
+    price: number | undefined;
+    objectId: number | null;
+    userId: string | null;
+    isPaid: boolean;
+}
+
+export interface CreateReservationResponse {
+    message: string;
+}
+
+interface CreateReservationErrorResponse {
+    error: string
+}
+
+export const useCreateReservation = () => {
+    return useMutation({
+        mutationFn: createReservationPost,
+        onSuccess: (data: CreateReservationResponse) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError<CreateReservationErrorResponse>) => {
+            console.log(error)
+        },   
+    })
+}
+
+export const createReservationPost = async (reservationData: CreateReservationData) => {
+    const res = await axios.post('https://localhost:7234/api/reservations/create', reservationData);
+    return res.data;
+}
