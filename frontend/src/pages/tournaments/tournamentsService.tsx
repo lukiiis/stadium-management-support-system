@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 
 export interface ObjectType {
     objectId: number,
@@ -83,6 +83,59 @@ export const useGetUsersTournaments = (userId: number) => {
 }
 
 // join tournament mutation
+export interface JoinLeaveTournamentResponse {
+    message: string;
+}
+
+export interface JoinLeaveTournamentErrorResponse {
+    error: string
+}
+
+interface JoinTournamentData {
+    userId: number,
+    tournamentId: number,
+    isPaid: boolean,
+}
+
+const joinTournament = async (joinTournamentData: JoinTournamentData) => {
+    const res = await axios.post('https://localhost:7234/api/tournaments/join', joinTournamentData);
+    return res.data;
+}
+
+export const useJoinTournament = () => {
+    return useMutation({
+        mutationFn: joinTournament,
+        onSuccess: (data: JoinLeaveTournamentResponse) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
+            console.log(error)
+        },   
+    })
+}
 
 
 // leave tournament mutation
+interface LeaveTournamentData {
+    userId: number,
+    tournamentId: number,
+}
+
+const leaveTournament = async (leaveTournamentData: LeaveTournamentData) => {
+    const res = await axios.delete('https://localhost:7234/api/tournaments/leave', {
+        data: leaveTournamentData
+    });
+    return res.data;
+}
+
+export const useLeaveTournament = () => {
+    return useMutation({
+        mutationFn: leaveTournament,
+        onSuccess: (data: JoinLeaveTournamentResponse) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
+            console.log(error)
+        },   
+    })
+}

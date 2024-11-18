@@ -1,17 +1,42 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Tournaments.module.scss";
-import { useGetTournaments, useGetObjectTypes, useGetUsersTournaments } from "./tournamentsService";
-import { Select, MenuItem, FormControl, InputLabel, CircularProgress, Button, SelectChangeEvent } from "@mui/material";
+import { 
+    useGetTournaments, 
+    useGetObjectTypes, 
+    useGetUsersTournaments, 
+    useJoinTournament, 
+    useLeaveTournament, 
+    JoinLeaveTournamentResponse,
+    JoinLeaveTournamentErrorResponse
+} from "./tournamentsService";
+import { 
+    Select, 
+    MenuItem, 
+    FormControl, 
+    InputLabel, 
+    CircularProgress, 
+    Button, 
+    SelectChangeEvent, 
+    Snackbar, 
+    Alert 
+} from "@mui/material";
+import { AxiosError } from "axios";
 
 const Tournaments = () => {
     const [selectedObjectId, setSelectedObjectId] = useState<string>("all");
     const [isClient, setIsClient] = useState<boolean>(false);
     const [userId, setUserId] = useState<number | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [showError, setShowError] = useState<boolean>(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Stan dla wiadomości sukcesu
+    const [showSuccess, setShowSuccess] = useState<boolean>(false); // Stan dla widoczności sukcesu
 
     const { data: tournaments, isLoading: loadingTournaments } = useGetTournaments();
     const { data: objectTypes, isLoading: loadingObjectTypes } = useGetObjectTypes();
+    const { data: usersTournaments, isLoading: loadingUsersTournaments, refetch: refetchUsersTournaments } = useGetUsersTournaments(userId || 0);
+    const joinTournamentMutation = useJoinTournament();
+    const leaveTournamentMutation = useLeaveTournament();
 
-    // Pobieramy userId z localStorage
     useEffect(() => {
         const role = localStorage.getItem("role");
         const token = localStorage.getItem("token");
@@ -23,22 +48,69 @@ const Tournaments = () => {
         }
     }, []);
 
-    // Pobieramy turnieje użytkownika
-    const { data: usersTournaments, isLoading: loadingUsersTournaments } = useGetUsersTournaments(userId || 0);
-
-    // Handle selection change
     const handleSelectChange = (event: SelectChangeEvent) => {
         setSelectedObjectId(event.target.value as string);
     };
 
-    // Filtered tournaments
     const filteredTournaments = selectedObjectId === "all" 
         ? tournaments 
         : tournaments?.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
 
-    // Sprawdzanie, czy użytkownik już dołączył do turnieju
     const isUserInTournament = (tournamentId: number): boolean => {
         return usersTournaments?.some(userTournament => userTournament.tournament.tournamentId === tournamentId) || false;
+    };
+
+    const handleJoinTournament = (tournamentId: number) => {
+        if (userId) {
+            joinTournamentMutation.mutate(
+                { userId, tournamentId, isPaid: false },
+                {
+                    onSuccess: (data: JoinLeaveTournamentResponse) => {
+                        console.log(`Successfully joined tournament ${tournamentId}`);
+                        setSuccessMessage(data.message); // Ustawienie wiadomości sukcesu
+                        setShowSuccess(true); // Wyświetlenie sukcesu
+                        refetchUsersTournaments();
+                    },
+                    onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
+                        console.error(`Error joining tournament ${tournamentId}`, error);
+                        if (error.response?.data?.error) {
+                            setErrorMessage(error.response.data.error);
+                            setShowError(true);
+                        }
+                    },
+                }
+            );
+        }
+    };
+
+    const handleLeaveTournament = (tournamentId: number) => {
+        if (userId) {
+            leaveTournamentMutation.mutate(
+                { userId, tournamentId },
+                {
+                    onSuccess: (data: JoinLeaveTournamentResponse) => {
+                        console.log(`Successfully left tournament ${tournamentId}`);
+                        setSuccessMessage(data.message); // Ustawienie wiadomości sukcesu
+                        setShowSuccess(true); // Wyświetlenie sukcesu
+                        refetchUsersTournaments();
+                    },
+                    onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
+                        console.error(`Error leaving tournament ${tournamentId}`, error);
+                        if (error.response?.data?.error) {
+                            setErrorMessage(error.response.data.error);
+                            setShowError(true);
+                        }
+                    },
+                }
+            );
+        }
+    };
+
+    const handleCloseSnackbar = () => {
+        setShowError(false);
+        setErrorMessage(null);
+        setShowSuccess(false);
+        setSuccessMessage(null);
     };
 
     if (loadingTournaments || loadingObjectTypes || loadingUsersTournaments) {
@@ -47,6 +119,30 @@ const Tournaments = () => {
 
     return (
         <div className={styles.container}>
+            {/* Snackbar for error messages */}
+            <Snackbar 
+                open={showError} 
+                autoHideDuration={6000} 
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="error" variant="filled">
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
+
+            {/* Snackbar for success messages */}
+            <Snackbar 
+                open={showSuccess} 
+                autoHideDuration={6000} 
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="success" variant="filled">
+                    {successMessage}
+                </Alert>
+            </Snackbar>
+
             <FormControl fullWidth className={styles.select}>
                 <InputLabel id="object-filter-label">Filter by Object</InputLabel>
                 <Select
@@ -81,7 +177,7 @@ const Tournaments = () => {
                                     <Button 
                                         variant="contained" 
                                         color="primary"
-                                        onClick={() => console.log(`Joining tournament ${tournament.tournamentId}`)}
+                                        onClick={() => handleJoinTournament(tournament.tournamentId)}
                                     >
                                         Join
                                     </Button>
@@ -89,7 +185,7 @@ const Tournaments = () => {
                                     <Button 
                                         variant="outlined" 
                                         color="secondary"
-                                        onClick={() => console.log(`Leaving tournament ${tournament.tournamentId}`)}
+                                        onClick={() => handleLeaveTournament(tournament.tournamentId)}
                                     >
                                         Leave
                                     </Button>
