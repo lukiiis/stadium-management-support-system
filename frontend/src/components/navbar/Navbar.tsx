@@ -130,13 +130,14 @@ const Navbar = () => {
                             const pageLink = page.toLowerCase();
 
                             return (
-                                <Button
-                                    key={page}
-                                    onClick={handleCloseNavMenu}
-                                    sx={{ my: 2, color: 'white', display: 'block' }}
-                                >
-                                    <Link to={`${pageLink}`}>{page}</Link>
-                                </Button>
+                                <Link to={`${pageLink}`} key={page}>
+                                    <Button
+                                        onClick={handleCloseNavMenu}
+                                        sx={{ my: 2, color: 'white', display: 'block' }}
+                                    >
+                                        {page}
+                                    </Button>
+                                </Link>
                             );
                         })}
                     </Box>

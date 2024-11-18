@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import { createContext } from "react";
 
 export interface ReservationListsResponse {
     reservationsStart: string
@@ -15,6 +16,7 @@ export interface ReservationScheduleProps {
     objectId: number;
 };
 
+//fetching schedule for one day
 const fetchDayScheduleData = async (date: string, objectId: number): Promise<ReservationListsResponse> => {
     const response = await axios.get<ReservationListsResponse>(`https://localhost:7234/api/reservations/reservation-schedule-day`, {
         params: { date, objectId },
@@ -30,7 +32,7 @@ export const useGetDaySchedule = (date: string, objectId: number) => {
 }
 
 
-
+//fetching schedule for one week
 const fetchWeekScheduleData = async (startDate: string, objectId: number): Promise<ReservationListsResponse[]> => {
     const response = await axios.get<ReservationListsResponse[]>(`https://localhost:7234/api/reservations/reservation-schedule-week`, {
         params: { startDate, objectId },
@@ -43,4 +45,94 @@ export const useGetWeekSchedule = (startDate: string, objectId: number) => {
         queryKey:['reservationDaySchedule', startDate, objectId],
         queryFn: () => fetchWeekScheduleData(startDate, objectId),
     });
+}
+
+
+// --------------------- OBJECT TYPES ------------------------
+export interface ObjectTypeDto {
+    objectId: number;
+    type: string;
+    description: string;
+    imageUrl: string;
+}
+
+//fetching ObjectTypes
+const fetchObjectTypes = async (): Promise<ObjectTypeDto[]> => {
+    const response = await axios.get('https://localhost:7234/api/object-types/get-all');
+    return response.data;
+};
+
+export const useGetAllObjectTypes = () => {
+    return useQuery<ObjectTypeDto[]>({
+        queryKey: ['objectTypes'],
+        queryFn: fetchObjectTypes,
+    });
+}
+
+// -------------- CONTEXT FOR RESERVED HOURS -------------
+interface ReservationContextType {
+    selectedDate: string;
+    setSelectedDate: React.Dispatch<React.SetStateAction<string>>;
+    selectedHours: string[];
+    addSelectedHour: (hour: string) => void;
+    removeSelectedHour: (hour: string) => void;
+    payNow: boolean;
+    setPayNow: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const ReservationContext = createContext<ReservationContextType | undefined>(undefined);
+
+export const calculateTimeRangeAndPrice = (selectedHours: string[]) => {
+    if (selectedHours.length === 0) {
+        return { startTime: null, endTime: null };
+    }
+    const sortedHours = selectedHours.slice().sort();
+
+    const startTime = sortedHours[0];
+
+    const lastHour = sortedHours[sortedHours.length - 1];
+    const [hour, minute, second] = lastHour.split(':').map(Number);
+
+    const adjustedEndHour = (hour + 1).toString().padStart(2, '0');
+    const endTime = `${adjustedEndHour}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+
+    const price = selectedHours.length * 50;
+
+    return { startTime, endTime, price };
+};
+
+// ------------- CREATE RESERVATION -------------------
+export interface CreateReservationData {
+    reservationStart: string | null;
+    reservationEnd: string | null;
+    reservationDate: string;
+    price: number | undefined;
+    objectId: number | null;
+    userId: string | null;
+    isPaid: boolean;
+}
+
+export interface CreateReservationResponse {
+    message: string;
+}
+
+interface CreateReservationErrorResponse {
+    error: string
+}
+
+export const useCreateReservation = () => {
+    return useMutation({
+        mutationFn: createReservationPost,
+        onSuccess: (data: CreateReservationResponse) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError<CreateReservationErrorResponse>) => {
+            console.log(error)
+        },   
+    })
+}
+
+export const createReservationPost = async (reservationData: CreateReservationData) => {
+    const res = await axios.post('https://localhost:7234/api/reservations/create', reservationData);
+    return res.data;
 }

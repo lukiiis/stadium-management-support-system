@@ -9,7 +9,7 @@ namespace backend.Auth
         private readonly PasswordHasher _passwordHasher = passwordHasher;
         private readonly TokenProvider _tokenProvider = tokenProvider;
 
-        public sealed record Response(string FirstName, string LastName, string Role, string Token, string Message);
+        public sealed record Response(int UserId, string FirstName, string LastName, string Role, string Token, string Message);
         public sealed record Request(string Email, string Password);
 
         public async Task<Response> Handle(Request request)
@@ -27,6 +27,7 @@ namespace backend.Auth
             var token = _tokenProvider.Create(user);
 
             return new Response (
+                user.UserId,
                 user.FirstName,
                 user.LastName,
                 user.Role.ToString(),

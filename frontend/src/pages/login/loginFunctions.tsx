@@ -17,6 +17,7 @@ interface LoginErrorResponse {
 }
 
 interface LoginResponse {
+    userId: number,
     firstName: string,
     lastName: string,
     role: string,
@@ -34,6 +35,7 @@ export const useLoginUser = (setLoginInfo: React.Dispatch<React.SetStateAction<L
                 status: "Success",
                 message: data.message
             });
+            localStorage.setItem("userId", data.userId.toString())
             localStorage.setItem("token", data.token);
             localStorage.setItem("firstName", data.firstName);
             localStorage.setItem("lastName", data.lastName);

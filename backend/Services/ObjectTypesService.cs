@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.DTOs.Address;
 using backend.DTOs.ObjectType;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
 {
@@ -11,9 +12,12 @@ namespace backend.Services
     }
     public class ObjectTypesService(IMapper mapper, ApplicationDbContext context) : IObjectTypeService
     {
-        public Task<IEnumerable<ObjectTypeDto>> GetAllObjectTypesAsync()
+        private readonly ApplicationDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
+        public async Task<IEnumerable<ObjectTypeDto>> GetAllObjectTypesAsync()
         {
-            throw new NotImplementedException();
+            var objects = await _context.ObjectTypes.ToListAsync();
+            return _mapper.Map<IEnumerable<ObjectTypeDto>>(objects);
         }
     }
 }
