@@ -49,11 +49,11 @@ namespace backend.Controllers
 
         [HttpDelete("leave")]
         //[Authorize(Policy = "ClientOnly")]
-        public async Task<IActionResult> RemoveUserFromTournament([FromQuery] int tournamentId, [FromQuery] int userId)
+        public async Task<IActionResult> LeaveTournament([FromBody] LeaveTournamentDto dto)
         {
             try
             {
-                await _tournamentsService.LeaveTournamentAsync(userId, tournamentId);
+                await _tournamentsService.LeaveTournamentAsync(dto);
                 return Ok(new { Message = "User has successfully left the tournament." });
             }
             catch (Exception ex)
@@ -69,10 +69,10 @@ namespace backend.Controllers
             try
             {
                 var tournaments = await _tournamentsService.GetUserTournamentsAsync(userId);
-                if (tournaments == null || !tournaments.Any())
-                {
-                    return NotFound(new { Message = "User is not registered for any tournaments." });
-                }
+                //if (tournaments == null || !tournaments.Any())
+                //{
+                //    return NotFound(new { Message = "User is not registered for any tournaments." });
+                //}
 
                 return Ok(tournaments);
             }
@@ -86,9 +86,24 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTournaments()
         {
-            try 
+            try
             {
                 var tournaments = await _tournamentsService.GetAllTournaments();
+
+                return Ok(tournaments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpGet("{objectId}")]
+        public async Task<IActionResult> GetAllTournamentsByObjectId(int objectId)
+        {
+            try
+            {
+                var tournaments = await _tournamentsService.GetAllTournamentsByObjectId(objectId);
 
                 return Ok(tournaments);
             }

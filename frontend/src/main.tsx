@@ -9,6 +9,8 @@ import Register from './pages/register/Register'
 import ErrorPage from './pages/error/ErrorPage'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Reservation from './pages/reservation/Reservation'
+import Tournaments from './pages/tournaments/Tournaments'
+import Objects from './pages/objects/Objects'
 
 const router = createBrowserRouter([
   {
@@ -23,6 +25,14 @@ const router = createBrowserRouter([
       {
         path: "/reservations",
         element: <Reservation />
+      },
+      {
+        path: "/tournaments",
+        element: <Tournaments />
+      },
+      {
+        path: "/objects",
+        element: <Objects />
       }
     ]
   },

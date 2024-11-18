@@ -13,10 +13,11 @@ namespace backend.Services
     {
         Task CreateTournament(CreateTournamentDto dto);
         Task JoinTournamentAsync(JoinTournamentDto dto);
-        Task LeaveTournamentAsync(int userId, int tournamentId);
+        Task LeaveTournamentAsync(LeaveTournamentDto dto);
         Task<IEnumerable<UserTournamentDto>> GetUserTournamentsAsync(int userId);
         Task<Tournament?> GetTournamentByIdAsync(int tournamentId);
         Task<IEnumerable<TournamentDto>> GetAllTournaments();
+        Task<IEnumerable<TournamentDto>> GetAllTournamentsByObjectId(int objectId);
         Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto);
     }
 
@@ -113,14 +114,14 @@ namespace backend.Services
 
             await _context.SaveChangesAsync();
         }
-        public async Task LeaveTournamentAsync(int userId, int tournamentId)
+        public async Task LeaveTournamentAsync(LeaveTournamentDto dto)
         {
-            var tournament = await GetTournamentByIdAsync(tournamentId);
+            var tournament = await GetTournamentByIdAsync(dto.TournamentId);
             if (tournament == null)
                 throw new Exception("Tournament not found.");
 
             var userTournament = await _context.UsersTournaments
-                .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TournamentId == tournamentId);
+                .FirstOrDefaultAsync(ut => ut.UserId == dto.UserId && ut.TournamentId == dto.TournamentId);
 
             if (userTournament == null)
                 throw new Exception("User is not enrolled in the tournament.");
@@ -148,14 +149,6 @@ namespace backend.Services
             return _mapper.Map<IEnumerable<UserTournamentDto>>(userTournaments);
         }
 
-        public async Task<IEnumerable<TournamentDto>> GetAllTournaments()
-        {
-            var tournaments = await _context.Tournaments
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
-        }
-
         public async Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto)
         {
             var conflictingTournament = await _context.Tournaments
@@ -171,6 +164,24 @@ namespace backend.Services
             return await _context.Tournaments
                 .Where(t => t.TournamentId == tournamentId)
                 .FirstOrDefaultAsync();
+        }
+        public async Task<IEnumerable<TournamentDto>> GetAllTournaments()
+        {
+            var tournaments = await _context.Tournaments
+                .Include(t => t.ObjectType)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
+        }
+
+        public async Task<IEnumerable<TournamentDto>> GetAllTournamentsByObjectId(int objectId)
+        {
+            var tournaments = await _context.Tournaments
+                .Include(t => t.ObjectType)
+                .Where(t => t.ObjectType.ObjectId == objectId)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
         }
     }
 }

@@ -1,0 +1,42 @@
+.container {
+    padding: 20px;
+}
+
+.select {
+    margin-bottom: 20px;
+}
+
+.tournamentsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.tournamentCard {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tournamentCard h3 {
+    margin: 0 0 10px;
+}
+
+.tournamentCard p {
+    margin: 5px 0;
+}
+
+.image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
