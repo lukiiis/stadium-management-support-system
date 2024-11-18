@@ -59,3 +59,30 @@ export const useGetTournamentsByObjectId = (objectId: number) => {
         queryFn: () => fetchAllTournamentsByObjectId(objectId),
     });
 }
+
+
+// fetching tournaments that client has joined to show JOIN or LEAVE buttons
+export interface UsersTournaments {
+    tournament: Tournament,
+    paymentStatus: string,
+    joinedAt: string,
+}
+
+const fetchUsersTournaments = async (userId: number): Promise<UsersTournaments[]> => {
+    const response = await axios.get<UsersTournaments[]>(`https://localhost:7234/api/tournaments/joined-tournaments`, {
+        params: {userId}
+    });
+    return response.data;
+};
+
+export const useGetUsersTournaments = (userId: number) => {
+    return useQuery<UsersTournaments[]>({
+        queryKey:['usersTournaments', userId],
+        queryFn: () => fetchUsersTournaments(userId),
+    });
+}
+
+// join tournament mutation
+
+
+// leave tournament mutation
