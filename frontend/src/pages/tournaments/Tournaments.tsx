@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Tournaments.module.scss";
-import { useGetTournaments, useGetObjectTypes } from "./tournamentsService";
+import { useGetTournaments, useGetObjectTypes, useGetUsersTournaments } from "./tournamentsService";
 import { Select, MenuItem, FormControl, InputLabel, CircularProgress, Button, SelectChangeEvent } from "@mui/material";
 
 const Tournaments = () => {
     const [selectedObjectId, setSelectedObjectId] = useState<string>("all");
     const [isClient, setIsClient] = useState<boolean>(false);
+    const [userId, setUserId] = useState<number | null>(null);
+
     const { data: tournaments, isLoading: loadingTournaments } = useGetTournaments();
     const { data: objectTypes, isLoading: loadingObjectTypes } = useGetObjectTypes();
 
-    // Check for role and token in localStorage
+    // Pobieramy userId z localStorage
     useEffect(() => {
         const role = localStorage.getItem("role");
         const token = localStorage.getItem("token");
-        if (role === "CLIENT" && token) {
+        const storedUserId = localStorage.getItem("userId");
+
+        if (role === "CLIENT" && token && storedUserId) {
             setIsClient(true);
+            setUserId(parseInt(storedUserId, 10));
         }
     }, []);
+
+    // Pobieramy turnieje użytkownika
+    const { data: usersTournaments, isLoading: loadingUsersTournaments } = useGetUsersTournaments(userId || 0);
 
     // Handle selection change
     const handleSelectChange = (event: SelectChangeEvent) => {
@@ -28,7 +36,12 @@ const Tournaments = () => {
         ? tournaments 
         : tournaments?.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
 
-    if (loadingTournaments || loadingObjectTypes) {
+    // Sprawdzanie, czy użytkownik już dołączył do turnieju
+    const isUserInTournament = (tournamentId: number): boolean => {
+        return usersTournaments?.some(userTournament => userTournament.tournament.tournamentId === tournamentId) || false;
+    };
+
+    if (loadingTournaments || loadingObjectTypes || loadingUsersTournaments) {
         return <div className={styles.loader}><CircularProgress /></div>;
     }
 
@@ -64,20 +77,23 @@ const Tournaments = () => {
                         
                         {isClient && (
                             <div className={styles.buttons}>
-                                <Button 
-                                    variant="contained" 
-                                    color="primary"
-                                    onClick={() => console.log(`Joining tournament ${tournament.tournamentId}`)}
-                                >
-                                    Join
-                                </Button>
-                                <Button 
-                                    variant="outlined" 
-                                    color="secondary"
-                                    onClick={() => console.log(`Leaving tournament ${tournament.tournamentId}`)}
-                                >
-                                    Leave
-                                </Button>
+                                {!isUserInTournament(tournament.tournamentId) ? (
+                                    <Button 
+                                        variant="contained" 
+                                        color="primary"
+                                        onClick={() => console.log(`Joining tournament ${tournament.tournamentId}`)}
+                                    >
+                                        Join
+                                    </Button>
+                                ) : (
+                                    <Button 
+                                        variant="outlined" 
+                                        color="secondary"
+                                        onClick={() => console.log(`Leaving tournament ${tournament.tournamentId}`)}
+                                    >
+                                        Leave
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </div>
