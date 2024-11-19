@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReservationsWeek from "./components/weekly/ReservationsWeek";
 import { Alert, Button, CircularProgress, Snackbar } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -10,11 +10,25 @@ import { Link } from "react-router-dom";
 
 const Reservation: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState<boolean>(false);
+    const [userId, setUserId] = useState<number | null>(null);
     const [showError, setShowError] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null); // Stan dla wiadomości sukcesu
     const [showSuccess, setShowSuccess] = useState<boolean>(false); // Stan dla widoczności sukcesu
     const [step, setStep] = useState<number>(1);
     const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const role = localStorage.getItem("role");
+        const token = localStorage.getItem("token");
+        const storedUserId = localStorage.getItem("userId");
+
+        if (role === "CLIENT" && token && storedUserId) {
+            setIsClient(true);
+            setUserId(parseInt(storedUserId, 10));
+        }
+    }, []);
+    // does not update when logged out during reservation process - CHANGE
 
     const date = new Date();
     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -24,6 +38,17 @@ const Reservation: React.FC = () => {
     const nextStep = () => {
         setStep(prevStep => prevStep + 1);
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const nextStepCheckToken = () => {
+        if(!isClient){
+            setErrorMessage("You have to be logged in to create reservation");
+            setShowError(true);
+        }
+        else{
+            setStep(prevStep => prevStep + 1);
+            scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
     };
 
     const prevStep = () => {
@@ -59,7 +84,7 @@ const Reservation: React.FC = () => {
             reservationDate: selectedDate,
             price: price,
             objectId: selectedObjectId,
-            userId: localStorage.getItem("userId"),
+            userId: userId,
             isPaid: payNow,
         }
 
@@ -172,7 +197,7 @@ const Reservation: React.FC = () => {
                         <Button
                             variant="outlined"
                             endIcon={<ArrowForwardIcon />}
-                            onClick={nextStep}
+                            onClick={nextStepCheckToken}
                             disabled={selectedHours.length === 0}
                             className={styles.nextButton}
                         >

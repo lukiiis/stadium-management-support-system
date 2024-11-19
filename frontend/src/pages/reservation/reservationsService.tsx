@@ -108,7 +108,7 @@ export interface CreateReservationData {
     reservationDate: string;
     price: number | undefined;
     objectId: number | null;
-    userId: string | null;
+    userId: number | null;
     isPaid: boolean;
 }
 
