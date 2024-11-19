@@ -24,7 +24,7 @@ namespace backend.Controllers
 
                 await _tournamentsService.CreateTournament(dto);
 
-                return Ok("Tournament created successfully");
+                return Ok(new { Message = "Tournament created successfully" });
             }
             catch (Exception ex)
             {

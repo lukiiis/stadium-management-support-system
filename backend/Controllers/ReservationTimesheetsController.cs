@@ -18,7 +18,7 @@ namespace backend.Controllers
             try
             {
                 await _reservationTimesheetsService.CreateReservationTimesheet(dto);
-                return Ok("Timesheet added successfully");
+                return Ok(new { Message = "Timesheet added successfully" });
             }
             catch (Exception ex)
             {
