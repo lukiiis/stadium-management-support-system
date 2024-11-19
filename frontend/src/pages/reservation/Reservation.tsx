@@ -1,11 +1,18 @@
 import { useRef, useState } from "react";
 import ReservationsWeek from "./components/weekly/ReservationsWeek";
-import { Button, CircularProgress } from "@mui/material";
+import { Alert, Button, CircularProgress, Snackbar } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { calculateTimeRangeAndPrice, CreateReservationData, CreateReservationResponse, ObjectTypeDto, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
+import { calculateTimeRangeAndPrice, CreateReservationData, CreateReservationErrorResponse, CreateReservationResponse, ObjectTypeDto, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
+import { AxiosError } from "axios";
+import styles from "./Reservation.module.scss"
+import { Link } from "react-router-dom";
 
 const Reservation: React.FC = () => {
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [showError, setShowError] = useState<boolean>(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Stan dla wiadomości sukcesu
+    const [showSuccess, setShowSuccess] = useState<boolean>(false); // Stan dla widoczności sukcesu
     const [step, setStep] = useState<number>(1);
     const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
 
@@ -57,10 +64,19 @@ const Reservation: React.FC = () => {
             isPaid: payNow,
         }
 
-        try{
+        try {
             createReservationMutation.mutate(reservationData, {
                 onSuccess: (data: CreateReservationResponse) => {
-                    setCreateReservationInfo(data.message);
+                    console.log(`Successfully created reservation`);
+                    setSuccessMessage(data.message);
+                    setShowSuccess(true);
+                },
+                onError: (error: AxiosError<CreateReservationErrorResponse>) => {
+                    console.error(`Error creating reservation`, error);
+                    if (error.response?.data?.error) {
+                        setErrorMessage(error.response.data.error);
+                        setShowError(true);
+                    }
                 }
             })
         }
@@ -69,31 +85,66 @@ const Reservation: React.FC = () => {
         }
     }
 
+    const handleCloseSnackbar = () => {
+        setShowError(false);
+        setErrorMessage(null);
+        setShowSuccess(false);
+        setSuccessMessage(null);
+    };
+
     return (
         <ReservationContext.Provider value={{ selectedDate, setSelectedDate, selectedHours, addSelectedHour, removeSelectedHour, payNow, setPayNow }}>
+            <Snackbar
+                open={showError}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="error" variant="filled">
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
+
+            {/* Snackbar for success messages */}
+            <Snackbar
+                open={showSuccess}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="success" variant="filled">
+                    {successMessage}
+                </Alert>
+            </Snackbar>
             {step === 1 && (
-                <>
-                    <div className="flex justify-end">
+                <div className={styles.reservationStep}>
+                    <div className={styles.header}>
+                        <h1 className={styles.title}>Reservation Page</h1>
                         <Button
                             variant="outlined"
                             endIcon={<ArrowForwardIcon />}
                             onClick={nextStep}
                             disabled={!selectedObjectId}
+                            className={styles.nextButton}
                         >
                             Next
                         </Button>
                     </div>
-                    <h1>Reservation Page</h1>
 
                     {objectTypes.data ? (
-                        <div>
-                            <label htmlFor="object-select">Select Object:</label>
+                        <div className={styles.objectSelection}>
+                            <label htmlFor="object-select" className={styles.label}>
+                                Select Object:
+                            </label>
                             <select
                                 id="object-select"
                                 onChange={(e) => setSelectedObjectId(Number(e.target.value))}
                                 value={selectedObjectId ?? ''}
+                                className={styles.select}
                             >
-                                <option value="" disabled>Select an object</option>
+                                <option value="" disabled>
+                                    Select an object
+                                </option>
                                 {objectTypes.data.map((object: ObjectTypeDto) => (
                                     <option key={object.objectId} value={object.objectId}>
                                         {object.type} - {object.description}
@@ -102,9 +153,11 @@ const Reservation: React.FC = () => {
                             </select>
                         </div>
                     ) : (
-                        <CircularProgress />
+                        <div className={styles.loading}>
+                            <CircularProgress />
+                        </div>
                     )}
-                </>
+                </div>
             )}
             {step === 2 && (
                 <>
@@ -113,6 +166,7 @@ const Reservation: React.FC = () => {
                             variant="outlined"
                             startIcon={<ArrowBackIcon />}
                             onClick={prevStep}
+                            className={styles.prevButton}
                         >
                             Back
                         </Button>
@@ -121,6 +175,7 @@ const Reservation: React.FC = () => {
                             endIcon={<ArrowForwardIcon />}
                             onClick={nextStep}
                             disabled={selectedHours.length === 0}
+                            className={styles.nextButton}
                         >
                             Next
                         </Button>
@@ -133,37 +188,64 @@ const Reservation: React.FC = () => {
 
             {step === 3 && (() => {
                 const selectedObject = objectTypes.data?.find(
-                    obj => obj.objectId === selectedObjectId
+                    (obj) => obj.objectId === selectedObjectId
                 );
 
                 return (
-                    <>
+                    <div className={styles.reservationSummary}>
                         <Button
                             variant="outlined"
                             startIcon={<ArrowBackIcon />}
                             onClick={prevStep}
+                            className={styles.prevButton}
+                            disabled={createReservationMutation.isSuccess}
                         >
                             Back
                         </Button>
-                        {/* Komponent potwierdzenia rezerwacji */}
-                        <h1>Confirm reservation</h1>
-                        <p>Start time: {startTime}</p>
-                        <p>End time: {endTime}</p>
-                        <p>Date: {selectedDate}</p>
-                        <p>Price: {price}</p>
-                        <p>Object: {selectedObject?.type || 'Unknown'}</p>
-                        <p>Name: {localStorage.getItem("firstName") || 'Unknown'} {localStorage.getItem("lastName")}</p>
-                        <p>Pay now: {payNow ? 'yes' : 'no'}</p>
 
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBackIcon />}
-                            onClick={createReservation}
-                        >
-                            Create
-                        </Button>
-                        {createReservationInfo}
-                    </>
+                        <div className={styles.confirmationCard}>
+                            <h1 className={styles.title}>Confirm Reservation</h1>
+                            <div className={styles.details}>
+                                <p><strong>Start time:</strong> {startTime}</p>
+                                <p><strong>End time:</strong> {endTime}</p>
+                                <p><strong>Date:</strong> {selectedDate}</p>
+                                <p><strong>Price:</strong> {price}</p>
+                                <p>
+                                    <strong>Object:</strong> {selectedObject?.type || 'Unknown'}
+                                </p>
+                                <p>
+                                    <strong>Name:</strong> {localStorage.getItem("firstName") || 'Unknown'}{' '}
+                                    {localStorage.getItem("lastName")}
+                                </p>
+                                <p>
+                                    <strong>Pay now:</strong> {payNow ? 'Yes' : 'No'}
+                                </p>
+                            </div>
+                            <div className="flex flex-col items-center gap-8">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={createReservation}
+                                    className={styles.createButton}
+                                    disabled={createReservationMutation.isSuccess}
+                                >
+                                    Create
+                                </Button>
+                                {createReservationMutation.isSuccess && (
+                                    <Link to="/profile">
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            className={styles.redirectButton}
+                                            disabled={!createReservationMutation.isSuccess}
+                                        >
+                                            Go to profile
+                                        </Button>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 );
             })()}
 

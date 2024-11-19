@@ -116,7 +116,7 @@ export interface CreateReservationResponse {
     message: string;
 }
 
-interface CreateReservationErrorResponse {
+export interface CreateReservationErrorResponse {
     error: string
 }
 
