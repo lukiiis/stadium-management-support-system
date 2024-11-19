@@ -50,7 +50,6 @@ const Reservation: React.FC = () => {
     const [payNow, setPayNow] = useState<boolean>(true);
 
     // mutation
-    const [createReservationInfo, setCreateReservationInfo] = useState<string>('');
     const createReservationMutation = useCreateReservation();
 
     const createReservation = async () => {
@@ -193,15 +192,17 @@ const Reservation: React.FC = () => {
 
                 return (
                     <div className={styles.reservationSummary}>
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBackIcon />}
-                            onClick={prevStep}
-                            className={styles.prevButton}
-                            disabled={createReservationMutation.isSuccess}
-                        >
-                            Back
-                        </Button>
+                        {!createReservationMutation.isSuccess && (
+                            <Button
+                                variant="outlined"
+                                startIcon={<ArrowBackIcon />}
+                                onClick={prevStep}
+                                className={styles.prevButton}
+                                disabled={createReservationMutation.isSuccess}
+                            >
+                                Back
+                            </Button>)
+                        }
 
                         <div className={styles.confirmationCard}>
                             <h1 className={styles.title}>Confirm Reservation</h1>
