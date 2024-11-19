@@ -3,7 +3,8 @@ import ReservationsWeek from "./components/weekly/ReservationsWeek";
 import { Button, CircularProgress } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { calculateTimeRangeAndPrice, CreateReservationData, CreateReservationResponse, ObjectTypeDto, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
+import { calculateTimeRangeAndPrice, CreateReservationData, CreateReservationErrorResponse, CreateReservationResponse, ObjectTypeDto, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
+import { AxiosError } from "axios";
 
 const Reservation: React.FC = () => {
     const [step, setStep] = useState<number>(1);
@@ -61,6 +62,13 @@ const Reservation: React.FC = () => {
             createReservationMutation.mutate(reservationData, {
                 onSuccess: (data: CreateReservationResponse) => {
                     setCreateReservationInfo(data.message);
+                },
+                onError: (error: AxiosError<CreateReservationErrorResponse>) => {
+                    console.error(`Error creating reservation`, error);
+                    if (error.response?.data?.error) {
+                        // setErrorMessage(error.response.data.error);
+                        // setShowError(true);
+                    }
                 }
             })
         }
