@@ -14,10 +14,43 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 
-const pages = ['Reservations', 'Tournaments', 'Objects'];
-const clientSettings = ['Profile', 'Logout'];
-const employeeSettings = ['Dashboard', 'Logout'];
-const adminSettings = ['Dashboard', 'Logout'];
+const pagesGuest = [
+    { name: 'Reservations', link: '/reservations' },
+    { name: 'Tournaments', link: '/tournaments' },
+    { name: 'Objects', link: '/objects' }
+];
+const pagesClient = [
+    { name: 'Reservations', link: '/reservations' },
+    { name: 'Tournaments', link: '/tournaments' },
+    { name: 'Objects', link: '/objects' }
+];
+const pagesAdmin = [
+    { name: 'Reservations', link: '/reservations' },
+    { name: 'Tournaments', link: '/tournaments' },
+    { name: 'Objects', link: '/objects' },
+    { name: 'Block Account', link: '/admin-dashboard/block-account' },
+    { name: 'Create Employee', link: '/admin-dashboard/create-employee' }
+];
+const pagesEmployee = [
+    { name: 'Reservations', link: '/reservations' },
+    { name: 'Tournaments', link: '/tournaments' },
+    { name: 'Objects', link: '/objects' },
+    { name: 'Add Timesheet', link: '/employee-dashboard/add-timesheet' },
+    { name: 'Add Tournament', link: '/employee-dashboard/add-tournament' }
+];
+
+const clientSettings = [
+    { name: 'Profile', link: '/profile' },
+    { name: 'Logout', link: '' }
+];
+const employeeSettings = [
+    { name: 'Dashboard', link: '/employee-dashboard' },
+    { name: 'Logout', link: '' }
+];
+const adminSettings = [
+    { name: 'Dashboard', link: '/admin-dashboard' },
+    { name: 'Logout', link: '' }
+];
 
 const Navbar = () => {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
@@ -43,6 +76,20 @@ const Navbar = () => {
         localStorage.clear();
         setAnchorElUser(null);
     };
+
+    let pagesToDisplay = [];
+
+    const role = localStorage.getItem('role');
+
+    if (role === 'CLIENT') {
+        pagesToDisplay = pagesClient;
+    } else if (role === 'ADMIN') {
+        pagesToDisplay = pagesAdmin;
+    } else if (role === 'EMPLOYEE') {
+        pagesToDisplay = pagesEmployee;
+    } else {
+        pagesToDisplay = pagesGuest;
+    }
 
     return (
         <AppBar position="static" sx={{ backgroundColor: '#111827' }}>
@@ -93,15 +140,15 @@ const Navbar = () => {
                             onClose={handleCloseNavMenu}
                             sx={{ display: { xs: 'block', md: 'none' } }}
                         >
-                            {pages.map((page) => {
-                                const pageLink = page.toLowerCase();
-
+                            {pagesToDisplay.map((page) => {
                                 return (
-                                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                        <Typography sx={{ textAlign: 'center' }}>
-                                            <Link to={`${pageLink}`}>{page}</Link>
-                                        </Typography>
-                                    </MenuItem>
+                                    <Link to={page.link} key={page.name}>
+                                        <MenuItem onClick={handleCloseNavMenu}>
+                                            <Typography sx={{ textAlign: 'center' }}>
+                                                {page.name}
+                                            </Typography>
+                                        </MenuItem>
+                                    </Link>
                                 );
                             })}
                         </Menu>
@@ -126,20 +173,16 @@ const Navbar = () => {
                         </Typography>
                     </Link>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => {
-                            const pageLink = page.toLowerCase();
-
-                            return (
-                                <Link to={`${pageLink}`} key={page}>
-                                    <Button
-                                        onClick={handleCloseNavMenu}
-                                        sx={{ my: 2, color: 'white', display: 'block' }}
-                                    >
-                                        {page}
-                                    </Button>
-                                </Link>
-                            );
-                        })}
+                        {pagesToDisplay.map((page) => (
+                            <Link to={page.link} key={page.name}>
+                                <Button
+                                    onClick={handleCloseNavMenu}
+                                    sx={{ my: 2, color: 'white', display: 'block' }}
+                                >
+                                    {page.name}
+                                </Button>
+                            </Link>
+                        ))}
                     </Box>
                     {localStorage.getItem("token") ? (
                         <Box sx={{ flexGrow: 0 }}>
@@ -164,48 +207,80 @@ const Navbar = () => {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
-                                {localStorage.getItem("role") === "CLIENT" && (
-                                    clientSettings.map((setting) => (
-                                        <MenuItem
-                                            key={setting}
-                                            onClick={
-                                                setting === 'Logout' ? handleLogout : handleCloseUserMenu
-                                            }
-                                        >
-                                            <Typography sx={{ textAlign: 'center' }}>
-                                                {setting}
-                                            </Typography>
-                                        </MenuItem>
-                                    ))
-                                )}
-                                {localStorage.getItem("role") === "ADMIN" && (
-                                    adminSettings.map((setting) => (
-                                        <MenuItem
-                                            key={setting}
-                                            onClick={
-                                                setting === 'Logout' ? handleLogout : handleCloseUserMenu
-                                            }
-                                        >
-                                            <Typography sx={{ textAlign: 'center' }}>
-                                                {setting}
-                                            </Typography>
-                                        </MenuItem>
-                                    ))
-                                )}
-                                {localStorage.getItem("role") === "EMPLOYEE" && (
-                                    employeeSettings.map((setting) => (
-                                        <MenuItem
-                                            key={setting}
-                                            onClick={
-                                                setting === 'Logout' ? handleLogout : handleCloseUserMenu
-                                            }
-                                        >
-                                            <Typography sx={{ textAlign: 'center' }}>
-                                                {setting}
-                                            </Typography>
-                                        </MenuItem>
-                                    ))
-                                )}
+                                {
+                                    localStorage.getItem("role") === "CLIENT" && (
+                                        clientSettings.map((setting) => (
+                                            <MenuItem
+                                                key={setting.name}
+                                                onClick={
+                                                    setting.name === 'Logout' ? handleLogout : handleCloseUserMenu
+                                                }
+                                            >
+                                                {setting.name !== 'Logout' ? (
+                                                    <Link to={setting.link}>
+                                                        <Typography sx={{ textAlign: 'center' }}>
+                                                            {setting.name}
+                                                        </Typography>
+                                                    </Link>
+                                                ) : (
+                                                    <Typography sx={{ textAlign: 'center' }}>
+                                                        {setting.name}
+                                                    </Typography>
+                                                )}
+                                            </MenuItem>
+                                        ))
+                                    )
+                                }
+
+                                {
+                                    localStorage.getItem("role") === "ADMIN" && (
+                                        adminSettings.map((setting) => (
+                                            <MenuItem
+                                                key={setting.name}
+                                                onClick={
+                                                    setting.name === 'Logout' ? handleLogout : handleCloseUserMenu
+                                                }
+                                            >
+                                                {setting.name !== 'Logout' ? (
+                                                    <Link to={setting.link}>
+                                                        <Typography sx={{ textAlign: 'center' }}>
+                                                            {setting.name}
+                                                        </Typography>
+                                                    </Link>
+                                                ) : (
+                                                    <Typography sx={{ textAlign: 'center' }}>
+                                                        {setting.name}
+                                                    </Typography>
+                                                )}
+                                            </MenuItem>
+                                        ))
+                                    )
+                                }
+
+                                {
+                                    localStorage.getItem("role") === "EMPLOYEE" && (
+                                        employeeSettings.map((setting) => (
+                                            <MenuItem
+                                                key={setting.name}
+                                                onClick={
+                                                    setting.name === 'Logout' ? handleLogout : handleCloseUserMenu
+                                                }
+                                            >
+                                                {setting.name !== 'Logout' ? (
+                                                    <Link to={setting.link}>
+                                                        <Typography sx={{ textAlign: 'center' }}>
+                                                            {setting.name}
+                                                        </Typography>
+                                                    </Link>
+                                                ) : (
+                                                    <Typography sx={{ textAlign: 'center' }}>
+                                                        {setting.name}
+                                                    </Typography>
+                                                )}
+                                            </MenuItem>
+                                        ))
+                                    )
+                                }
                             </Menu>
                         </Box>
                     ) : (
