@@ -1,9 +1,11 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 
 const AdminDashboard = () => {
     return (
         <div>
-            admin profileeeeee
+            <h1>admin profileeeeee</h1>
+            <Link to="create-employee">create-employee</Link>
+            <Link to="block-account">block-account</Link>
             <Outlet />
         </div>
     )

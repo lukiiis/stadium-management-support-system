@@ -30,7 +30,8 @@ namespace backend.Mappers
             CreateMap<CreateReservationTimesheetDto, ReservationTimesheet>();
 
             CreateMap<User, UserDto>()
-                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
 
             CreateMap<UserTournament, UserTournamentDto>()
                 .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));

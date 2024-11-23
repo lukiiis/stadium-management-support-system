@@ -23,6 +23,25 @@ namespace backend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _addressService.GetAllAsync());
+        }
+
+
+        [HttpGet("by-user/{userId}")]
+        public async Task<IActionResult> GetAddressByUserId(int userId)
+        {
+            try
+            {
+                return Ok(await _addressService.GetAddressByUserIdAsync(userId));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+        }
 
         [HttpGet("{addressId}")]
         public async Task<IActionResult> GetAddressById(int addressId)
@@ -40,8 +59,8 @@ namespace backend.Controllers
         {
             try
             {
-                var updatedAddress = await _addressService.UpdateAddressAsync(updateAddressDto);
-                return Ok(updatedAddress);
+                await _addressService.UpdateAddressAsync(updateAddressDto);
+                return Ok(new {Message = "Address updated successfully."});
             }
             catch (Exception ex)
             {

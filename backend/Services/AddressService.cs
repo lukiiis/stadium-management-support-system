@@ -2,14 +2,18 @@
 using backend.Data;
 using backend.DTOs.Address;
 using backend.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace backend.Services
 {
     public interface IAddressService
     {
+        Task<List<AddressDto>> GetAllAsync();
+        Task<AddressDto> GetAddressByUserIdAsync(int userId);
         Task CreateAddressAsync(CreateAddressDto createAddressDto);
         Task<AddressDto> GetAddressByIdAsync(int addressId);
-        Task<AddressDto> UpdateAddressAsync(UpdateAddressDto updateAddressDto);
+        Task UpdateAddressAsync(UpdateAddressDto updateAddressDto);
     }
 
     public class AddressService(IUsersService usersService, ApplicationDbContext context, IMapper mapper) : IAddressService
@@ -17,6 +21,31 @@ namespace backend.Services
         private readonly ApplicationDbContext _context = context;
         private readonly IUsersService _usersService = usersService;
         private readonly IMapper _mapper = mapper;
+
+        public async Task<List<AddressDto>> GetAllAsync()
+        {
+            var addresses = await _context.Addresses.ToListAsync();
+            return _mapper.Map<List<AddressDto>>(addresses);
+        }
+
+        //public async Task<AddressDto> GetByAddressIdAsync(int addressId)
+        //{
+        //    var address = await _context.Addresses.FindAsync(addressId);
+        //    if (address == null)
+        //        throw new KeyNotFoundException($"Address with ID {addressId} not found.");
+
+        //    return _mapper.Map<AddressDto>(address);
+        //}
+
+        public async Task<AddressDto> GetAddressByUserIdAsync(int userId)
+        {
+            var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null || user.Address == null)
+                throw new KeyNotFoundException($"No address found for user with ID {userId}.");
+
+            return _mapper.Map<AddressDto>(user.Address);
+        }
+
 
         // Create
         public async Task CreateAddressAsync(CreateAddressDto createAddressDto)
@@ -36,6 +65,8 @@ namespace backend.Services
             };  
 
             _context.Addresses.Add(address);
+            await _context.SaveChangesAsync();
+
             user.Address = address;
             _context.Users.Update(user);
 
@@ -51,7 +82,7 @@ namespace backend.Services
         }
 
         // Update
-        public async Task<AddressDto> UpdateAddressAsync(UpdateAddressDto updateAddressDto)
+        public async Task UpdateAddressAsync(UpdateAddressDto updateAddressDto)
         {
             var address = await _context.Addresses.FindAsync(updateAddressDto.AddressId);
             if (address == null)
@@ -63,7 +94,6 @@ namespace backend.Services
             address.Zipcode = updateAddressDto.Zipcode;
 
             await _context.SaveChangesAsync();
-            return _mapper.Map<AddressDto>(address);
         }
     }
 }

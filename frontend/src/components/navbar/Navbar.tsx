@@ -75,6 +75,7 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.clear();
         setAnchorElUser(null);
+        window.location.reload();
     };
 
     let pagesToDisplay = [];
