@@ -7,6 +7,8 @@ using static backend.Auth.LoginUser;
 using System.Text.RegularExpressions;
 using backend.DTOs.User;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using AutoMapper;
+using backend.Services.Pagination;
 
 namespace backend.Services
 {
@@ -21,12 +23,15 @@ namespace backend.Services
         Task<User?> GetUserById(int id);
         Task UpdatePasswordAsync(int id, string currentPassword, string newPassword, string confirmPassword);
         Task UpdateUserDetailsAsync(UpdatePersonalDataDto request);
+        Task<List<UserDto>> GetAllUsersAsync();
+        Task<PaginatedResult<UserDto>> GetUsersPaginatedAsync(int page, int pageSize);
     }
 
-    public class UsersService(ApplicationDbContext context, PasswordHasher passwordHasher) : IUsersService
+    public class UsersService(ApplicationDbContext context, PasswordHasher passwordHasher, IMapper mapper) : IUsersService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly PasswordHasher _passwordHasher = passwordHasher;
+        private readonly IMapper _mapper = mapper;
 
         public async Task BlockUserAsync(int userId)
         {
@@ -142,6 +147,33 @@ namespace backend.Services
         {
             var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             return emailRegex.IsMatch(email);
+        }
+
+        public async Task<List<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _context.Users.Include(u => u.Address).ToListAsync();
+            return _mapper.Map<List<UserDto>>(users);
+        }
+
+        public async Task<PaginatedResult<UserDto>> GetUsersPaginatedAsync(int page, int pageSize)
+        {
+            var totalUsers = await _context.Users.CountAsync();
+            var users = await _context.Users
+                .Include(u => u.Address)
+                .OrderBy(u => u.UserId)
+                .Skip((page) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var userDtos = _mapper.Map<List<UserDto>>(users);
+
+            return new PaginatedResult<UserDto>
+            {
+                TotalCount = totalUsers,
+                Page = page,
+                PageSize = pageSize,
+                Items = userDtos
+            };
         }
     }
 }

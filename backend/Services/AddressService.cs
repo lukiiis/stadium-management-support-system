@@ -10,7 +10,6 @@ namespace backend.Services
     public interface IAddressService
     {
         Task<List<AddressDto>> GetAllAsync();
-        Task<AddressDto> GetByAddressIdAsync(int addressId);
         Task<AddressDto> GetAddressByUserIdAsync(int userId);
         Task CreateAddressAsync(CreateAddressDto createAddressDto);
         Task<AddressDto> GetAddressByIdAsync(int addressId);

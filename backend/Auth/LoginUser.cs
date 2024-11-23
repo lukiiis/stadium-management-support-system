@@ -24,6 +24,9 @@ namespace backend.Auth
             if (!verified)
                 throw new Exception("Password is incorrect");
 
+            if(user.Enabled == false)
+                throw new Exception("Account is locked, please contact administration");
+
             var token = _tokenProvider.Create(user);
 
             return new Response (

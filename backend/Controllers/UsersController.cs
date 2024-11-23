@@ -15,6 +15,21 @@ namespace backend.Controllers
         private readonly LoginUser _loginUser = new(usersService, passwordHasher, tokenProvider);
         private readonly RegisterUser _registerUser = new(usersService, passwordHasher, tokenProvider);
 
+        [HttpGet("get-all")]
+        //[Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _usersService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("paginated/get-all")]
+        public async Task<IActionResult> GetUsersPaginated([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
+        {
+            var result = await _usersService.GetUsersPaginatedAsync(page, pageSize);
+            return Ok(result);
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUser.Request request)
         {
