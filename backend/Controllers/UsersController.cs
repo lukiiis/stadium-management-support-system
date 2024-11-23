@@ -46,6 +46,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("register-employee")]
+        //[Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RegisterEmployee([FromBody] RegisterUser.EmployeeRequest request)
         {
             try
@@ -92,6 +93,7 @@ namespace backend.Controllers
 
         // change password for users
         [HttpPatch("{id}/password")]
+        //[Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdatePassword(int id, [FromBody] UpdatePasswordDto request)
         {
             try
@@ -110,6 +112,27 @@ namespace backend.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(new { Error = ex.Message });
+            }
+        }
+
+        // update profile information
+        [HttpPut("update-personal-data")]
+        //[Authorize(Policy = "AuthorizedOnly")]
+        public async Task<IActionResult> UpdateUserDetails([FromBody] UpdatePersonalDataDto request)
+        {
+            try
+            {
+                await _usersService.UpdateUserDetailsAsync(request);
+
+                return Ok(new { Message = "Account details updated successfully." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
             }
         }
 

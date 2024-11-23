@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using static backend.Auth.LoginUser;
 using System.Text.RegularExpressions;
+using backend.DTOs.User;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace backend.Services
 {
@@ -18,6 +20,7 @@ namespace backend.Services
         Task AddUser(User user);
         Task<User?> GetUserById(int id);
         Task UpdatePasswordAsync(int id, string currentPassword, string newPassword, string confirmPassword);
+        Task UpdateUserDetailsAsync(UpdatePersonalDataDto request);
     }
 
     public class UsersService(ApplicationDbContext context, PasswordHasher passwordHasher) : IUsersService
@@ -103,6 +106,42 @@ namespace backend.Services
 
             user.Password = _passwordHasher.HashPassword(newPassword);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateUserDetailsAsync(UpdatePersonalDataDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
+                throw new ArgumentException("First name and last name are required.");
+            if (request.Age < 0)
+                throw new ArgumentException("Age must be a positive number.");
+            if (!IsValidEmail(request.Email))
+                throw new ArgumentException("Invalid email format.");
+            if (!Regex.IsMatch(request.Phone.ToString(), @"^\d{9,9}$"))
+                throw new ArgumentException("Invalid phone number format.");
+
+            if (await IsEmailTaken(request.Email))
+                throw new ArgumentException("Email is already in use.");
+            if (await IsPhoneTaken(request.Phone))
+                throw new ArgumentException("Phone number is already in use.");
+
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found.");
+
+            // Aktualizacja pól
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.Age = request.Age;
+            user.Phone = request.Phone;
+            user.Email = request.Email;
+
+            await _context.SaveChangesAsync();
+        }
+
+        private static bool IsValidEmail(string email)
+        {
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            return emailRegex.IsMatch(email);
         }
     }
 }
