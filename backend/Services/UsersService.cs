@@ -1,7 +1,10 @@
-﻿using backend.Data;
+﻿using backend.Auth;
+using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using static backend.Auth.LoginUser;
+using System.Text.RegularExpressions;
 
 namespace backend.Services
 {
@@ -14,11 +17,13 @@ namespace backend.Services
         Task<bool> IsPhoneTaken(int phone);
         Task AddUser(User user);
         Task<User?> GetUserById(int id);
+        Task UpdatePasswordAsync(int id, string currentPassword, string newPassword, string confirmPassword);
     }
 
-    public class UsersService(ApplicationDbContext context) : IUsersService
+    public class UsersService(ApplicationDbContext context, PasswordHasher passwordHasher) : IUsersService
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly PasswordHasher _passwordHasher = passwordHasher;
 
         public async Task BlockUserAsync(int userId)
         {
@@ -69,6 +74,35 @@ namespace backend.Services
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.UserId == id);
+        }
+
+        public async Task UpdatePasswordAsync(int id, string currentPassword, string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(currentPassword) ||
+                string.IsNullOrWhiteSpace(newPassword) ||
+                string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                throw new ArgumentException("All fields are required.");
+            }
+
+            if (newPassword.Length < 8)
+                throw new ArgumentException("Password must be at least 8 characters long.");
+
+            if (!Regex.IsMatch(newPassword, @"^(?=.*[A-Za-z])(?=.*\d).+$"))
+                throw new ArgumentException("Password must contain both letters and numbers.");
+
+            if (newPassword != confirmPassword)
+                throw new ArgumentException("New password and confirm password do not match.");
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {id} not found.");
+
+            if (user.Password != _passwordHasher.HashPassword(currentPassword))
+                throw new ArgumentException("Current password is incorrect.");
+
+            user.Password = _passwordHasher.HashPassword(newPassword);
+            await _context.SaveChangesAsync();
         }
     }
 }

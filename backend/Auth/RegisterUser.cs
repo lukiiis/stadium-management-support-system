@@ -12,12 +12,13 @@ namespace backend.Auth
         private readonly PasswordHasher _passwordHasher = passwordHasher;
         private readonly TokenProvider _tokenProvider = tokenProvider;
 
-        public sealed record Request(string FirstName, string LastName, int Age, int Phone, string Email, string Password, string RePassword, string Role);
+        public sealed record ClientRequest(string FirstName, string LastName, int Age, int Phone, string Email, string Password, string RePassword, string Role);
+        public sealed record EmployeeRequest(string FirstName, string LastName, int Age, int Phone, string Email, double Salary, string Position);
         public sealed record Response(string Message);
 
-        public async Task<Response> RegisterClient(Request request)
+        public async Task<Response> RegisterClient(ClientRequest request)
         {
-            string validation = await ValidateRequest(request);
+            string validation = await ValidateClientRequest(request);
             if (validation != "OK")
                 throw new Exception(validation);
 
@@ -42,7 +43,56 @@ namespace backend.Auth
             return new Response("Success! You can now log in");
         }
 
-        private async Task<string> ValidateRequest(Request request)
+        public async Task<Response> RegisterEmployee(EmployeeRequest request)
+        {
+            string validation = await ValidateEmployeeRequest(request);
+            if (validation != "OK")
+                throw new Exception(validation);
+
+            User user = new()
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Age = request.Age,
+                Phone = request.Phone,
+                Email = request.Email,
+                Position = request.Position,
+                Salary = request.Salary,
+                Password = _passwordHasher.HashPassword("employee"),
+                CreatedAt = DateTime.Today,
+                Role = Role.EMPLOYEE,
+                Wallet = null,
+                Enabled = true,
+                Address = null,
+            };
+
+            await _usersService.AddUser(user);
+
+
+            return new Response("Employee created successfully");
+        }
+
+        private async Task<string> ValidateEmployeeRequest(EmployeeRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.FirstName))
+                return "First name cannot be empty.";
+
+            if (string.IsNullOrWhiteSpace(request.LastName))
+                return "Last name cannot be empty.";
+
+            if (!Regex.IsMatch(request.Phone.ToString(), @"^\d{9,9}$"))
+                return "Phone number must be between 9 and 15 digits.";
+
+            if (await _usersService.IsPhoneTaken(request.Phone))
+                return "Provided phone number is taken.";
+
+            if (!IsValidEmail(request.Email))
+                return "Invalid email address.";
+
+            return "OK";
+        }
+
+        private async Task<string> ValidateClientRequest(ClientRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.FirstName))
                 return "First name cannot be empty.";
