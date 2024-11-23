@@ -4,6 +4,7 @@ using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using backend.DTOs.User;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace backend.Controllers
 {
@@ -14,6 +15,17 @@ namespace backend.Controllers
         private readonly IUsersService _usersService = usersService;
         private readonly LoginUser _loginUser = new(usersService, passwordHasher, tokenProvider);
         private readonly RegisterUser _registerUser = new(usersService, passwordHasher, tokenProvider);
+
+        [HttpGet("id/{id}")]
+        //[Authorize(Policy = "AuthorizedOnly")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var user = await _usersService.GetUserDtoById(id);
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
+        }
 
         [HttpGet("get-all")]
         //[Authorize(Policy = "AdminOnly")]

@@ -21,6 +21,9 @@ import AdminLayout from './components/layouts/admin-layout/AdminLayout'
 import AdminDashboard from './pages/dashboards/admin_dashboard/AdminDashboard'
 import CreateEmployee from './pages/dashboards/admin_dashboard/create-employee/CreateEmployee'
 import BlockAccount from './pages/dashboards/admin_dashboard/block-account/BlockAccount'
+import AccountInfo from './pages/dashboards/client_profile/account-info/AccountInfo'
+import ClientReservations from './pages/dashboards/client_profile/client-reservations/ClientReservations'
+import ClientTournaments from './pages/dashboards/client_profile/client-tournaments/ClientTournaments'
 
 const router = createBrowserRouter([
   {
@@ -53,9 +56,23 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <ClientProfile />,
+        children: [
+          {
+            path:"/profile/information",
+            element: <AccountInfo />
+          },
+          {
+            path:"/profile/tournaments",
+            element: <ClientTournaments />
+          },
+          {
+            path:"/profile/reservations",
+            element: <ClientReservations />
+          },
+        ]
       }
     ]
-  }, //todo add more client routes
+  },
   {
     element: <EmployeeLayout />,
     errorElement: <ErrorPage />,

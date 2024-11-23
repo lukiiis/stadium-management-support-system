@@ -1,0 +1,1 @@
+// get joined tournaments paginated

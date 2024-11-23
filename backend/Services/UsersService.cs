@@ -23,6 +23,7 @@ namespace backend.Services
         Task<User?> GetUserById(int id);
         Task UpdatePasswordAsync(int id, string currentPassword, string newPassword, string confirmPassword);
         Task UpdateUserDetailsAsync(UpdatePersonalDataDto request);
+        Task<UserDto> GetUserDtoById(int id);
         Task<List<UserDto>> GetAllUsersAsync();
         Task<PaginatedResult<UserDto>> GetUsersPaginatedAsync(int page, int pageSize);
     }
@@ -174,6 +175,12 @@ namespace backend.Services
                 PageSize = pageSize,
                 Items = userDtos
             };
+        }
+
+        public async Task<UserDto> GetUserDtoById(int id)
+        {
+            var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync();
+            return _mapper.Map<UserDto>(user);
         }
     }
 }

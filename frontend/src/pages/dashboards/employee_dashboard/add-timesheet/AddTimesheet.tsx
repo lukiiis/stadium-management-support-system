@@ -34,7 +34,7 @@ const AddTimesheet: React.FC = () => {
                 console.log(`Successfully created timesheet`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
-                reset();
+                // reset();
             },
             onError: (error: AxiosError<CreateReservationTimesheetErrorResponse>) => {
                 console.error(`Error creating timesheet`);

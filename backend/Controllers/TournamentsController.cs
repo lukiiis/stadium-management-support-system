@@ -82,6 +82,28 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("joined-tournaments-paginated")]
+        public async Task<IActionResult> GetUserTournaments(
+            [FromQuery] int userId,
+            [FromQuery] int page = 0,
+            [FromQuery] int pageSize = 10)
+        {
+            if (page < 0 || pageSize < 1)
+            {
+                return BadRequest(new { Error = "Page and PageSize must be greater than 0." });
+            }
+
+            try
+            {
+                var result = await _tournamentsService.GetUserTournamentsPaginatedAsync(userId, page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         //get all tournaments
         [HttpGet]
         public async Task<IActionResult> GetAllTournaments()

@@ -13,7 +13,7 @@ namespace backend.Controllers
         private readonly IReservationsService _reservationsService = reservationsService;
         private readonly TokenProvider _tokenProvider = tokenProvider;
 
-        [HttpGet("get-reservations-by-user")]
+        [HttpGet("get-reservations-by-user-auth")]
         [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> GetReservationsByUserIdAuth()
         {
@@ -33,7 +33,45 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("get-reservations-by-id/{reservationId}")]
+        [HttpGet("users-reservations")]
+        //[Authorize(Policy = "ClientOnly")]
+        public async Task<IActionResult> GetReservationsByUserId([FromQuery] int userId)
+        {
+            try
+            {
+                var reservations = await _reservationsService.GetReservationsByUserIdAsync(userId);
+
+                return Ok(reservations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpGet("users-reservations-paginated")]
+        public async Task<IActionResult> GetReservationsByUserId(
+            [FromQuery] int userId,
+            [FromQuery] int page = 0,
+            [FromQuery] int pageSize = 10)
+        {
+            if (page < 0 || pageSize < 1)
+            {
+                return BadRequest(new { Error = "Page must be >= 0 and PageSize must be greater than 0." });
+            }
+
+            try
+            {
+                var reservations = await _reservationsService.GetReservationsByUserIdPaginatedAsync(userId, page, pageSize);
+                return Ok(reservations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpGet("reservations-by-id/{reservationId}")]
         [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetReservationsByIdAuth(int reservationId)
         {
@@ -52,7 +90,7 @@ namespace backend.Controllers
         //create reservation (endpoint for clients)
         [HttpPost("create")]
         //[Authorize(Policy = "ClientOnly")]
-        public async Task<IActionResult> CreateReservation(CreateReservationDto dto)
+        public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto dto)
         {
             try
             {
@@ -66,6 +104,25 @@ namespace backend.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        //delete reservation if has not started TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        [HttpDelete("delete")]
+        //[Authorize(Policy = "ClientOnly")]
+        public async Task<IActionResult> DeleteReservation([FromQuery] int reservationId)
+        {
+            try
+            {
+                //add token extraction and send the Id to the function (only for prod)
+
+                await _reservationsService.DeleteReservation(reservationId);
+                return Ok(new { Message = "Reservation deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
 
         [HttpGet("reservation-schedule-day")]
         public async Task<IActionResult> GetFreeAndReservedHours([FromQuery] DateOnly date, [FromQuery] int objectId)
