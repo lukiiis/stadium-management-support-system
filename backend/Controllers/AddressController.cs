@@ -16,19 +16,33 @@ namespace backend.Controllers
             try
             {
                 await _addressService.CreateAddressAsync(createAddressDto);
-                return Ok("Address info added successfully");
+                return Ok(new { Message = "Address info added successfully" });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateAddress([FromBody] UpdateAddressDto updateAddressDto)
+        {
+            try
+            {
+                await _addressService.UpdateAddressAsync(updateAddressDto);
+                return Ok(new { Message = "Address updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _addressService.GetAllAsync());
         }
-
 
         [HttpGet("by-user/{userId}")]
         public async Task<IActionResult> GetAddressByUserId(int userId)
@@ -52,20 +66,6 @@ namespace backend.Controllers
                 return NotFound("Address not found");
             }
             return Ok(address);
-        }
-
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateAddress([FromBody] UpdateAddressDto updateAddressDto)
-        {
-            try
-            {
-                await _addressService.UpdateAddressAsync(updateAddressDto);
-                return Ok(new {Message = "Address updated successfully."});
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
-            }
         }
     }
 }

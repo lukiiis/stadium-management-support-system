@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import axiosInstance from "../../../../config/axiosConfig";
 
 export interface CreateReservationTimesheetData {
     date: string,
@@ -29,7 +30,7 @@ export const useCreateReservationTimesheet = () => {
 }
 
 const createReservationTimesheetPost = async (reservationTimesheetData: CreateReservationTimesheetData) => {
-    const res = await axios.post('https://localhost:7234/api/reservation-timesheets/create', reservationTimesheetData);
+    const res = await axiosInstance.post('/reservation-timesheets/create', reservationTimesheetData);
     return res.data;
 }
 
@@ -43,7 +44,7 @@ export interface ObjectType {
 }
 
 const fetchAllObjectTypes = async (): Promise<ObjectType[]> => {
-    const response = await axios.get<ObjectType[]>(`https://localhost:7234/api/object-types/get-all`);
+    const response = await axiosInstance.get<ObjectType[]>(`/object-types/get-all`);
     return response.data;
 };
 

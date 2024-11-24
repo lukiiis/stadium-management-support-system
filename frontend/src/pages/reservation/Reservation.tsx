@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import ReservationsWeek from "./components/weekly/ReservationsWeek";
-import { Alert, Button, CircularProgress, Snackbar } from "@mui/material";
+import { Alert, AlertColor, Button, CircularProgress, Snackbar } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { calculateTimeRangeAndPrice, CreateReservationData, CreateReservationErrorResponse, CreateReservationResponse, ObjectTypeDto, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
+import { calculateTimeRangeAndPrice, CreateReservationData, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
 import { AxiosError } from "axios";
 import styles from "./Reservation.module.scss"
 import { Link } from "react-router-dom";
+import { ApiErrorResponse, ApiSuccessResponse, ObjectTypeDto } from "../../shared/interfaces";
 
 const Reservation: React.FC = () => {
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isClient, setIsClient] = useState<boolean>(false);
     const [userId, setUserId] = useState<number | null>(null);
-    const [showError, setShowError] = useState<boolean>(false);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Stan dla wiadomości sukcesu
-    const [showSuccess, setShowSuccess] = useState<boolean>(false); // Stan dla widoczności sukcesu
+
+    const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+
     const [step, setStep] = useState<number>(1);
     const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
 
@@ -28,7 +30,6 @@ const Reservation: React.FC = () => {
             setUserId(parseInt(storedUserId, 10));
         }
     }, []);
-    // does not update when logged out during reservation process - CHANGE
 
     const date = new Date();
     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -41,11 +42,12 @@ const Reservation: React.FC = () => {
     };
 
     const nextStepCheckToken = () => {
-        if(!isClient){
-            setErrorMessage("You have to be logged in to create reservation");
-            setShowError(true);
+        if (!isClient) {
+            setSnackbarSeverity("error");
+            setSnackbarMessage("You have to be logged in to continue");
+            setShowSnackbar(true);
         }
-        else{
+        else {
             setStep(prevStep => prevStep + 1);
             scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
@@ -90,17 +92,15 @@ const Reservation: React.FC = () => {
 
         try {
             createReservationMutation.mutate(reservationData, {
-                onSuccess: (data: CreateReservationResponse) => {
-                    console.log(`Successfully created reservation`);
-                    setSuccessMessage(data.message);
-                    setShowSuccess(true);
+                onSuccess: (data: ApiSuccessResponse) => {
+                    setSnackbarSeverity("success");
+                    setSnackbarMessage(data.message);
+                    setShowSnackbar(true);
                 },
-                onError: (error: AxiosError<CreateReservationErrorResponse>) => {
-                    console.error(`Error creating reservation`, error);
-                    if (error.response?.data?.error) {
-                        setErrorMessage(error.response.data.error);
-                        setShowError(true);
-                    }
+                onError: (error: AxiosError<ApiErrorResponse>) => {
+                    setSnackbarSeverity("error");
+                    setSnackbarMessage(error.response?.data.error || "Failed to create reservation");
+                    setShowSnackbar(true);
                 }
             })
         }
@@ -110,36 +110,23 @@ const Reservation: React.FC = () => {
     }
 
     const handleCloseSnackbar = () => {
-        setShowError(false);
-        setErrorMessage(null);
-        setShowSuccess(false);
-        setSuccessMessage(null);
+        setShowSnackbar(false);
+        setSnackbarMessage(null);
     };
 
     return (
         <ReservationContext.Provider value={{ selectedDate, setSelectedDate, selectedHours, addSelectedHour, removeSelectedHour, payNow, setPayNow }}>
             <Snackbar
-                open={showError}
+                open={showSnackbar}
                 autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
             >
-                <Alert onClose={handleCloseSnackbar} severity="error" variant="filled">
-                    {errorMessage}
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
+                    {snackbarMessage}
                 </Alert>
             </Snackbar>
 
-            {/* Snackbar for success messages */}
-            <Snackbar
-                open={showSuccess}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity="success" variant="filled">
-                    {successMessage}
-                </Alert>
-            </Snackbar>
             {step === 1 && (
                 <div className={styles.reservationStep}>
                     <div className={styles.header}>

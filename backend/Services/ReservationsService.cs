@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.DTOs.Reservation;
 using backend.Models;
+using backend.Services.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
@@ -11,8 +12,10 @@ namespace backend.Services
     public interface IReservationsService
     {
         Task<string> CreateReservation(CreateReservationDto dto);
+        Task DeleteReservation(int reservationId);
         Task<ReservationDto?> GetReservationsByIdAsync(int reservationId);
         Task<IEnumerable<ReservationDto>?> GetReservationsByUserIdAsync(int userId);
+        Task<PaginatedResult<ReservationDto>> GetReservationsByUserIdPaginatedAsync(int userId, int page, int pageSize);
         Task<IEnumerable<Reservation>> GetReservationsByDateAndObject(DateOnly date, int objectId);
         Task<GetReservationListsDto> GetReservationScheduleForOneDay(DateOnly date, int ObjectId);
         Task<List<GetReservationListsDto>> GetReservationScheduleForOneWeek(DateOnly startDate, int objectId);
@@ -151,6 +154,32 @@ namespace backend.Services
 
             return _mapper.Map<IEnumerable<ReservationDto>>(reservations);
         }
+
+        public async Task<PaginatedResult<ReservationDto>> GetReservationsByUserIdPaginatedAsync(int userId, int page, int pageSize)
+        {
+            var query = _context.Set<Reservation>()
+                .Where(r => r.UserId == userId)
+                .Include(r => r.ObjectType)
+                .OrderByDescending(r => r.ReservationDate);
+
+            var totalCount = await query.CountAsync();
+
+            var reservations = await query
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var mappedReservations = _mapper.Map<IEnumerable<ReservationDto>>(reservations);
+
+            return new PaginatedResult<ReservationDto>
+            {
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                Items = mappedReservations.ToList()
+            };
+        }
+
         public async Task<ReservationDto?> GetReservationsByIdAsync(int reservationId)
         {
             var reservation = await _context.Set<Reservation>()
@@ -187,6 +216,11 @@ namespace backend.Services
                     return false;
             }
             return true;
+        }
+
+        public Task DeleteReservation(int reservationId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

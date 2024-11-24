@@ -5,6 +5,7 @@ using backend.DTOs.Tournament;
 using backend.DTOs.UserTournament;
 using backend.Enums;
 using backend.Models;
+using backend.Services.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
@@ -15,6 +16,7 @@ namespace backend.Services
         Task JoinTournamentAsync(JoinTournamentDto dto);
         Task LeaveTournamentAsync(LeaveTournamentDto dto);
         Task<IEnumerable<UserTournamentDto>> GetUserTournamentsAsync(int userId);
+        Task<PaginatedResult<UserTournamentDto>> GetUserTournamentsPaginatedAsync(int userId, int page, int pageSize);
         Task<Tournament?> GetTournamentByIdAsync(int tournamentId);
         Task<IEnumerable<TournamentDto>> GetAllTournaments();
         Task<IEnumerable<TournamentDto>> GetAllTournamentsByObjectId(int objectId);
@@ -147,6 +149,32 @@ namespace backend.Services
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<UserTournamentDto>>(userTournaments);
+        }
+
+        public async Task<PaginatedResult<UserTournamentDto>> GetUserTournamentsPaginatedAsync(int userId, int page, int pageSize)
+        {
+            var query = _context.UsersTournaments
+                .Where(ut => ut.UserId == userId)
+                .Include(ut => ut.Tournament)
+                .ThenInclude(t => t.ObjectType)
+                .OrderByDescending(ut => ut.JoinedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var userTournaments = await query
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var mappedTournaments = _mapper.Map<IEnumerable<UserTournamentDto>>(userTournaments);
+
+            return new PaginatedResult<UserTournamentDto>
+            {
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                Items = mappedTournaments.ToList()
+            };
         }
 
         public async Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto)

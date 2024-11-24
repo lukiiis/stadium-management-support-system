@@ -40,8 +40,8 @@ namespace backend.Services
         public async Task<AddressDto> GetAddressByUserIdAsync(int userId)
         {
             var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null || user.Address == null)
-                throw new KeyNotFoundException($"No address found for user with ID {userId}.");
+            if (user == null)
+                throw new KeyNotFoundException($"User is null");
 
             return _mapper.Map<AddressDto>(user.Address);
         }
