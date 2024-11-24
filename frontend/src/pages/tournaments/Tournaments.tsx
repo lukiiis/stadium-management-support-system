@@ -5,9 +5,7 @@ import {
     useGetObjectTypes, 
     useGetUsersTournaments, 
     useJoinTournament, 
-    useLeaveTournament, 
-    JoinLeaveTournamentResponse,
-    JoinLeaveTournamentErrorResponse
+    useLeaveTournament,
 } from "./tournamentsService";
 import { 
     Select, 
@@ -18,18 +16,20 @@ import {
     Button, 
     SelectChangeEvent, 
     Snackbar, 
-    Alert 
+    Alert, 
+    AlertColor
 } from "@mui/material";
 import { AxiosError } from "axios";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/interfaces";
 
 const Tournaments = () => {
     const [selectedObjectId, setSelectedObjectId] = useState<string>("all");
     const [isClient, setIsClient] = useState<boolean>(false);
     const [userId, setUserId] = useState<number | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [showError, setShowError] = useState<boolean>(false);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // Stan dla wiadomości sukcesu
-    const [showSuccess, setShowSuccess] = useState<boolean>(false); // Stan dla widoczności sukcesu
+    
+    const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
     const { data: tournaments, isLoading: loadingTournaments } = useGetTournaments();
     const { data: objectTypes, isLoading: loadingObjectTypes } = useGetObjectTypes();
@@ -65,18 +65,16 @@ const Tournaments = () => {
             joinTournamentMutation.mutate(
                 { userId, tournamentId, isPaid: false },
                 {
-                    onSuccess: (data: JoinLeaveTournamentResponse) => {
-                        console.log(`Successfully joined tournament ${tournamentId}`);
-                        setSuccessMessage(data.message); // Ustawienie wiadomości sukcesu
-                        setShowSuccess(true); // Wyświetlenie sukcesu
+                    onSuccess: (data: ApiSuccessResponse) => {
+                        setSnackbarSeverity("success");
+                        setSnackbarMessage(data.message);
+                        setShowSnackbar(true);
                         refetchUsersTournaments();
                     },
-                    onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
-                        console.error(`Error joining tournament ${tournamentId}`, error);
-                        if (error.response?.data?.error) {
-                            setErrorMessage(error.response.data.error);
-                            setShowError(true);
-                        }
+                    onError: (error: AxiosError<ApiErrorResponse>) => {
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(error.response?.data.error || "Failed to join tournament");
+                        setShowSnackbar(true);
                     },
                 }
             );
@@ -88,18 +86,16 @@ const Tournaments = () => {
             leaveTournamentMutation.mutate(
                 { userId, tournamentId },
                 {
-                    onSuccess: (data: JoinLeaveTournamentResponse) => {
-                        console.log(`Successfully left tournament ${tournamentId}`);
-                        setSuccessMessage(data.message); // Ustawienie wiadomości sukcesu
-                        setShowSuccess(true); // Wyświetlenie sukcesu
+                    onSuccess: (data: ApiSuccessResponse) => {
+                        setSnackbarSeverity("success");
+                        setSnackbarMessage(data.message);
+                        setShowSnackbar(true);
                         refetchUsersTournaments();
                     },
-                    onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
-                        console.error(`Error leaving tournament ${tournamentId}`, error);
-                        if (error.response?.data?.error) {
-                            setErrorMessage(error.response.data.error);
-                            setShowError(true);
-                        }
+                    onError: (error: AxiosError<ApiErrorResponse>) => {
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(error.response?.data.error || "Failed to leave tournament");
+                        setShowSnackbar(true);
                     },
                 }
             );
@@ -107,10 +103,8 @@ const Tournaments = () => {
     };
 
     const handleCloseSnackbar = () => {
-        setShowError(false);
-        setErrorMessage(null);
-        setShowSuccess(false);
-        setSuccessMessage(null);
+        setShowSnackbar(false);
+        setSnackbarMessage(null);
     };
 
     if (loadingTournaments || loadingObjectTypes || loadingUsersTournaments) {
@@ -119,27 +113,14 @@ const Tournaments = () => {
 
     return (
         <div className={styles.container}>
-            {/* Snackbar for error messages */}
-            <Snackbar 
-                open={showError} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
             >
-                <Alert onClose={handleCloseSnackbar} severity="error" variant="filled">
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-
-            {/* Snackbar for success messages */}
-            <Snackbar 
-                open={showSuccess} 
-                autoHideDuration={6000} 
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity="success" variant="filled">
-                    {successMessage}
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
+                    {snackbarMessage}
                 </Alert>
             </Snackbar>
 

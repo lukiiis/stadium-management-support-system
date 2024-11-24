@@ -1,14 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../../config/axiosConfig";
 import { AxiosError } from "axios";
-
-export interface UserDataResponse {
-    message: string,
-}
-
-export interface UserDataErrorResponse {
-    error: string,
-}
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/interfaces";
 
 // get user data
 export interface UserData {
@@ -24,13 +17,6 @@ export interface UserData {
     position: string | null,
     salary: number | null,
     enabled: boolean | null,
-    address: {
-        addressId: number,
-        country: string,
-        city: string,
-        street: string,
-        zipcode: string,
-    } | null,
 }
 
 export const useGetUserData = (userId: number) => {
@@ -59,10 +45,10 @@ export interface EditUserData {
 export const useUpdateData = () => {
     return useMutation({
         mutationFn: updateData,
-        onSuccess: (data: UserDataResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<UserDataErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },
     })
@@ -84,10 +70,10 @@ export interface ChangePasswordData {
 export const useChangePassword = () => {
     return useMutation({
         mutationFn: changePassword,
-        onSuccess: (data: UserDataResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<UserDataErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },
     })
@@ -135,10 +121,10 @@ export interface CreateAddressData {
 export const useCreateAddress = () => {
     return useMutation({
         mutationFn: createAddressPost,
-        onSuccess: (data: UserDataResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<UserDataErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },
     })
@@ -162,10 +148,10 @@ export interface UpdateAddressData {
 export const useUpdateAddress = () => {
     return useMutation({
         mutationFn: updateAddressPost,
-        onSuccess: (data: UserDataResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<UserDataErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },
     })

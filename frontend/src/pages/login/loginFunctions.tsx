@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { UseFormReturn } from "react-hook-form";
+import axiosInstance from "../../config/axiosConfig";
 
 export interface LoginStatus{
     status: string,
@@ -55,6 +56,6 @@ export const useLoginUser = (setLoginInfo: React.Dispatch<React.SetStateAction<L
 }
 
 export const loginUser = async (loginData: LoginData) => {
-    const res = await axios.post('https://localhost:7234/api/users/login', loginData);
+    const res = await axiosInstance.post('/users/login', loginData);
     return res.data;
 }

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { UseFormReturn, UseFormSetError } from "react-hook-form";
+import axiosInstance from "../../config/axiosConfig";
 
 export interface RegisterStatus{
     status: string,
@@ -57,7 +58,7 @@ export const useValidateEmail = (setEmailValid: React.Dispatch<React.SetStateAct
 
 //email validation
 export const validateEmail = async (email: string) => {
-    const res = await axios.post(`https://localhost:7234/api/users/is-valid/${email}`);
+    const res = await axiosInstance.post(`/users/is-valid/${email}`);
     return res.data;
 }
 
@@ -89,6 +90,6 @@ export const useRegisterUser = (setRegInfo: React.Dispatch<React.SetStateAction<
 
 //registration
 export const registerUser = async (userData: RegisterData) => {
-    const res = await axios.post('https://localhost:7234/api/users/register', userData);
+    const res = await axiosInstance.post('/users/register', userData);
     return res.data;
 }

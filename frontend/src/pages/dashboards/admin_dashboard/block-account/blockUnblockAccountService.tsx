@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import axiosInstance from "../../../../config/axiosConfig"
+import { PaginatedResult } from "../../../../shared/pagination"
 
 export interface BlockUnblockResponse {
     message: string,
@@ -49,13 +50,6 @@ const unblockUser = async (userId: number) => {
 
 
 // pagination get all users
-export type PaginatedResult<T> = {
-    totalCount: number;
-    page: number;
-    pageSize: number;
-    items: T[];
-};
-
 export interface UserData {
     userId: number,
     firstName: string,

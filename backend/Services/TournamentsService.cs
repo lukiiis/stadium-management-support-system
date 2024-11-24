@@ -162,7 +162,7 @@ namespace backend.Services
             var totalCount = await query.CountAsync();
 
             var userTournaments = await query
-                .Skip((page) * pageSize)
+                .Skip(page * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import axios, { AxiosError } from "axios"
+import { AxiosError } from "axios"
+import axiosInstance from "../../../../config/axiosConfig"
 
 export interface CreateTournamentData {
     sport: string,
@@ -31,7 +32,7 @@ export const useCreateTournament = () => {
 }
 
 const createTournamentPost = async (tournamentData: CreateTournamentData) => {
-    const res = await axios.post('https://localhost:7234/api/tournaments/create', tournamentData);
+    const res = await axiosInstance.post('/tournaments/create', tournamentData);
     return res.data;
 }
 
@@ -44,7 +45,7 @@ export interface ObjectType {
 }
 
 const fetchAllObjectTypes = async (): Promise<ObjectType[]> => {
-    const response = await axios.get<ObjectType[]>(`https://localhost:7234/api/object-types/get-all`);
+    const response = await axiosInstance.get<ObjectType[]>(`/object-types/get-all`);
     return response.data;
 };
 

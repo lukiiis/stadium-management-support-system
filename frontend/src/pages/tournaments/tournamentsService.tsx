@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import axiosInstance from "../../config/axiosConfig";
 
 export interface ObjectType {
     objectId: number,
@@ -21,7 +22,7 @@ export interface Tournament {
 
 // -------- firstly fetching object to be able to sort torunaments by objectId
 const fetchAllObjectTypes = async (): Promise<ObjectType[]> => {
-    const response = await axios.get<ObjectType[]>(`https://localhost:7234/api/object-types/get-all`);
+    const response = await axiosInstance.get<ObjectType[]>(`/object-types/get-all`);
     return response.data;
 };
 
@@ -35,7 +36,7 @@ export const useGetObjectTypes = () => {
 
 // --- now all tournaments for all objects
 const fetchAllTournaments = async (): Promise<Tournament[]> => {
-    const response = await axios.get<Tournament[]>(`https://localhost:7234/api/tournaments`);
+    const response = await axiosInstance.get<Tournament[]>(`/tournaments`);
     return response.data;
 };
 
@@ -49,7 +50,7 @@ export const useGetTournaments = () => {
 
 // ---- now tournaments by objectId
 const fetchAllTournamentsByObjectId = async (objectId: number): Promise<Tournament[]> => {
-    const response = await axios.get<Tournament[]>(`https://localhost:7234/api/tournaments/${objectId}`);
+    const response = await axiosInstance.get<Tournament[]>(`/tournaments/${objectId}`);
     return response.data;
 };
 
@@ -69,7 +70,7 @@ export interface UsersTournaments {
 }
 
 const fetchUsersTournaments = async (userId: number): Promise<UsersTournaments[]> => {
-    const response = await axios.get<UsersTournaments[]>(`https://localhost:7234/api/tournaments/joined-tournaments`, {
+    const response = await axiosInstance.get<UsersTournaments[]>(`/tournaments/joined-tournaments`, {
         params: {userId}
     });
     return response.data;
@@ -98,7 +99,7 @@ interface JoinTournamentData {
 }
 
 const joinTournament = async (joinTournamentData: JoinTournamentData) => {
-    const res = await axios.post('https://localhost:7234/api/tournaments/join', joinTournamentData);
+    const res = await axiosInstance.post('/tournaments/join', joinTournamentData);
     return res.data;
 }
 
@@ -122,7 +123,7 @@ interface LeaveTournamentData {
 }
 
 const leaveTournament = async (leaveTournamentData: LeaveTournamentData) => {
-    const res = await axios.delete('https://localhost:7234/api/tournaments/leave', {
+    const res = await axiosInstance.delete('/tournaments/leave', {
         data: leaveTournamentData
     });
     return res.data;

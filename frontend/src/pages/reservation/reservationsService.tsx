@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { createContext } from "react";
+import { ObjectTypeDto } from "../../shared/interfaces";
+import axiosInstance from "../../config/axiosConfig";
 
 export interface ReservationListsResponse {
     reservationsStart: string
@@ -18,7 +20,7 @@ export interface ReservationScheduleProps {
 
 //fetching schedule for one day
 const fetchDayScheduleData = async (date: string, objectId: number): Promise<ReservationListsResponse> => {
-    const response = await axios.get<ReservationListsResponse>(`https://localhost:7234/api/reservations/reservation-schedule-day`, {
+    const response = await axiosInstance.get<ReservationListsResponse>(`/reservations/reservation-schedule-day`, {
         params: { date, objectId },
     });
     return response.data;
@@ -34,7 +36,7 @@ export const useGetDaySchedule = (date: string, objectId: number) => {
 
 //fetching schedule for one week
 const fetchWeekScheduleData = async (startDate: string, objectId: number): Promise<ReservationListsResponse[]> => {
-    const response = await axios.get<ReservationListsResponse[]>(`https://localhost:7234/api/reservations/reservation-schedule-week`, {
+    const response = await axiosInstance.get<ReservationListsResponse[]>(`/reservations/reservation-schedule-week`, {
         params: { startDate, objectId },
     });
     return response.data;
@@ -49,16 +51,10 @@ export const useGetWeekSchedule = (startDate: string, objectId: number) => {
 
 
 // --------------------- OBJECT TYPES ------------------------
-export interface ObjectTypeDto {
-    objectId: number;
-    type: string;
-    description: string;
-    imageUrl: string;
-}
 
 //fetching ObjectTypes
 const fetchObjectTypes = async (): Promise<ObjectTypeDto[]> => {
-    const response = await axios.get('https://localhost:7234/api/object-types/get-all');
+    const response = await axiosInstance.get('/object-types/get-all');
     return response.data;
 };
 
@@ -133,6 +129,6 @@ export const useCreateReservation = () => {
 }
 
 export const createReservationPost = async (reservationData: CreateReservationData) => {
-    const res = await axios.post('https://localhost:7234/api/reservations/create', reservationData);
+    const res = await axiosInstance.post('/reservations/create', reservationData);
     return res.data;
 }
