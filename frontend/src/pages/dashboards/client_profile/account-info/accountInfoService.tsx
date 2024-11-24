@@ -2,6 +2,17 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../../config/axiosConfig";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/interfaces";
+import { createContext } from "react";
+
+//context for snackbar adn token
+interface AccountInfoContextType {
+    userId: number,
+    setSnackbarSeverity: React.Dispatch<React.SetStateAction<string>>,
+    setSnackbarMessage: React.Dispatch<React.SetStateAction<string | null>>,
+    setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>,
+}
+
+export const AccountInfoContext = createContext<AccountInfoContextType | undefined>(undefined);
 
 // get user data
 export interface UserData {
@@ -138,7 +149,7 @@ const createAddressPost = async (data: CreateAddressData) => {
 
 //update address
 export interface UpdateAddressData {
-    addressId: number,
+    addressId: number | undefined,
     country: string,
     city: string,
     street: string,
@@ -158,6 +169,6 @@ export const useUpdateAddress = () => {
 }
 
 const updateAddressPost = async (data: UpdateAddressData) => {
-    const res = await axiosInstance.post(`/addresses/update`, data);
+    const res = await axiosInstance.put(`/addresses/update`, data);
     return res.data;
 }
