@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
 import styles from "./Tournaments.module.scss";
-import { 
-    useGetTournaments, 
-    useGetObjectTypes, 
-    useGetUsersTournaments, 
-    useJoinTournament, 
+import {
+    useGetTournaments,
+    useGetObjectTypes,
+    useGetUsersTournaments,
+    useJoinTournament,
     useLeaveTournament,
 } from "./tournamentsService";
-import { 
-    Select, 
-    MenuItem, 
-    FormControl, 
-    InputLabel, 
-    CircularProgress, 
-    Button, 
-    SelectChangeEvent, 
-    Snackbar, 
-    Alert, 
+import {
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    CircularProgress,
+    Button,
+    SelectChangeEvent,
+    Snackbar,
+    Alert,
     AlertColor
 } from "@mui/material";
 import { AxiosError } from "axios";
@@ -26,7 +26,7 @@ const Tournaments = () => {
     const [selectedObjectId, setSelectedObjectId] = useState<string>("all");
     const [isClient, setIsClient] = useState<boolean>(false);
     const [userId, setUserId] = useState<number | null>(null);
-    
+
     const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
@@ -52,8 +52,8 @@ const Tournaments = () => {
         setSelectedObjectId(event.target.value as string);
     };
 
-    const filteredTournaments = selectedObjectId === "all" 
-        ? tournaments 
+    const filteredTournaments = selectedObjectId === "all"
+        ? tournaments
         : tournaments?.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
 
     const isUserInTournament = (tournamentId: number): boolean => {
@@ -113,68 +113,70 @@ const Tournaments = () => {
 
     return (
         <div className={styles.container}>
-            <Snackbar
-                open={showSnackbar}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-
-            <FormControl fullWidth className={styles.select}>
-                <InputLabel id="object-filter-label">Filter by Object</InputLabel>
-                <Select
-                    labelId="object-filter-label"
-                    value={selectedObjectId}
-                    onChange={handleSelectChange}
+            <div className={styles.wrapper}>
+                <Snackbar
+                    open={showSnackbar}
+                    autoHideDuration={6000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 >
-                    <MenuItem value="all">Show all tournaments</MenuItem>
-                    {objectTypes?.map(objectType => (
-                        <MenuItem key={objectType.objectId} value={objectType.objectId.toString()}>
-                            Show tournaments for object {objectType.objectId}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
+                        {snackbarMessage}
+                    </Alert>
+                </Snackbar>
 
-            <div className={styles.tournamentsList}>
-                {filteredTournaments?.map(tournament => (
-                    <div key={tournament.tournamentId} className={styles.tournamentCard}>
-                        <h3>{tournament.sport}</h3>
-                        <p><strong>Description:</strong> {tournament.description}</p>
-                        <p><strong>Max Slots:</strong> {tournament.maxSlots}</p>
-                        <p><strong>Occupied Slots:</strong> {tournament.occupiedSlots}</p>
-                        <p><strong>Start Date:</strong> {new Date(tournament.startDate).toLocaleDateString()}</p>
-                        <p><strong>End Date:</strong> {new Date(tournament.endDate).toLocaleDateString()}</p>
-                        <p><strong>Object Type:</strong> {tournament.objectType.type}</p>
-                        <img src={tournament.objectType.imageUrl} alt={tournament.objectType.type} className={styles.image} />
-                        
-                        {isClient && (
-                            <div className={styles.buttons}>
-                                {!isUserInTournament(tournament.tournamentId) ? (
-                                    <Button 
-                                        variant="contained" 
-                                        color="primary"
-                                        onClick={() => handleJoinTournament(tournament.tournamentId)}
-                                    >
-                                        Join
-                                    </Button>
-                                ) : (
-                                    <Button 
-                                        variant="outlined" 
-                                        color="secondary"
-                                        onClick={() => handleLeaveTournament(tournament.tournamentId)}
-                                    >
-                                        Leave
-                                    </Button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ))}
+                <FormControl fullWidth className={styles.select}>
+                    <InputLabel id="object-filter-label">Filter by Object</InputLabel>
+                    <Select
+                        labelId="object-filter-label"
+                        value={selectedObjectId}
+                        onChange={handleSelectChange}
+                    >
+                        <MenuItem value="all">Show all tournaments</MenuItem>
+                        {objectTypes?.map(objectType => (
+                            <MenuItem key={objectType.objectId} value={objectType.objectId.toString()}>
+                                Show tournaments for object {objectType.objectId}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <div className={styles.tournamentsList}>
+                    {filteredTournaments?.map(tournament => (
+                        <div key={tournament.tournamentId} className={styles.tournamentCard}>
+                            <h3>{tournament.sport}</h3>
+                            <p><strong>Description:</strong> {tournament.description}</p>
+                            <p><strong>Max Slots:</strong> {tournament.maxSlots}</p>
+                            <p><strong>Occupied Slots:</strong> {tournament.occupiedSlots}</p>
+                            <p><strong>Start Date:</strong> {new Date(tournament.startDate).toLocaleDateString()}</p>
+                            <p><strong>End Date:</strong> {new Date(tournament.endDate).toLocaleDateString()}</p>
+                            <p><strong>Object Type:</strong> {tournament.objectType.type}</p>
+                            <img src={tournament.objectType.imageUrl} alt={tournament.objectType.type} className={styles.image} />
+
+                            {isClient && (
+                                <div className={styles.buttons}>
+                                    {!isUserInTournament(tournament.tournamentId) ? (
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => handleJoinTournament(tournament.tournamentId)}
+                                        >
+                                            Join
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() => handleLeaveTournament(tournament.tournamentId)}
+                                        >
+                                            Leave
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

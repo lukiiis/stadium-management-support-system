@@ -8,11 +8,9 @@ const Layout: React.FC = () => {
     return (
         <>
             <Navbar />
-            <div className={styles.main}>
-                <div className={styles.wrapper}>
+                <div className={styles.main}>
                     <Outlet />
                 </div>
-            </div>
             <Footer />
         </>
     )

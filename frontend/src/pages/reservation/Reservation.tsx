@@ -127,141 +127,142 @@ const Reservation: React.FC = () => {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-
-            {step === 1 && (
-                <div className={styles.reservationStep}>
-                    <div className={styles.header}>
-                        <h1 className={styles.title}>Reservation Page</h1>
-                        <Button
-                            variant="outlined"
-                            endIcon={<ArrowForwardIcon />}
-                            onClick={nextStep}
-                            disabled={!selectedObjectId}
-                            className={styles.nextButton}
-                        >
-                            Next
-                        </Button>
-                    </div>
-
-                    {objectTypes.data ? (
-                        <div className={styles.objectSelection}>
-                            <label htmlFor="object-select" className={styles.label}>
-                                Select Object:
-                            </label>
-                            <select
-                                id="object-select"
-                                onChange={(e) => setSelectedObjectId(Number(e.target.value))}
-                                value={selectedObjectId ?? ''}
-                                className={styles.select}
+            <div className={styles.wrapper}>
+                {step === 1 && (
+                    <div className={styles.reservationStep}>
+                        <div className={styles.header}>
+                            <h1 className={styles.title}>Reservation Page</h1>
+                            <Button
+                                variant="outlined"
+                                endIcon={<ArrowForwardIcon />}
+                                onClick={nextStep}
+                                disabled={!selectedObjectId}
+                                className={styles.nextButton}
                             >
-                                <option value="" disabled>
-                                    Select an object
-                                </option>
-                                {objectTypes.data.map((object: ObjectTypeDto) => (
-                                    <option key={object.objectId} value={object.objectId}>
-                                        {object.type} - {object.description}
+                                Next
+                            </Button>
+                        </div>
+
+                        {objectTypes.data ? (
+                            <div className={styles.objectSelection}>
+                                <label htmlFor="object-select" className={styles.label}>
+                                    Select Object:
+                                </label>
+                                <select
+                                    id="object-select"
+                                    onChange={(e) => setSelectedObjectId(Number(e.target.value))}
+                                    value={selectedObjectId ?? ''}
+                                    className={styles.select}
+                                >
+                                    <option value="" disabled>
+                                        Select an object
                                     </option>
-                                ))}
-                            </select>
-                        </div>
-                    ) : (
-                        <div className={styles.loading}>
-                            <CircularProgress />
-                        </div>
-                    )}
-                </div>
-            )}
-            {step === 2 && (
-                <>
-                    <div className="flex justify-between">
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBackIcon />}
-                            onClick={prevStep}
-                            className={styles.prevButton}
-                        >
-                            Back
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            endIcon={<ArrowForwardIcon />}
-                            onClick={nextStepCheckToken}
-                            disabled={selectedHours.length === 0}
-                            className={styles.nextButton}
-                        >
-                            Next
-                        </Button>
+                                    {objectTypes.data.map((object: ObjectTypeDto) => (
+                                        <option key={object.objectId} value={object.objectId}>
+                                            {object.type} - {object.description}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        ) : (
+                            <div className={styles.loading}>
+                                <CircularProgress />
+                            </div>
+                        )}
                     </div>
-                    {selectedObjectId !== null && (
-                        <ReservationsWeek date={formattedDate} objectId={selectedObjectId} />
-                    )}
-                </>
-            )}
-
-            {step === 3 && (() => {
-                const selectedObject = objectTypes.data?.find(
-                    (obj) => obj.objectId === selectedObjectId
-                );
-
-                return (
-                    <div className={styles.reservationSummary}>
-                        {!createReservationMutation.isSuccess && (
+                )}
+                {step === 2 && (
+                    <>
+                        <div className="flex justify-between">
                             <Button
                                 variant="outlined"
                                 startIcon={<ArrowBackIcon />}
                                 onClick={prevStep}
                                 className={styles.prevButton}
-                                disabled={createReservationMutation.isSuccess}
                             >
                                 Back
-                            </Button>)
-                        }
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                endIcon={<ArrowForwardIcon />}
+                                onClick={nextStepCheckToken}
+                                disabled={selectedHours.length === 0}
+                                className={styles.nextButton}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                        {selectedObjectId !== null && (
+                            <ReservationsWeek date={formattedDate} objectId={selectedObjectId} />
+                        )}
+                    </>
+                )}
 
-                        <div className={styles.confirmationCard}>
-                            <h1 className={styles.title}>Confirm Reservation</h1>
-                            <div className={styles.details}>
-                                <p><strong>Start time:</strong> {startTime}</p>
-                                <p><strong>End time:</strong> {endTime}</p>
-                                <p><strong>Date:</strong> {selectedDate}</p>
-                                <p><strong>Price:</strong> {price}</p>
-                                <p>
-                                    <strong>Object:</strong> {selectedObject?.type || 'Unknown'}
-                                </p>
-                                <p>
-                                    <strong>Name:</strong> {localStorage.getItem("firstName") || 'Unknown'}{' '}
-                                    {localStorage.getItem("lastName")}
-                                </p>
-                                <p>
-                                    <strong>Pay now:</strong> {payNow ? 'Yes' : 'No'}
-                                </p>
-                            </div>
-                            <div className="flex flex-col items-center gap-8">
+                {step === 3 && (() => {
+                    const selectedObject = objectTypes.data?.find(
+                        (obj) => obj.objectId === selectedObjectId
+                    );
+
+                    return (
+                        <div className={styles.reservationSummary}>
+                            {!createReservationMutation.isSuccess && (
                                 <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={createReservation}
-                                    className={styles.createButton}
+                                    variant="outlined"
+                                    startIcon={<ArrowBackIcon />}
+                                    onClick={prevStep}
+                                    className={styles.prevButton}
                                     disabled={createReservationMutation.isSuccess}
                                 >
-                                    Create
-                                </Button>
-                                {createReservationMutation.isSuccess && (
-                                    <Link to="/profile">
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            className={styles.redirectButton}
-                                            disabled={!createReservationMutation.isSuccess}
-                                        >
-                                            Go to profile
-                                        </Button>
-                                    </Link>
-                                )}
+                                    Back
+                                </Button>)
+                            }
+
+                            <div className={styles.confirmationCard}>
+                                <h1 className={styles.title}>Confirm Reservation</h1>
+                                <div className={styles.details}>
+                                    <p><strong>Start time:</strong> {startTime}</p>
+                                    <p><strong>End time:</strong> {endTime}</p>
+                                    <p><strong>Date:</strong> {selectedDate}</p>
+                                    <p><strong>Price:</strong> {price}</p>
+                                    <p>
+                                        <strong>Object:</strong> {selectedObject?.type || 'Unknown'}
+                                    </p>
+                                    <p>
+                                        <strong>Name:</strong> {localStorage.getItem("firstName") || 'Unknown'}{' '}
+                                        {localStorage.getItem("lastName")}
+                                    </p>
+                                    <p>
+                                        <strong>Pay now:</strong> {payNow ? 'Yes' : 'No'}
+                                    </p>
+                                </div>
+                                <div className="flex flex-col items-center gap-8">
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={createReservation}
+                                        className={styles.createButton}
+                                        disabled={createReservationMutation.isSuccess}
+                                    >
+                                        Create
+                                    </Button>
+                                    {createReservationMutation.isSuccess && (
+                                        <Link to="/profile">
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                className={styles.redirectButton}
+                                                disabled={!createReservationMutation.isSuccess}
+                                            >
+                                                Go to profile
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                );
-            })()}
+                    );
+                })()}
+            </div>
 
             <div ref={scrollRef}></div>
         </ReservationContext.Provider>
