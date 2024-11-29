@@ -1,9 +1,9 @@
 import { useState } from "react";
 import styles from "./Register.module.scss"
 import { useForm } from "react-hook-form";
-import { RegisterData, RegisterStatus, useRegisterUser, useValidateEmail } from "./registerFunctions";
-import { TextField } from "@mui/material";
-import LoadingSpinner from "../../components/loadingSpinner/LoadingSpinner";
+import { useRegisterUser, useValidateEmail } from "./registerFunctions";
+import { CircularProgress, TextField } from "@mui/material";
+import { RegisterData, RegisterStatus } from "../../shared/types/auth/register";
 
 const Register = () => {
     //email and register info
@@ -84,7 +84,7 @@ const Register = () => {
                                 {...emailForm.register("email", { required: "Field required", pattern: { value: /\S+@\S+\.\S+/, message: "Entered value does not match email format", } })}
                             />
                             <button className="auth-button" type="submit">Continue</button>
-                            {emailValidationMutation.isPending ? (<LoadingSpinner isLoading={false}/>) : ""} {/*CHANGEEE*/}
+                            {registerMutation.isPending ? <CircularProgress /> : ""}
                         </form>
                     ) : (
                         <>
@@ -139,7 +139,7 @@ const Register = () => {
                                 <button className="auth-button" type="submit">Sign Up</button>
                             </form>
                             <div className="mt-3 cursor-pointer" onClick={() => { setEmailValid(false); registerForm.reset(); }}>Go back</div>
-                            {registerMutation.isPending ? (<LoadingSpinner isLoading={false}/>) : ""} {/*CHANGEEE*/}
+                            {registerMutation.isPending ? <CircularProgress /> : ""}
                         </>
                     )}
                     <div>{regInfo.message}</div>

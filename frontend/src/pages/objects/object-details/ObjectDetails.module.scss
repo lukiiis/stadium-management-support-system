@@ -1,14 +1,12 @@
-.objectsContainer {
+.objectDetailsContainer {
     display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
     justify-content: center;
     padding: 16px;
 }
 
 .objectCard {
-    width: 300px;
-    height: 200px;
+    width: 400px;
+    height: 300px;
     margin: 16px;
     background-size: cover;
     background-position: center;

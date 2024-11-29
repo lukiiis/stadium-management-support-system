@@ -1,14 +1,25 @@
 import React, { useState } from "react";
-import { useGetPaginatedUserTournaments, useLeaveTournament, UsersTournaments } from "./clientTournamentsService";
+import { useGetPaginatedUserTournaments, useLeaveTournament } from "./clientTournamentsService";
 import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor } from "@mui/material";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientTournaments.module.scss";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/interfaces";
 import { AxiosError } from "axios";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { UsersTournaments } from "../../../../shared/types/models/userTournament";
+import { useNavigate } from "react-router-dom";
 
 const ClientTournaments: React.FC = () => {
+    const navigate = useNavigate();
+
     const token = localStorage.getItem("token") as string;
+
+    // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
+    if (token === null) {
+        navigate("/login");
+        return;
+    }
+
     const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
 
     const [page, setPage] = useState(1);

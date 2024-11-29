@@ -7,7 +7,8 @@ import { calculateTimeRangeAndPrice, CreateReservationData, ReservationContext, 
 import { AxiosError } from "axios";
 import styles from "./Reservation.module.scss"
 import { Link } from "react-router-dom";
-import { ApiErrorResponse, ApiSuccessResponse, ObjectTypeDto } from "../../shared/interfaces";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
+import { ObjectTypeDto } from "../../shared/types/models/objectType";
 
 const Reservation: React.FC = () => {
     const [isClient, setIsClient] = useState<boolean>(false);

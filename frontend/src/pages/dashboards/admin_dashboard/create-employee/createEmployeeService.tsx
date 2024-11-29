@@ -1,32 +1,16 @@
 import { useMutation } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import axiosInstance from "../../../../config/axiosConfig"
-
-export interface CreateEmployeeData {
-    firstName: string,
-    lastName: string,
-    age: number,
-    phone: number,
-    email: string,
-    salary: number,
-    position: string,
-}
-
-export interface CreateEmployeeResponse {
-    message: string,
-}
-
-export interface CreateEmployeeErrorResponse {
-    error: string,
-}
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse"
+import { CreateEmployeeData } from "../../../../shared/types/models/user"
 
 export const useCreateEmployee = () => {
     return useMutation({
         mutationFn: createEmployeePost,
-        onSuccess: (data: CreateEmployeeResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<CreateEmployeeErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },   
     })

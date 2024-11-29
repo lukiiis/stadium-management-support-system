@@ -8,11 +8,10 @@ import styles from "./EmployeeLayout.module.scss"
 const EmployeeLayout: React.FC = () => (
     <>
         <Navbar />
-        <div className={styles.main}>
-            <div className={styles.wrapper}>
+
                 <Outlet />
-            </div>
-        </div>
+
+
         <Footer />
     </>
 );

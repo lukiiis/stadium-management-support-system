@@ -1,8 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../../config/axiosConfig";
 import { AxiosError } from "axios";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/interfaces";
 import { createContext } from "react";
+import { ApiSuccessResponse, ApiErrorResponse } from "../../../../shared/types/api/apiResponse";
+import { AddressDto, CreateAddressData, UpdateAddressData } from "../../../../shared/types/models/address";
+import { ChangePasswordData, EditUserData, UserDto } from "../../../../shared/types/models/user";
 
 //context for snackbar adn token
 interface AccountInfoContextType {
@@ -15,23 +17,8 @@ interface AccountInfoContextType {
 export const AccountInfoContext = createContext<AccountInfoContextType | undefined>(undefined);
 
 // get user data
-export interface UserData {
-    userId: number,
-    firstName: string,
-    lastName: string,
-    age: number,
-    phone: number,
-    email: string,
-    role: string,
-    createdAt: string | null,
-    wallet: number | null,
-    position: string | null,
-    salary: number | null,
-    enabled: boolean | null,
-}
-
 export const useGetUserData = (userId: number) => {
-    return useQuery<UserData>({
+    return useQuery<UserDto>({
         queryKey: ['userData'],
         queryFn: () => fetchUserData(userId),
         enabled: !!userId,
@@ -44,15 +31,6 @@ export const fetchUserData = async (userId: number) => {
 };
 
 // change user data
-export interface EditUserData {
-    userId: number,
-    firstName: string,
-    lastName: string,
-    age: number,
-    phone: number,
-    email: string,
-}
-
 export const useUpdateData = () => {
     return useMutation({
         mutationFn: updateData,
@@ -72,12 +50,6 @@ const updateData = async (data: EditUserData) => {
 
 
 // change password
-export interface ChangePasswordData {
-    currentPassword: string,
-    newPassword: string,
-    confirmPassword: string,
-}
-
 export const useChangePassword = () => {
     return useMutation({
         mutationFn: changePassword,
@@ -98,16 +70,8 @@ const changePassword = async (data: { userId: number; passwordData: ChangePasswo
 // ---------------add/change address------------------
 
 // get address by userId
-export interface AddressData {
-    addressId: number,
-    country: string,
-    city: string,
-    street: string,
-    zipcode: string,
-}
-
 export const useGetAddressData = (userId: number) => {
-    return useQuery<AddressData>({
+    return useQuery<AddressDto>({
         queryKey: ['addressData'],
         queryFn: () => fetchAddressData(userId),
         enabled: !!userId,
@@ -121,14 +85,6 @@ export const fetchAddressData = async (userId: number) => {
 
 
 // create address
-export interface CreateAddressData {
-    userId: number,
-    country: string,
-    city: string,
-    street: string,
-    zipcode: string,  
-}
-
 export const useCreateAddress = () => {
     return useMutation({
         mutationFn: createAddressPost,
@@ -148,14 +104,6 @@ const createAddressPost = async (data: CreateAddressData) => {
 
 
 //update address
-export interface UpdateAddressData {
-    addressId: number | undefined,
-    country: string,
-    city: string,
-    street: string,
-    zipcode: string,  
-}
-
 export const useUpdateAddress = () => {
     return useMutation({
         mutationFn: updateAddressPost,

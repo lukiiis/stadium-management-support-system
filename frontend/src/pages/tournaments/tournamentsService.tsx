@@ -1,33 +1,19 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import axiosInstance from "../../config/axiosConfig";
-
-export interface ObjectType {
-    objectId: number,
-    type: string,
-    description: string,
-    imageUrl: string,
-}
-
-export interface Tournament {
-    tournamentId: number,
-    sport: string,
-    maxSlots: number,
-    occupiedSlots: number,
-    startDate: string,
-    endDate: string,
-    description: string,
-    objectType: ObjectType,
-}
+import { ObjectTypeDto } from "../../shared/types/models/objectType";
+import { TournamentDto } from "../../shared/types/models/tournament";
+import { UsersTournaments } from "../../shared/types/models/userTournament";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
 
 // -------- firstly fetching object to be able to sort torunaments by objectId
-const fetchAllObjectTypes = async (): Promise<ObjectType[]> => {
-    const response = await axiosInstance.get<ObjectType[]>(`/object-types/get-all`);
+const fetchAllObjectTypes = async (): Promise<ObjectTypeDto[]> => {
+    const response = await axiosInstance.get<ObjectTypeDto[]>(`/object-types/get-all`);
     return response.data;
 };
 
 export const useGetObjectTypes = () => {
-    return useQuery<ObjectType[]>({
+    return useQuery<ObjectTypeDto[]>({
         queryKey:['objectTypes'],
         queryFn: fetchAllObjectTypes,
     });
@@ -35,13 +21,13 @@ export const useGetObjectTypes = () => {
 
 
 // --- now all tournaments for all objects
-const fetchAllTournaments = async (): Promise<Tournament[]> => {
-    const response = await axiosInstance.get<Tournament[]>(`/tournaments`);
+const fetchAllTournaments = async (): Promise<TournamentDto[]> => {
+    const response = await axiosInstance.get<TournamentDto[]>(`/tournaments/not-started`);
     return response.data;
 };
 
 export const useGetTournaments = () => {
-    return useQuery<Tournament[]>({
+    return useQuery<TournamentDto[]>({
         queryKey:['tournaments'],
         queryFn: fetchAllTournaments,
     });
@@ -49,13 +35,13 @@ export const useGetTournaments = () => {
 
 
 // ---- now tournaments by objectId
-const fetchAllTournamentsByObjectId = async (objectId: number): Promise<Tournament[]> => {
-    const response = await axiosInstance.get<Tournament[]>(`/tournaments/${objectId}`);
+const fetchAllTournamentsByObjectId = async (objectId: number): Promise<TournamentDto[]> => {
+    const response = await axiosInstance.get<TournamentDto[]>(`/tournaments/${objectId}`);
     return response.data;
 };
 
 export const useGetTournamentsByObjectId = (objectId: number) => {
-    return useQuery<Tournament[]>({
+    return useQuery<TournamentDto[]>({
         queryKey:['tournamentsByObjectId', objectId],
         queryFn: () => fetchAllTournamentsByObjectId(objectId),
     });
@@ -63,12 +49,6 @@ export const useGetTournamentsByObjectId = (objectId: number) => {
 
 
 // fetching tournaments that client has joined to show JOIN or LEAVE buttons
-export interface UsersTournaments {
-    tournament: Tournament,
-    paymentStatus: string,
-    joinedAt: string,
-}
-
 const fetchUsersTournaments = async (userId: number): Promise<UsersTournaments[]> => {
     const response = await axiosInstance.get<UsersTournaments[]>(`/tournaments/joined-tournaments`, {
         params: {userId}
@@ -84,14 +64,6 @@ export const useGetUsersTournaments = (userId: number) => {
 }
 
 // join tournament mutation
-export interface JoinLeaveTournamentResponse {
-    message: string;
-}
-
-export interface JoinLeaveTournamentErrorResponse {
-    error: string
-}
-
 interface JoinTournamentData {
     userId: number,
     tournamentId: number,
@@ -106,10 +78,10 @@ const joinTournament = async (joinTournamentData: JoinTournamentData) => {
 export const useJoinTournament = () => {
     return useMutation({
         mutationFn: joinTournament,
-        onSuccess: (data: JoinLeaveTournamentResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },   
     })
@@ -132,10 +104,10 @@ const leaveTournament = async (leaveTournamentData: LeaveTournamentData) => {
 export const useLeaveTournament = () => {
     return useMutation({
         mutationFn: leaveTournament,
-        onSuccess: (data: JoinLeaveTournamentResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<JoinLeaveTournamentErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },   
     })

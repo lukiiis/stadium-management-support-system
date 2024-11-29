@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert } from "@mui/material";
 import styles from './AddTournament.module.scss';
-import { CreateTournamentData, CreateTournamentErrorResponse, CreateTournamentResponse, ObjectType, useCreateTournament, useGetObjectTypes } from "./addTournamentService";
+import { useCreateTournament, useGetObjectTypes } from "./addTournamentService";
 import { AxiosError } from "axios";
+import { CreateTournamentData } from "../../../../shared/types/models/tournament";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
 
 const AddTournament: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -25,13 +28,13 @@ const AddTournament: React.FC = () => {
 
     const onSubmit = (data: CreateTournamentData) => {
         createTournamentMutation.mutate(data, {
-            onSuccess: (data: CreateTournamentResponse) => {
+            onSuccess: (data: ApiSuccessResponse) => {
                 console.log(`Successfully created tournament`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
                 reset();
             },
-            onError: (error: AxiosError<CreateTournamentErrorResponse>) => {
+            onError: (error: AxiosError<ApiErrorResponse>) => {
                 console.error(`Error creating tournament`);
                 if (error.response?.data?.error) {
                     setErrorMessage(error.response.data.error);
@@ -128,7 +131,7 @@ const AddTournament: React.FC = () => {
                                 defaultValue="" // Dodaj wartość domyślną
                                 label="Object"
                             >
-                                {objectTypes?.map((obj: ObjectType) => (
+                                {objectTypes?.map((obj: ObjectTypeDto) => (
                                     <MenuItem key={obj.objectId} value={obj.objectId}>
                                         {obj.description}
                                     </MenuItem>

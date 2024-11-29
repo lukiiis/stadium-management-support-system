@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { createContext } from "react";
-import { ObjectTypeDto } from "../../shared/interfaces";
 import axiosInstance from "../../config/axiosConfig";
+import { ObjectTypeDto } from "../../shared/types/models/objectType";
 
 export interface ReservationListsResponse {
     reservationsStart: string

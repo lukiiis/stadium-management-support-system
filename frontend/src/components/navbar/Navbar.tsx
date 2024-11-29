@@ -13,6 +13,8 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { UserContext } from '../../context/UserContext';
 
 const pagesGuest = [
     { name: 'Reservations', link: '/reservations' },
@@ -53,6 +55,7 @@ const adminSettings = [
 ];
 
 const Navbar = () => {
+    const userContext = useContext(UserContext);
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
@@ -75,6 +78,7 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.clear();
         setAnchorElUser(null);
+        userContext?.setIsLoggedIn(false);
         window.location.reload();
     };
 

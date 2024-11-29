@@ -1,10 +1,11 @@
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
-import { AccountInfoContext, ChangePasswordData, useChangePassword } from "../accountInfoService";
+import { AccountInfoContext, useChangePassword } from "../accountInfoService";
 import { TextField, Button } from "@mui/material";
 import styles from "./PasswordData.module.scss";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../../../../shared/interfaces";
 import { AxiosError } from "axios";
+import { ApiSuccessResponse, ApiErrorResponse } from "../../../../../shared/types/api/apiResponse";
+import { ChangePasswordData } from "../../../../../shared/types/models/user";
 
 interface PasswordDataProps {
     userId: number;

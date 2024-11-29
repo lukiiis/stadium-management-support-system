@@ -24,6 +24,8 @@ import BlockAccount from './pages/dashboards/admin_dashboard/block-account/Block
 import AccountInfo from './pages/dashboards/client_profile/account-info/AccountInfo'
 import ClientReservations from './pages/dashboards/client_profile/client-reservations/ClientReservations'
 import ClientTournaments from './pages/dashboards/client_profile/client-tournaments/ClientTournaments'
+import ObjectDetails from './pages/objects/object-details/ObjectDetails'
+import { UserProvider } from './context/UserContext'
 
 const router = createBrowserRouter([
   {
@@ -46,11 +48,15 @@ const router = createBrowserRouter([
       {
         path: "/objects",
         element: <Objects />
+      },
+      {
+        path: "/objects/:objectId",
+        element: <ObjectDetails />
       }
     ]
   },
   {
-    element: <ClientLayout/>,
+    element: <ClientLayout />,
     errorElement: <ErrorPage />,
     children: [
       {
@@ -58,15 +64,15 @@ const router = createBrowserRouter([
         element: <ClientProfile />,
         children: [
           {
-            path:"/profile/information",
+            path: "/profile/information",
             element: <AccountInfo />
           },
           {
-            path:"/profile/tournaments",
+            path: "/profile/tournaments",
             element: <ClientTournaments />
           },
           {
-            path:"/profile/reservations",
+            path: "/profile/reservations",
             element: <ClientReservations />
           },
         ]
@@ -130,7 +136,9 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <UserProvider>
+        <RouterProvider router={router} />
+      </UserProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useGetAddressData, useCreateAddress, useUpdateAddress, AccountInfoContext, CreateAddressData, UpdateAddressData } from "../accountInfoService";
+import { useGetAddressData, useCreateAddress, useUpdateAddress, AccountInfoContext } from "../accountInfoService";
 import { TextField, Button, CircularProgress } from "@mui/material";
 import styles from "./AddressData.module.scss";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../../../../shared/interfaces";
 import { AxiosError } from "axios";
+import { ApiSuccessResponse, ApiErrorResponse } from "../../../../../shared/types/api/apiResponse";
+import { CreateAddressData, UpdateAddressData } from "../../../../../shared/types/models/address";
 
 interface AddressDataProps {
     userId: number;

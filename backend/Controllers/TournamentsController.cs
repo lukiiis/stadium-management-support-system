@@ -120,6 +120,22 @@ namespace backend.Controllers
             }
         }
 
+        //get all not started tournaments
+        [HttpGet("not-started")]
+        public async Task<IActionResult> GetAllNotStartedTournaments()
+        {
+            try
+            {
+                var tournaments = await _tournamentsService.GetAllNotStartedTournaments();
+
+                return Ok(tournaments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
         [HttpGet("{objectId}")]
         public async Task<IActionResult> GetAllTournamentsByObjectId(int objectId)
         {

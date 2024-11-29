@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { useBlockUser, useUnblockUser, useGetPaginatedUsers, UserData, BlockUnblockErrorResponse, BlockUnblockResponse } from "./blockUnblockAccountService";
+import { useBlockUser, useUnblockUser, useGetPaginatedUsers } from "./blockUnblockAccountService";
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress, Snackbar, Alert } from "@mui/material";
 import styles from './BlockAccount.module.scss';
 import { AxiosError } from "axios";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { UserDto } from "../../../../shared/types/models/user";
 
 const BlockAccount: React.FC = () => {
     const [page, setPage] = useState(0);
-    const [pageSize/*, setPageSize*/] = useState(2);
+    const [pageSize/*, setPageSize*/] = useState(5);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showError, setShowError] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -19,13 +21,13 @@ const BlockAccount: React.FC = () => {
 
     const handleBlock = (userId: number) => {
         blockUserMutation.mutate(userId, {
-            onSuccess: (data: BlockUnblockResponse) => {
+            onSuccess: (data: ApiSuccessResponse) => {
                 console.log(`Successfully Blocked user`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
                 users.refetch();
             },
-            onError: (error: AxiosError<BlockUnblockErrorResponse>) => {
+            onError: (error: AxiosError<ApiErrorResponse>) => {
                 console.error(`Error Blocked user`);
                 if (error.response?.data?.error) {
                     setErrorMessage(error.response.data.error);
@@ -41,13 +43,13 @@ const BlockAccount: React.FC = () => {
 
     const handleUnblock = (userId: number) => {
         unblockUserMutation.mutate(userId, {
-            onSuccess: (data: BlockUnblockResponse) => {
+            onSuccess: (data: ApiSuccessResponse) => {
                 console.log(`Successfully unBlocked user`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
                 users.refetch();
             },
-            onError: (error: AxiosError<BlockUnblockErrorResponse>) => {
+            onError: (error: AxiosError<ApiErrorResponse>) => {
                 console.error(`Error unBlocked user`);
                 if (error.response?.data?.error) {
                     setErrorMessage(error.response.data.error);
@@ -122,7 +124,7 @@ const BlockAccount: React.FC = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {users.data?.items?.map((user: UserData) => (
+                        {users.data?.items?.map((user: UserDto) => (
                             <TableRow key={user.userId}>
                                 <TableCell>{user.userId}</TableCell>
                                 <TableCell>{user.firstName}</TableCell>

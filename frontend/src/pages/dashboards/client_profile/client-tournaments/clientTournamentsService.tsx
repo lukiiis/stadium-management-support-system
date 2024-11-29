@@ -1,27 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../../config/axiosConfig";
-import { ApiErrorResponse, ApiSuccessResponse, ObjectTypeDto } from "../../../../shared/interfaces";
-import { PaginatedResult } from "../../../../shared/pagination";
+import { PaginatedResult } from "../../../../shared/types/pagination/pagination";
 import { AxiosError } from "axios";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { LeaveTournamentData, UsersTournaments } from "../../../../shared/types/models/userTournament";
 
 // get joined tournaments paginated
-export interface Tournament {
-    tournamentId: number,
-    sport: string,
-    maxSlots: number,
-    occupiedSlots: number,
-    startDate: string,
-    endDate: string,
-    description: string,
-    objectType: ObjectTypeDto,
-}
-
-export interface UsersTournaments {
-    tournament: Tournament,
-    paymentStatus: string,
-    joinedAt: string,
-}
-
 export const useGetPaginatedUserTournaments = (userId: number, page: number, pageSize: number) => {
     return useQuery<PaginatedResult<UsersTournaments>>({
         queryKey: ['userTournaments', userId, page],
@@ -39,11 +23,6 @@ const fetchPaginatedUserTournaments = async (userId: number, page: number, pageS
 
 
 //leave tournament
-interface LeaveTournamentData {
-    userId: number,
-    tournamentId: number,
-}
-
 const leaveTournament = async (leaveTournamentData: LeaveTournamentData) => {
     const res = await axiosInstance.delete('/tournaments/leave', {
         data: leaveTournamentData

@@ -1,0 +1,59 @@
+// Variables
+$primary-color: #1976d2;
+$secondary-color: #dc004e;
+$success-color: #388e3c;
+$background-color: #f9f9f9;
+$text-color: #333;
+$box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+
+// Mixins
+@mixin button-styles($color) {
+    background-color: $color;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: darken($color, 10%);
+    }
+}
+
+// Styles
+.profileContainer {
+    padding: 40px;
+    background-color: $background-color;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+.title {
+    margin-bottom: 20px;
+    color: $text-color;
+    text-align: center;
+}
+
+.linksContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.linkButton {
+    @include button-styles($primary-color);
+
+    &.secondary {
+        @include button-styles($secondary-color);
+    }
+
+    &.success {
+        @include button-styles($success-color);
+    }
+}

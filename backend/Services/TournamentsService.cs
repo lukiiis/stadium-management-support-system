@@ -21,6 +21,7 @@ namespace backend.Services
         Task<IEnumerable<TournamentDto>> GetAllTournaments();
         Task<IEnumerable<TournamentDto>> GetAllTournamentsByObjectId(int objectId);
         Task<bool> IsTournamentDateRangeAvailable(CreateTournamentDto tournamentDto);
+        Task<IEnumerable<TournamentDto>> GetAllNotStartedTournaments();
     }
 
     public class TournamentsService(IUsersService usersService, IReservationTimesheetsService reservationTimesheetsService, IReservationsService reservationsService, ApplicationDbContext context, IMapper mapper) : ITournamentsService
@@ -207,6 +208,17 @@ namespace backend.Services
             var tournaments = await _context.Tournaments
                 .Include(t => t.ObjectType)
                 .Where(t => t.ObjectType.ObjectId == objectId)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
+        }
+
+        public async Task<IEnumerable<TournamentDto>> GetAllNotStartedTournaments()
+        {
+            var tournaments = await _context.Tournaments
+                .Where(t => t.StartDate >= DateOnly.FromDateTime(DateTime.Now))
+                .Include(t => t.ObjectType)
+                .OrderBy(t => t.StartDate)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
