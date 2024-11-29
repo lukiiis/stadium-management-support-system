@@ -1,29 +1,17 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import axiosInstance from "../../../../config/axiosConfig";
-
-export interface CreateReservationTimesheetData {
-    date: string,
-    startTime: string,
-    endTime: string,
-    objectId: number | null,
-}
-
-export interface CreateReservationTimesheetResponse {
-    message: string,
-}
-
-export interface CreateReservationTimesheetErrorResponse {
-    error: string,
-}
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
+import { CreateReservationTimesheetData } from "../../../../shared/types/models/reservationTimesheet";
 
 export const useCreateReservationTimesheet = () => {
     return useMutation({
         mutationFn: createReservationTimesheetPost,
-        onSuccess: (data: CreateReservationTimesheetResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<CreateReservationTimesheetErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },   
     })
@@ -36,20 +24,13 @@ const createReservationTimesheetPost = async (reservationTimesheetData: CreateRe
 
 
 // fetching objects to get their id's
-export interface ObjectType {
-    objectId: number;
-    type: string;
-    description: string;
-    imageUrl: string;
-}
-
-const fetchAllObjectTypes = async (): Promise<ObjectType[]> => {
-    const response = await axiosInstance.get<ObjectType[]>(`/object-types/get-all`);
+const fetchAllObjectTypes = async (): Promise<ObjectTypeDto[]> => {
+    const response = await axiosInstance.get<ObjectTypeDto[]>(`/object-types/get-all`);
     return response.data;
 };
 
 export const useGetObjectTypes = () => {
-    return useQuery<ObjectType[]>({
+    return useQuery<ObjectTypeDto[]>({
         queryKey:['objectTypes'],
         queryFn: fetchAllObjectTypes,
     });

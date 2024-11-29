@@ -1,31 +1,17 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import axiosInstance from "../../../../config/axiosConfig"
-
-export interface CreateTournamentData {
-    sport: string,
-    maxSlots: number,
-    startDate: string,
-    endDate: string,
-    description: string,
-    objectId: number | null,
-}
-
-export interface CreateTournamentResponse {
-    message: string,
-}
-
-export interface CreateTournamentErrorResponse {
-    error: string,
-}
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse"
+import { CreateTournamentData } from "../../../../shared/types/models/tournament"
+import { ObjectTypeDto } from "../../../../shared/types/models/objectType"
 
 export const useCreateTournament = () => {
     return useMutation({
         mutationFn: createTournamentPost,
-        onSuccess: (data: CreateTournamentResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
         },
-        onError: (error: AxiosError<CreateTournamentErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error)
         },   
     })
@@ -37,20 +23,13 @@ const createTournamentPost = async (tournamentData: CreateTournamentData) => {
 }
 
 // fetching objects to get their id's
-export interface ObjectType {
-    objectId: number;
-    type: string;
-    description: string;
-    imageUrl: string;
-}
-
-const fetchAllObjectTypes = async (): Promise<ObjectType[]> => {
-    const response = await axiosInstance.get<ObjectType[]>(`/object-types/get-all`);
+const fetchAllObjectTypes = async (): Promise<ObjectTypeDto[]> => {
+    const response = await axiosInstance.get<ObjectTypeDto[]>(`/object-types/get-all`);
     return response.data;
 };
 
 export const useGetObjectTypes = () => {
-    return useQuery<ObjectType[]>({
+    return useQuery<ObjectTypeDto[]>({
         queryKey:['objectTypes'],
         queryFn: fetchAllObjectTypes,
     });

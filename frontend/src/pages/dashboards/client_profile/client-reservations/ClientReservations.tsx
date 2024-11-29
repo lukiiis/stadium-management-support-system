@@ -1,14 +1,24 @@
 import React, { useState } from "react";
-import { useGetPaginatedUserReservations, useCancelReservation, ReservationData } from "./clientReservationsService";
+import { useGetPaginatedUserReservations, useCancelReservation } from "./clientReservationsService";
 import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor } from "@mui/material";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientReservations.module.scss";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/interfaces";
 import { AxiosError } from "axios";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { ReservationDto } from "../../../../shared/types/models/reservation";
+import { useNavigate } from "react-router-dom";
 
 const ClientReservations: React.FC = () => {
-    const token = localStorage.getItem("token") as string;
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem("token");
+
+    // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
+    if(token === null) {
+        navigate("/login");
+        return;
+    }
     const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
 
     const [page, setPage] = useState(1);
@@ -69,7 +79,7 @@ const ClientReservations: React.FC = () => {
 
             {/* Reservations */}
             <div className={styles.reservationsList}>
-                {data?.items.map((reservation: ReservationData) => {
+                {data?.items.map((reservation: ReservationDto) => {
                     const reservationDate = dayjs(reservation.reservationDate);
                     const isFutureReservation = reservationDate.isAfter(today);
 

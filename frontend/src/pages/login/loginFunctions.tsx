@@ -2,30 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { UseFormReturn } from "react-hook-form";
 import axiosInstance from "../../config/axiosConfig";
-
-export interface LoginStatus{
-    status: string,
-    message: string | undefined
-}
-
-export interface LoginData {
-    email: string;
-    password: string;
-}
-
-interface LoginErrorResponse {
-    error: string
-}
-
-interface LoginResponse {
-    userId: number,
-    firstName: string,
-    lastName: string,
-    role: string,
-    token: string,
-    message: string
-}
-
+import { ApiErrorResponse } from "../../shared/types/api/apiResponse";
+import { LoginData, LoginResponse, LoginStatus } from "../../shared/types/auth/login";
 
 //custom hook
 export const useLoginUser = (setLoginInfo: React.Dispatch<React.SetStateAction<LoginStatus>>, loginForm: UseFormReturn<LoginData, unknown, undefined>) => {
@@ -44,7 +22,7 @@ export const useLoginUser = (setLoginInfo: React.Dispatch<React.SetStateAction<L
             console.log(data);
             loginForm.reset()
         },
-        onError: (error: AxiosError<LoginErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error);
             //error login
             setLoginInfo({

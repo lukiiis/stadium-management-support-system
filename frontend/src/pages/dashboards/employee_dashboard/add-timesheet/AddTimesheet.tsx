@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert } from "@mui/material";
 import styles from './AddTimesheet.module.scss';
-import { CreateReservationTimesheetData, CreateReservationTimesheetErrorResponse, CreateReservationTimesheetResponse, ObjectType, useCreateReservationTimesheet, useGetObjectTypes } from "./addTimesheetService";
+import { useCreateReservationTimesheet, useGetObjectTypes } from "./addTimesheetService";
 import { AxiosError } from "axios";
+import { CreateReservationTimesheetData } from "../../../../shared/types/models/reservationTimesheet";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
 
 const AddTimesheet: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -30,13 +33,13 @@ const AddTimesheet: React.FC = () => {
             endTime: `${data.endTime}:00`,
         };
         createTimesheetMutation.mutate(formattedData, {
-            onSuccess: (data: CreateReservationTimesheetResponse) => {
+            onSuccess: (data: ApiSuccessResponse) => {
                 console.log(`Successfully created timesheet`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
                 // reset();
             },
-            onError: (error: AxiosError<CreateReservationTimesheetErrorResponse>) => {
+            onError: (error: AxiosError<ApiErrorResponse>) => {
                 console.error(`Error creating timesheet`);
                 if (error.response?.data?.error) {
                     setErrorMessage(error.response.data.error);
@@ -93,6 +96,7 @@ const AddTimesheet: React.FC = () => {
                             {...register("date", { required: "Date is required" })}
                             label="Date"
                             type="date"
+                            defaultValue={new Date().toISOString().split('T')[0]}
                             fullWidth
                             error={!!errors.date}
                             helperText={errors.date?.message}
@@ -102,6 +106,7 @@ const AddTimesheet: React.FC = () => {
                             {...register("startTime", { required: "Start Time is required" })}
                             label="Start Time"
                             type="time"
+                            defaultValue="08:00"
                             fullWidth
                             error={!!errors.startTime}
                             helperText={errors.startTime?.message}
@@ -111,6 +116,7 @@ const AddTimesheet: React.FC = () => {
                             {...register("endTime", { required: "End Time is required" })}
                             label="End Time"
                             type="time"
+                            defaultValue="22:00"
                             fullWidth
                             error={!!errors.endTime}
                             helperText={errors.endTime?.message}
@@ -123,7 +129,7 @@ const AddTimesheet: React.FC = () => {
                                 defaultValue=""
                                 label="Object"
                             >
-                                {objectTypes?.map((obj: ObjectType) => (
+                                {objectTypes?.map((obj: ObjectTypeDto) => (
                                     <MenuItem key={obj.objectId} value={obj.objectId}>
                                         {obj.description}
                                     </MenuItem>

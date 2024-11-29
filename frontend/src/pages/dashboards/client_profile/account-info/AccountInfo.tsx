@@ -6,9 +6,19 @@ import AddressData from "./address-data/AddressData";
 import styles from "./AccountInfo.module.scss";
 import { Alert, AlertColor, Divider, Snackbar } from "@mui/material";
 import { AccountInfoContext } from "./accountInfoService";
+import { useNavigate } from "react-router-dom";
 
 const AccountInfo: React.FC = () => {
+    const navigate = useNavigate();
+
     const token = localStorage.getItem("token") as string;
+
+    // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
+    if(token === null) {
+        navigate("/login");
+        return;
+    }
+
     const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
 
     const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")

@@ -2,31 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { UseFormReturn, UseFormSetError } from "react-hook-form";
 import axiosInstance from "../../config/axiosConfig";
-
-export interface RegisterStatus{
-    status: string,
-    message: string | undefined
-}
-
-interface RegisterErrorResponse {
-    error: string
-}
-
-interface RegisterResponse {
-    message: string
-}
-
-export interface RegisterData {
-    email: string,
-    password: string,
-    rePassword: string,
-    firstName: string,
-    lastName: string,
-    age: number,
-    phone: string,
-    role: string,
-}
-
+import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
+import { RegisterData, RegisterStatus } from "../../shared/types/auth/register";
 // --------email validation---------
 
 // custom hook
@@ -46,7 +23,7 @@ export const useValidateEmail = (setEmailValid: React.Dispatch<React.SetStateAct
                 })
             }
         },
-        onError: (error: AxiosError<RegisterErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             //error login
             setRegInfo({
                 message: error.response?.data.error,
@@ -69,7 +46,7 @@ export const validateEmail = async (email: string) => {
 export const useRegisterUser = (setRegInfo: React.Dispatch<React.SetStateAction<RegisterStatus>>, registerForm: UseFormReturn<RegisterData>) => {
     return useMutation({
         mutationFn: registerUser,
-        onSuccess: (data: RegisterResponse) => {
+        onSuccess: (data: ApiSuccessResponse) => {
             console.log(data)
             setRegInfo({
                 message:data.message,
@@ -77,7 +54,7 @@ export const useRegisterUser = (setRegInfo: React.Dispatch<React.SetStateAction<
             });
             registerForm.reset();
         },
-        onError: (error: AxiosError<RegisterErrorResponse>) => {
+        onError: (error: AxiosError<ApiErrorResponse>) => {
             //error login
             console.log(error)
             setRegInfo({

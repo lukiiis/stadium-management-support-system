@@ -1,11 +1,11 @@
 import { useForm } from "react-hook-form";
 import styles from "./Login.module.scss"
 import TextField from '@mui/material/TextField';
-import { LoginData, LoginStatus, useLoginUser } from "./loginFunctions";
+import { useLoginUser } from "./loginFunctions";
 import { useState } from "react";
 import styled from "@emotion/styled";
 import { Button, CircularProgress } from "@mui/material";
-import LoadingSpinner from "../../components/loadingSpinner/LoadingSpinner";
+import { LoginData, LoginStatus } from "../../shared/types/auth/login";
 
 const LoginTextField = styled(TextField)({
     width: '100%',
@@ -90,10 +90,7 @@ const Login = () => {
                                 </Button>
                             </div>
                             <div className="flex items-center justify-center h-10">
-                                {/* change positioning */}
-                                <LoadingSpinner isLoading={loginMutation.isPending} />
-                                {/* OR FROM MATERIAL-UI BELOW */}
-                                {/* {loginMutation.isPending ? <CircularProgress /> : ""} */}
+                                {loginMutation.isPending ? <CircularProgress /> : ""}
                             </div>
                         </form>
                         <div>{loginInfo.message}</div>

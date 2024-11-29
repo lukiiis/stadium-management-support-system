@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AccountInfoContext, EditUserData, useGetUserData, useUpdateData } from "../accountInfoService";
+import { AccountInfoContext, useGetUserData, useUpdateData } from "../accountInfoService";
 import { TextField, Button, CircularProgress } from "@mui/material";
 import styles from "./PersonalData.module.scss";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../../../../shared/interfaces";
 import { AxiosError } from "axios";
+import { EditUserData } from "../../../../../shared/types/models/user";
+import { ApiSuccessResponse, ApiErrorResponse } from "../../../../../shared/types/api/apiResponse";
 
 interface PersonalDataProps {
     userId: number;

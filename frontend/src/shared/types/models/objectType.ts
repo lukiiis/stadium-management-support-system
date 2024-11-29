@@ -5,10 +5,3 @@ export interface ObjectTypeDto {
     imageUrl: string;
 }
 
-export interface ApiSuccessResponse {
-    message: string,
-}
-
-export interface ApiErrorResponse {
-    error: string,
-}

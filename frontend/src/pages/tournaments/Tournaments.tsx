@@ -20,7 +20,7 @@ import {
     AlertColor
 } from "@mui/material";
 import { AxiosError } from "axios";
-import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/interfaces";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
 
 const Tournaments = () => {
     const [selectedObjectId, setSelectedObjectId] = useState<string>("all");

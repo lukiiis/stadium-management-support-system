@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, TextField, Box, CircularProgress, Snackbar, Alert } from "@mui/material";
-import { useCreateEmployee, CreateEmployeeData, CreateEmployeeResponse, CreateEmployeeErrorResponse } from "./createEmployeeService";
+import { useCreateEmployee } from "./createEmployeeService";
 import styles from './CreateEmployee.module.scss';
 import { AxiosError } from "axios";
+import { CreateEmployeeData } from "../../../../shared/types/models/user";
+import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 
 const CreateEmployee: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -23,12 +25,12 @@ const CreateEmployee: React.FC = () => {
 
     const onSubmit = (data: CreateEmployeeData) => {
         createEmployeeMutation.mutate(data, {
-            onSuccess: (data: CreateEmployeeResponse) => {
+            onSuccess: (data: ApiSuccessResponse) => {
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
                 reset();
             },
-            onError: (error: AxiosError<CreateEmployeeErrorResponse>) => {
+            onError: (error: AxiosError<ApiErrorResponse>) => {
                 if (error.response?.data?.error) {
                     setErrorMessage(error.response.data.error);
                     setShowError(true);
