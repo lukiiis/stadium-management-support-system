@@ -1,5 +1,9 @@
+.homeContainer {
+    display: flex;
+    flex-direction: column;
+}
+
 .carouselContainer {
-    margin: 40px auto;
     text-align: center;
 }
 
@@ -14,9 +18,8 @@
 
 .carouselItem img {
     width: 100%;
-    height: auto;
-    border-radius: 8px;
-    object-fit: fill;
+    height: 600px;
+    object-fit: cover;
 }
 
 .carouselCaption {
@@ -29,4 +32,85 @@
     padding: 10px;
     border-radius: 8px;
     text-align: center;
+}
+
+// Home.module.scss
+.homeContainer {
+    background-color: #f8f9fa;
+
+    .welcomeSection {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        text-align: center;
+
+        h1 {
+            font-size: 3rem;
+            color: #1976d2;
+            margin-bottom: 2rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+    }
+
+    .navigationSection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        padding: 2rem;
+        background-color: white;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        .links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        a {
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+
+            &:nth-child(1) {
+                background-color: #1976d2;
+                color: white;
+
+                &:hover {
+                    background-color: #1565c0;
+                }
+            }
+
+            &:nth-child(2) {
+                background-color: #2e7d32;
+                color: white;
+
+                &:hover {
+                    background-color: #1b5e20;
+                }
+            }
+
+            &:nth-child(3) {
+                background-color: #ed6c02;
+                color: white;
+
+                &:hover {
+                    background-color: #e65100;
+                }
+            }
+        }
+    }
 }
