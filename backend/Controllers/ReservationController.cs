@@ -151,5 +151,30 @@ namespace backend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        //update reservation payment status
+        [HttpPut("update-payment-status/{reservationId}")]
+        //[Authorize(Policy = "ClientOnly")]
+        public async Task<IActionResult> UpdatePaymentStatus(int reservationId)
+        {
+            try
+            {
+                var result = await _reservationsService.UpdatePaymentStatusAsync(reservationId);
+                if (result == null)
+                {
+                    return NotFound(new { Error = "Reservation not found." });
+                }
+                else if (result == false)
+                {
+                    return BadRequest(new { Error = "Reservation is already paid." });
+                }
+                return Ok(new { Message = "Payment status updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
     }
 }

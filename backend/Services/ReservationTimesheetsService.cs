@@ -12,6 +12,7 @@ namespace backend.Services
         Task<ReservationTimesheet?> GetTimesheetByDateAndObjectId(DateOnly date, int objectId);
         Task CreateTimesheetsForDateRangeAndObjectIdAndFlag(DateOnly startDate, DateOnly endDate, int objectId);
         Task CreateReservationTimesheet(CreateReservationTimesheetDto dto);
+        Task UpdateReservationTimesheet(UpdateReservationTimesheetDto dto);
     }
 
     public class ReservationTimesheetsService(ApplicationDbContext context, IMapper mapper) : IReservationTimesheetsService
@@ -26,6 +27,7 @@ namespace backend.Services
                 .Where(rt => rt.ObjectId == objectId)
                 .ToListAsync();
         }
+
         public async Task<ReservationTimesheet?> GetTimesheetByDateAndObjectId(DateOnly date, int objectId)
         {
             return await _context.ReservationTimesheets
@@ -65,6 +67,20 @@ namespace backend.Services
             timesheetToAdd.IsTournament = false;
 
             await _context.ReservationTimesheets.AddAsync(timesheetToAdd);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateReservationTimesheet(UpdateReservationTimesheetDto dto)
+        {
+            var timesheet = await _context.ReservationTimesheets.FindAsync(dto.TimesheetId);
+            if (timesheet == null)
+                throw new Exception("Timesheet not found");
+
+            timesheet.Date = dto.Date;
+            timesheet.StartTime = dto.StartTime;
+            timesheet.EndTime = dto.EndTime;
+
+            _context.ReservationTimesheets.Update(timesheet);
             await _context.SaveChangesAsync();
         }
     }

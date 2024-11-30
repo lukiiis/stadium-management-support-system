@@ -25,5 +25,20 @@ namespace backend.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpPut("update")]
+        //[Authorize(Policy = "EmployeeOnly")]
+        public async Task<IActionResult> UpdateReservationTimesheet(UpdateReservationTimesheetDto dto)
+        {
+            try
+            {
+                await _reservationTimesheetsService.UpdateReservationTimesheet(dto);
+                return Ok(new { Message = "Timesheet updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
     }
 }
