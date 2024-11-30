@@ -294,7 +294,7 @@ const Reservation: React.FC = () => {
                                         Create
                                     </Button>
                                     {createReservationMutation.isSuccess && (
-                                        <Link to="/profile">
+                                        <Link to="/profile/reservations">
                                             <Button
                                                 variant="contained"
                                                 color="primary"

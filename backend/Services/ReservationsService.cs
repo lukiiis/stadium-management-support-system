@@ -226,6 +226,15 @@ namespace backend.Services
                 throw new Exception("Reservation not found");
             }
 
+            var currentDate = DateOnly.FromDateTime(DateTime.Now);
+            var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+
+            if (reservation.ReservationDate < currentDate ||
+                (reservation.ReservationDate == currentDate && reservation.ReservationStart < currentTime))
+            {
+                throw new Exception("Cannot delete a reservation that has already started");
+            }
+
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
         }
