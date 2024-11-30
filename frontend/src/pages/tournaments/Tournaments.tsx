@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./Tournaments.module.scss";
 import {
-    useGetTournaments,
+    useGetPaginatedTournaments,
     useGetObjectTypes,
     useGetUsersTournaments,
     useJoinTournament,
@@ -22,7 +22,8 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle
+    DialogTitle,
+    Pagination
 } from "@mui/material";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
@@ -36,7 +37,13 @@ const Tournaments = () => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
-    const { data: tournaments, isLoading: loadingTournaments } = useGetTournaments();
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(8);
+
+    const { data: tournaments, isLoading: loadingTournaments } = useGetPaginatedTournaments(page - 1, pageSize);
     const { data: objectTypes, isLoading: loadingObjectTypes } = useGetObjectTypes();
     const { data: usersTournaments, isLoading: loadingUsersTournaments, refetch: refetchUsersTournaments } = useGetUsersTournaments(userId || 0);
     const joinTournamentMutation = useJoinTournament();
@@ -55,14 +62,6 @@ const Tournaments = () => {
 
     const handleSelectChange = (event: SelectChangeEvent) => {
         setSelectedObjectId(event.target.value as string);
-    };
-
-    const filteredTournaments = selectedObjectId === "all"
-        ? tournaments
-        : tournaments?.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
-
-    const isUserInTournament = (tournamentId: number): boolean => {
-        return usersTournaments?.some(userTournament => userTournament.tournament.tournamentId === tournamentId) || false;
     };
 
     const handleJoinTournament = (tournamentId: number) => {
@@ -85,9 +84,6 @@ const Tournaments = () => {
             );
         }
     };
-
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
 
     const handleLeaveTournament = (tournamentId: number) => {
         setSelectedTournamentId(tournamentId);
@@ -125,9 +121,22 @@ const Tournaments = () => {
         setSnackbarMessage(null);
     };
 
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        event.preventDefault();
+        setPage(newPage);
+    };
+
     if (loadingTournaments || loadingObjectTypes || loadingUsersTournaments) {
         return <div className={styles.loader}><CircularProgress /></div>;
     }
+
+    const filteredTournaments = selectedObjectId === "all"
+        ? tournaments?.items
+        : tournaments?.items.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
+
+    const isUserInTournament = (tournamentId: number): boolean => {
+        return usersTournaments?.some(userTournament => userTournament.tournament.tournamentId === tournamentId) || false;
+    };
 
     return (
         <div className={styles.container}>
@@ -217,6 +226,15 @@ const Tournaments = () => {
                         </div>
                     ))}
                 </div>
+
+                <Pagination
+                    count={Math.ceil((tournaments?.totalCount || 1) / pageSize)}
+                    page={page}
+                    onChange={handlePageChange}
+                    className={styles.pagination}
+                    color="primary"
+                    size="large"
+                />
             </div>
         </div>
     );

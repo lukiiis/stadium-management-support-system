@@ -7,17 +7,16 @@ import styles from "./ClientTournaments.module.scss";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { UsersTournaments } from "../../../../shared/types/models/userTournament";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const ClientTournaments: React.FC = () => {
     const navigate = useNavigate();
 
     const token = localStorage.getItem("token") as string;
 
-    // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
     if (token === null) {
         navigate("/login");
-        return;
+        return null;
     }
 
     const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
@@ -29,7 +28,7 @@ const ClientTournaments: React.FC = () => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
-     const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedTournamentId, setSelectedTournamentId] = useState<number>();
 
     const { data, isLoading, isError, refetch } = useGetPaginatedUserTournaments(userId, page - 1, pageSize);
@@ -72,6 +71,11 @@ const ClientTournaments: React.FC = () => {
         setPage(newPage);
     };
 
+        //popup stuff
+        const handleCloseDialog = () => {
+            setDialogOpen(false);
+        };
+
     if (isLoading) {
         return <CircularProgress />;
     }
@@ -79,12 +83,6 @@ const ClientTournaments: React.FC = () => {
     if (isError) {
         return <div>Error fetching tournaments</div>;
     }
-
-
-    //popup stuff
-    const handleCloseDialog = () => {
-        setDialogOpen(false);
-    };
 
     const today = dayjs();
 
@@ -123,56 +121,73 @@ const ClientTournaments: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            <div className={styles.tournamentsList}>
-                {data?.items.map(({ tournament, joinedAt }: UsersTournaments) => {
-                    const tournamentStartDate = dayjs(tournament.startDate);
-                    const isFutureTournament = tournamentStartDate.isAfter(today);
+            {data?.items.length === 0 ? (
+                <div className="flex flex-col justify-center items-center gap-7">
+                    <p className="text-2xl">You are not enrolled in any tournament.</p>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        component={Link}
+                        to="/tournaments"
+                        className="mt-4"
+                    >
+                        View available tournaments
+                    </Button>
+                </div>
+            ) : (
+                <>
+                    <div className={styles.tournamentsList}>
+                        {data?.items.map(({ tournament, joinedAt }: UsersTournaments) => {
+                            const tournamentStartDate = dayjs(tournament.startDate);
+                            const isFutureTournament = tournamentStartDate.isAfter(today);
 
-                    return (
-                        <Card className={styles.tournamentCard} key={tournament.tournamentId}>
-                            <CardContent>
-                                <Typography variant="h6" className={styles.tournamentTitle}>
-                                    {tournament.sport} Tournament #{tournament.tournamentId}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>Start Date:</strong> {tournament.startDate}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>End Date:</strong> {tournament.endDate}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>Description:</strong> {tournament.description}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>Slots:</strong> {tournament.occupiedSlots}/{tournament.maxSlots}
-                                </Typography>
-                                <Typography variant="body1">
-                                    <strong>Joined At:</strong> {joinedAt}
-                                </Typography>
-                                {isFutureTournament && (
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        className={styles.leaveButton}
-                                        onClick={() => handleLeaveTournament(tournament.tournamentId)}
-                                    >
-                                        Leave
-                                    </Button>
-                                )}
-                            </CardContent>
-                        </Card>
-                    );
-                })}
-            </div>
+                            return (
+                                <Card className={styles.tournamentCard} key={tournament.tournamentId}>
+                                    <CardContent>
+                                        <Typography variant="h6" className={styles.tournamentTitle}>
+                                            {tournament.sport} Tournament #{tournament.tournamentId}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Start Date:</strong> {tournament.startDate}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>End Date:</strong> {tournament.endDate}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Description:</strong> {tournament.description}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Slots:</strong> {tournament.occupiedSlots}/{tournament.maxSlots}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            <strong>Joined At:</strong> {joinedAt}
+                                        </Typography>
+                                        {isFutureTournament && (
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                className={styles.leaveButton}
+                                                onClick={() => handleLeaveTournament(tournament.tournamentId)}
+                                            >
+                                                Leave
+                                            </Button>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
 
-            <Pagination
-                count={Math.ceil((data?.totalCount || 1) / pageSize)}
-                page={page}
-                onChange={handlePageChange}
-                className={styles.pagination}
-                color="primary"
-                size="large"
-            />
+                    <Pagination
+                        count={Math.ceil((data?.totalCount || 1) / pageSize)}
+                        page={page}
+                        onChange={handlePageChange}
+                        className={styles.pagination}
+                        color="primary"
+                        size="large"
+                    />
+                </>
+            )}
         </div>
     );
 };

@@ -83,7 +83,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("joined-tournaments-paginated")]
-        public async Task<IActionResult> GetUserTournaments(
+        public async Task<IActionResult> GetUserTournamentsPaginated(
             [FromQuery] int userId,
             [FromQuery] int page = 0,
             [FromQuery] int pageSize = 10)
@@ -103,6 +103,23 @@ namespace backend.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpGet("all-tournaments-paginated")]
+        public async Task<IActionResult> GetAllTournamentsPaginated(
+            [FromQuery] int page = 0,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var paginatedTournaments = await _tournamentsService.GetAllTournamentsPaginatedAsync(page, pageSize);
+                return Ok(paginatedTournaments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
 
         //get all tournaments
         [HttpGet]

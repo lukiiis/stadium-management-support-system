@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useGetPaginatedUserReservations, useCancelReservation } from "./clientReservationsService";
-import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { Card, CardContent, Typography, Button, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from "@mui/material";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientReservations.module.scss";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { ReservationDto } from "../../../../shared/types/models/reservation";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ClientReservations: React.FC = () => {
     const navigate = useNavigate();
@@ -78,6 +78,10 @@ const ClientReservations: React.FC = () => {
         return <div>Error fetching reservations</div>;
     }
 
+    if (isLoading) {
+        return <CircularProgress />;
+    }
+
     const today = dayjs();
 
     return (
@@ -117,26 +121,31 @@ const ClientReservations: React.FC = () => {
             </Dialog>
 
             {/* Reservations */}
-            <div className={styles.reservationsList}>
-                {data?.items.map((reservation: ReservationDto) => {
-                    const reservationDate = dayjs(reservation.reservationDate);
-                    const isFutureReservation = reservationDate.isAfter(today);
+            {data?.items.length === 0 ? (
+                <div className="flex flex-col justify-center items-center gap-7">
+                    <p className="text-2xl">You do not have any reservations.</p>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        component={Link}
+                        to="/reservations"
+                        className="mt-4"
+                    >
+                        Create reservation
+                    </Button>
+                </div>
+            ) : (
+                <>
+                    <div className={styles.reservationsList}>
+                        {data?.items.map((reservation: ReservationDto) => {
+                            const reservationDate = dayjs(reservation.reservationDate);
+                            const isFutureReservation = reservationDate.isAfter(today);
 
-                    return (
-                        <div key={reservation.reservationId}>
-                            {isLoading ? (
-                                <CircularProgress />
-                            ) : (
-                                <Card className={styles.reservationCard}>
+                            return (
+                                <Card className={styles.reservationCard} key={reservation.reservationId}>
                                     <CardContent>
                                         <Typography variant="h6" className={styles.reservationTitle}>
                                             Reservation #{reservation.reservationId}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Start:</strong> {reservation.reservationStart}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>End:</strong> {reservation.reservationEnd}
                                         </Typography>
                                         <Typography variant="body1">
                                             <strong>Date:</strong> {reservation.reservationDate}
@@ -162,19 +171,20 @@ const ClientReservations: React.FC = () => {
                                         )}
                                     </CardContent>
                                 </Card>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-            <Pagination
-                count={Math.ceil((data?.totalCount || 1) / pageSize)}
-                page={page}
-                onChange={handlePageChange}
-                className={styles.pagination}
-                color="primary"
-                size="large"
-            />
+                            );
+                        })}
+                    </div>
+
+                    <Pagination
+                        count={Math.ceil((data?.totalCount || 1) / pageSize)}
+                        page={page}
+                        onChange={handlePageChange}
+                        className={styles.pagination}
+                        color="primary"
+                        size="large"
+                    />
+                </>
+            )}
         </div>
     );
 };

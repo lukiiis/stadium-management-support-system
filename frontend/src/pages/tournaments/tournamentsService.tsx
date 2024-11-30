@@ -5,6 +5,7 @@ import { ObjectTypeDto } from "../../shared/types/models/objectType";
 import { TournamentDto } from "../../shared/types/models/tournament";
 import { UsersTournaments } from "../../shared/types/models/userTournament";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
+import { PaginatedResult } from "../../shared/types/pagination/pagination";
 
 // -------- firstly fetching object to be able to sort torunaments by objectId
 const fetchAllObjectTypes = async (): Promise<ObjectTypeDto[]> => {
@@ -18,6 +19,23 @@ export const useGetObjectTypes = () => {
         queryFn: fetchAllObjectTypes,
     });
 }
+
+
+//pagination
+const fetchPaginatedTournaments = async (page: number, pageSize: number): Promise<PaginatedResult<TournamentDto>> => {
+    const response = await axiosInstance.get<PaginatedResult<TournamentDto>>(`/tournaments/all-tournaments-paginated`, {
+        params: { page, pageSize }
+    });
+    return response.data;
+};
+
+export const useGetPaginatedTournaments = (page: number, pageSize: number) => {
+    return useQuery<PaginatedResult<TournamentDto>>({
+        queryKey: ['paginatedTournaments', page],
+        queryFn: () => fetchPaginatedTournaments(page, pageSize),
+        placeholderData: (prev) => prev,
+    });
+};
 
 
 // --- now all tournaments for all objects
