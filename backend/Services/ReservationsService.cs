@@ -218,9 +218,16 @@ namespace backend.Services
             return true;
         }
 
-        public Task DeleteReservation(int reservationId)
+        public async Task DeleteReservation(int reservationId)
         {
-            throw new NotImplementedException();
+            var reservation = await _context.Reservations.FindAsync(reservationId);
+            if (reservation == null)
+            {
+                throw new Exception("Reservation not found");
+            }
+
+            _context.Reservations.Remove(reservation);
+            await _context.SaveChangesAsync();
         }
     }
 }
