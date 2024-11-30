@@ -52,23 +52,34 @@ const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }
             {weekSchedule.data ? (
                 <>
                     <div className={styles.daysList}>
-
                         {weekSchedule.data.map((daySchedule: ReservationListsResponse, index: number) => (
                             <div key={index} className={styles.hoursList}>
-                                <h3>{new Date(daySchedule.date).toLocaleDateString()}</h3>
+                                <h3>
+                                    {new Date(daySchedule.date).toLocaleDateString() === new Date().toLocaleDateString()
+                                        ? 'Today'
+                                        : new Date(daySchedule.date).toLocaleDateString()}
+                                </h3>
                                 <div>
                                     {Array.from({ length: 17 }, (_, i) => 7 + i).map((hour) => {
                                         const hourStr = (hour).toString().padStart(2, '0') + ':00:00';
                                         let tileColor = 'gray';
 
-                                        if (daySchedule.isTournament) tileColor = 'black';
-                                        else if (hourStr < daySchedule.reservationsStart || hourStr >= daySchedule.reservationsEnd)
+                                        const currentDate = new Date();
+                                        const currentHour = currentDate.getHours();
+                                        const isToday = new Date(daySchedule.date).toLocaleDateString() === currentDate.toLocaleDateString();
+
+                                        if (isToday && hour < currentHour) {
+                                            tileColor = 'black';
+                                        } else if (daySchedule.isTournament) {
+                                            tileColor = 'brown';
+                                        } else if (hourStr < daySchedule.reservationsStart || hourStr >= daySchedule.reservationsEnd) {
                                             tileColor = 'gray';
-                                        else if (daySchedule.reservedHours.includes(hourStr))
+                                        } else if (daySchedule.reservedHours.includes(hourStr)) {
                                             tileColor = 'red';
-                                        else if (daySchedule.freeHours.includes(hourStr)) {
-                                            if (reservationContext?.selectedHours.length === 0) tileColor = 'green';
-                                            else {
+                                        } else if (daySchedule.freeHours.includes(hourStr)) {
+                                            if (reservationContext?.selectedHours.length === 0) {
+                                                tileColor = 'green';
+                                            } else {
                                                 const isAdjacent = reservationContext?.selectedHours.some(selectedHour => {
                                                     const selectedHourInt = parseInt(selectedHour.split(":")[0], 10);
                                                     const hourInt = parseInt(hourStr.split(":")[0], 10);
@@ -99,19 +110,6 @@ const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <div className={styles.checkboxGroup}>
-                        <div>
-                            Would you like to pay now?
-                            <Checkbox
-                                checked={reservationContext?.payNow}
-                                onChange={() => reservationContext?.setPayNow(!reservationContext?.payNow)}
-                            />
-                        </div>
-                        <div>
-                            Do you want to use your wallet to pay?
-                            <Checkbox />
-                        </div>
                     </div>
                 </>
             ) : (

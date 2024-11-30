@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./Tournaments.module.scss";
 import {
-    useGetTournaments,
+    useGetPaginatedTournaments,
     useGetObjectTypes,
     useGetUsersTournaments,
     useJoinTournament,
@@ -17,7 +17,13 @@ import {
     SelectChangeEvent,
     Snackbar,
     Alert,
-    AlertColor
+    AlertColor,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Pagination
 } from "@mui/material";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
@@ -31,7 +37,13 @@ const Tournaments = () => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
-    const { data: tournaments, isLoading: loadingTournaments } = useGetTournaments();
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(8);
+
+    const { data: tournaments, isLoading: loadingTournaments } = useGetPaginatedTournaments(page - 1, pageSize);
     const { data: objectTypes, isLoading: loadingObjectTypes } = useGetObjectTypes();
     const { data: usersTournaments, isLoading: loadingUsersTournaments, refetch: refetchUsersTournaments } = useGetUsersTournaments(userId || 0);
     const joinTournamentMutation = useJoinTournament();
@@ -50,14 +62,6 @@ const Tournaments = () => {
 
     const handleSelectChange = (event: SelectChangeEvent) => {
         setSelectedObjectId(event.target.value as string);
-    };
-
-    const filteredTournaments = selectedObjectId === "all"
-        ? tournaments
-        : tournaments?.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
-
-    const isUserInTournament = (tournamentId: number): boolean => {
-        return usersTournaments?.some(userTournament => userTournament.tournament.tournamentId === tournamentId) || false;
     };
 
     const handleJoinTournament = (tournamentId: number) => {
@@ -82,9 +86,14 @@ const Tournaments = () => {
     };
 
     const handleLeaveTournament = (tournamentId: number) => {
-        if (userId) {
+        setSelectedTournamentId(tournamentId);
+        setDialogOpen(true);
+    };
+
+    const confirmLeaveTournament = () => {
+        if (selectedTournamentId && userId) {
             leaveTournamentMutation.mutate(
-                { userId, tournamentId },
+                { userId, tournamentId: selectedTournamentId },
                 {
                     onSuccess: (data: ApiSuccessResponse) => {
                         setSnackbarSeverity("success");
@@ -100,6 +109,11 @@ const Tournaments = () => {
                 }
             );
         }
+        setDialogOpen(false);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
     };
 
     const handleCloseSnackbar = () => {
@@ -107,9 +121,22 @@ const Tournaments = () => {
         setSnackbarMessage(null);
     };
 
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        event.preventDefault();
+        setPage(newPage);
+    };
+
     if (loadingTournaments || loadingObjectTypes || loadingUsersTournaments) {
         return <div className={styles.loader}><CircularProgress /></div>;
     }
+
+    const filteredTournaments = selectedObjectId === "all"
+        ? tournaments?.items
+        : tournaments?.items.filter(tournament => tournament.objectType.objectId.toString() === selectedObjectId);
+
+    const isUserInTournament = (tournamentId: number): boolean => {
+        return usersTournaments?.some(userTournament => userTournament.tournament.tournamentId === tournamentId) || false;
+    };
 
     return (
         <div className={styles.container}>
@@ -124,6 +151,28 @@ const Tournaments = () => {
                         {snackbarMessage}
                     </Alert>
                 </Snackbar>
+
+                <Dialog
+                    open={dialogOpen}
+                    onClose={handleCloseDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">{"Confirm Leave Tournament"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to leave this tournament?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} color="primary">
+                            No
+                        </Button>
+                        <Button onClick={confirmLeaveTournament} color="primary" autoFocus>
+                            Yes
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
                 <FormControl fullWidth className={styles.select}>
                     <InputLabel id="object-filter-label">Filter by Object</InputLabel>
@@ -177,6 +226,15 @@ const Tournaments = () => {
                         </div>
                     ))}
                 </div>
+
+                <Pagination
+                    count={Math.ceil((tournaments?.totalCount || 1) / pageSize)}
+                    page={page}
+                    onChange={handlePageChange}
+                    className={styles.pagination}
+                    color="primary"
+                    size="large"
+                />
             </div>
         </div>
     );

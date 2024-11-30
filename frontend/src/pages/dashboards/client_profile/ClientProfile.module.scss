@@ -31,6 +31,9 @@ $border-radius: 8px;
     box-shadow: $box-shadow;
     max-width: 800px;
     margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
 }
 
 .title {

@@ -2,7 +2,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 20px;
+    min-height: 900px;
   }
   
   .daysList {
@@ -63,12 +65,17 @@
   }
   
   .hourTile.red {
-    background-color: #f44336;
+    background-color: #be3228;
     color: rgb(226, 226, 226);
   }
   
   .hourTile.black {
-    background-color: #212121;
+    background-color: #2e2e2e;
+    color: rgb(224, 224, 224);
+  }
+
+  .hourTile.brown {
+    background-color: #502626;
     color: rgb(224, 224, 224);
   }
   

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useGetPaginatedUserReservations, useCancelReservation } from "./clientReservationsService";
-import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor } from "@mui/material";
+import { Card, CardContent, Typography, Button, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from "@mui/material";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientReservations.module.scss";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { ReservationDto } from "../../../../shared/types/models/reservation";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ClientReservations: React.FC = () => {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ const ClientReservations: React.FC = () => {
     const token = localStorage.getItem("token");
 
     // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
-    if(token === null) {
+    if (token === null) {
         navigate("/login");
         return;
     }
@@ -28,28 +28,45 @@ const ClientReservations: React.FC = () => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
+
     const { data, isLoading, isError, refetch } = useGetPaginatedUserReservations(userId, page - 1, pageSize);
     const { mutate: cancelReservation } = useCancelReservation();
 
     const handleCancelReservation = (reservationId: number) => {
-        cancelReservation(reservationId, {
-            onSuccess: (data: ApiSuccessResponse) => {
-                setSnackbarSeverity("success");
-                setSnackbarMessage(data.message);
-                setShowSnackbar(true);
-                refetch();
-            },
-            onError: (error: AxiosError<ApiErrorResponse>) => {
-                setSnackbarSeverity("error");
-                setSnackbarMessage(error.response?.data.error || "Failed to cancel reservation");
-                setShowSnackbar(true);
-            },
-        });
+        setSelectedReservationId(reservationId);
+        setDialogOpen(true);
+    };
+
+    const confirmCancelReservation = () => {
+        if (selectedReservationId) {
+            cancelReservation(selectedReservationId,
+                {
+                    onSuccess: (data: ApiSuccessResponse) => {
+                        setSnackbarSeverity("success");
+                        setSnackbarMessage(data.message);
+                        setShowSnackbar(true);
+                        refetch();
+                    },
+                    onError: (error: AxiosError<ApiErrorResponse>) => {
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(error.response?.data.error || "Failed to cancel reservation");
+                        setShowSnackbar(true);
+                    },
+                }
+            );
+        }
+        setDialogOpen(false);
     };
 
     const handleCloseSnackbar = () => {
         setShowSnackbar(false);
         setSnackbarMessage(null);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
     };
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
@@ -59,6 +76,10 @@ const ClientReservations: React.FC = () => {
 
     if (isError) {
         return <div>Error fetching reservations</div>;
+    }
+
+    if (isLoading) {
+        return <CircularProgress />;
     }
 
     const today = dayjs();
@@ -77,27 +98,54 @@ const ClientReservations: React.FC = () => {
                 </Alert>
             </Snackbar>
 
-            {/* Reservations */}
-            <div className={styles.reservationsList}>
-                {data?.items.map((reservation: ReservationDto) => {
-                    const reservationDate = dayjs(reservation.reservationDate);
-                    const isFutureReservation = reservationDate.isAfter(today);
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Cancel Reservation"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to cancel this reservation?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        No
+                    </Button>
+                    <Button onClick={confirmCancelReservation} color="primary" autoFocus>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
-                    return (
-                        <div key={reservation.reservationId}>
-                            {isLoading ? (
-                                <CircularProgress />
-                            ) : (
-                                <Card className={styles.reservationCard}>
+            {/* Reservations */}
+            {data?.items.length === 0 ? (
+                <div className="flex flex-col justify-center items-center gap-7">
+                    <p className="text-2xl">You do not have any reservations.</p>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        component={Link}
+                        to="/reservations"
+                        className="mt-4"
+                    >
+                        Create reservation
+                    </Button>
+                </div>
+            ) : (
+                <>
+                    <div className={styles.reservationsList}>
+                        {data?.items.map((reservation: ReservationDto) => {
+                            const reservationDate = dayjs(reservation.reservationDate);
+                            const isFutureReservation = reservationDate.isAfter(today);
+
+                            return (
+                                <Card className={styles.reservationCard} key={reservation.reservationId}>
                                     <CardContent>
                                         <Typography variant="h6" className={styles.reservationTitle}>
                                             Reservation #{reservation.reservationId}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Start:</strong> {reservation.reservationStart}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>End:</strong> {reservation.reservationEnd}
                                         </Typography>
                                         <Typography variant="body1">
                                             <strong>Date:</strong> {reservation.reservationDate}
@@ -123,19 +171,20 @@ const ClientReservations: React.FC = () => {
                                         )}
                                     </CardContent>
                                 </Card>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-            <Pagination
-                count={Math.ceil((data?.totalCount || 1) / pageSize)}
-                page={page}
-                onChange={handlePageChange}
-                className={styles.pagination}
-                color="primary"
-                size="large"
-            />
+                            );
+                        })}
+                    </div>
+
+                    <Pagination
+                        count={Math.ceil((data?.totalCount || 1) / pageSize)}
+                        page={page}
+                        onChange={handlePageChange}
+                        className={styles.pagination}
+                        color="primary"
+                        size="large"
+                    />
+                </>
+            )}
         </div>
     );
 };
