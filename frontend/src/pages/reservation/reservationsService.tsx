@@ -46,6 +46,9 @@ export const useGetWeekSchedule = (startDate: string, objectId: number) => {
     return useQuery<ReservationListsResponse[]>({
         queryKey:['reservationDaySchedule', startDate, objectId],
         queryFn: () => fetchWeekScheduleData(startDate, objectId),
+        enabled: Boolean(startDate && objectId),
+        staleTime: 60 * 1000,
+        refetchOnWindowFocus: false,
     });
 }
 

@@ -55,7 +55,11 @@ const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }
 
                         {weekSchedule.data.map((daySchedule: ReservationListsResponse, index: number) => (
                             <div key={index} className={styles.hoursList}>
-                                <h3>{new Date(daySchedule.date).toLocaleDateString()}</h3>
+                                <h3>
+                                    {new Date(daySchedule.date).toLocaleDateString() === new Date().toLocaleDateString()
+                                        ? 'Today'
+                                        : new Date(daySchedule.date).toLocaleDateString()}
+                                </h3>
                                 <div>
                                     {Array.from({ length: 17 }, (_, i) => 7 + i).map((hour) => {
                                         const hourStr = (hour).toString().padStart(2, '0') + ':00:00';

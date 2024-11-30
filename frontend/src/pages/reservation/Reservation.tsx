@@ -32,8 +32,16 @@ const Reservation: React.FC = () => {
         }
     }, []);
 
-    const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const [date, setDate] = useState<Date>(new Date());
+    const [formattedDate, setFormattedDate] = useState<string>(
+        `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
+    );
+
+    useEffect(() => {
+        setFormattedDate(
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        );
+    }, [date]);
 
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -115,6 +123,25 @@ const Reservation: React.FC = () => {
         setSnackbarMessage(null);
     };
 
+    //handling weeks
+    const handleNextWeek = () => {
+        const newDate = new Date(date);
+        newDate.setDate(date.getDate() + 7);
+        setDate(newDate);
+    };
+
+    const handlePreviousWeek = () => {
+        const newDate = new Date(date);
+        newDate.setDate(date.getDate() - 7);
+        setDate(newDate);
+    };
+
+    const isPreviousWeekDisabled = (): boolean => {
+        const today = new Date();
+    
+        return date <= today;
+    };
+
     return (
         <ReservationContext.Provider value={{ selectedDate, setSelectedDate, selectedHours, addSelectedHour, removeSelectedHour, payNow, setPayNow }}>
             <Snackbar
@@ -192,9 +219,30 @@ const Reservation: React.FC = () => {
                                 Next
                             </Button>
                         </div>
-                        {selectedObjectId !== null && (
-                            <ReservationsWeek date={formattedDate} objectId={selectedObjectId} />
-                        )}
+                        {selectedObjectId !== null && (() => {
+                            return (
+                                <div className={styles.wrapper}>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<ArrowBackIcon />}
+                                        onClick={handlePreviousWeek}
+                                        className={styles.prevButton}
+                                        disabled={isPreviousWeekDisabled()}
+                                    >
+                                        Previous week
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        endIcon={<ArrowForwardIcon />}
+                                        onClick={handleNextWeek}
+                                        className={styles.nextButton}
+                                    >
+                                        Next week
+                                    </Button>
+                                    <ReservationsWeek date={formattedDate} objectId={selectedObjectId} />
+                                </div>
+                            );
+                        })()}
                     </>
                 )}
 
