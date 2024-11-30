@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useGetPaginatedUserReservations, useCancelReservation } from "./clientReservationsService";
-import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor } from "@mui/material";
+import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientReservations.module.scss";
@@ -15,7 +15,7 @@ const ClientReservations: React.FC = () => {
     const token = localStorage.getItem("token");
 
     // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
-    if(token === null) {
+    if (token === null) {
         navigate("/login");
         return;
     }
@@ -28,28 +28,45 @@ const ClientReservations: React.FC = () => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
+
     const { data, isLoading, isError, refetch } = useGetPaginatedUserReservations(userId, page - 1, pageSize);
     const { mutate: cancelReservation } = useCancelReservation();
 
     const handleCancelReservation = (reservationId: number) => {
-        cancelReservation(reservationId, {
-            onSuccess: (data: ApiSuccessResponse) => {
-                setSnackbarSeverity("success");
-                setSnackbarMessage(data.message);
-                setShowSnackbar(true);
-                refetch();
-            },
-            onError: (error: AxiosError<ApiErrorResponse>) => {
-                setSnackbarSeverity("error");
-                setSnackbarMessage(error.response?.data.error || "Failed to cancel reservation");
-                setShowSnackbar(true);
-            },
-        });
+        setSelectedReservationId(reservationId);
+        setDialogOpen(true);
+    };
+
+    const confirmCancelReservation = () => {
+        if (selectedReservationId) {
+            cancelReservation(selectedReservationId,
+                {
+                    onSuccess: (data: ApiSuccessResponse) => {
+                        setSnackbarSeverity("success");
+                        setSnackbarMessage(data.message);
+                        setShowSnackbar(true);
+                        refetch();
+                    },
+                    onError: (error: AxiosError<ApiErrorResponse>) => {
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(error.response?.data.error || "Failed to cancel reservation");
+                        setShowSnackbar(true);
+                    },
+                }
+            );
+        }
+        setDialogOpen(false);
     };
 
     const handleCloseSnackbar = () => {
         setShowSnackbar(false);
         setSnackbarMessage(null);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
     };
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
@@ -76,6 +93,28 @@ const ClientReservations: React.FC = () => {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
+
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Cancel Reservation"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to cancel this reservation?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        No
+                    </Button>
+                    <Button onClick={confirmCancelReservation} color="primary" autoFocus>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             {/* Reservations */}
             <div className={styles.reservationsList}>

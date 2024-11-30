@@ -17,7 +17,12 @@ import {
     SelectChangeEvent,
     Snackbar,
     Alert,
-    AlertColor
+    AlertColor,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
 } from "@mui/material";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
@@ -81,10 +86,18 @@ const Tournaments = () => {
         }
     };
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+
     const handleLeaveTournament = (tournamentId: number) => {
-        if (userId) {
+        setSelectedTournamentId(tournamentId);
+        setDialogOpen(true);
+    };
+
+    const confirmLeaveTournament = () => {
+        if (selectedTournamentId && userId) {
             leaveTournamentMutation.mutate(
-                { userId, tournamentId },
+                { userId, tournamentId: selectedTournamentId },
                 {
                     onSuccess: (data: ApiSuccessResponse) => {
                         setSnackbarSeverity("success");
@@ -100,6 +113,11 @@ const Tournaments = () => {
                 }
             );
         }
+        setDialogOpen(false);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
     };
 
     const handleCloseSnackbar = () => {
@@ -124,6 +142,28 @@ const Tournaments = () => {
                         {snackbarMessage}
                     </Alert>
                 </Snackbar>
+
+                <Dialog
+                    open={dialogOpen}
+                    onClose={handleCloseDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">{"Confirm Leave Tournament"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to leave this tournament?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog} color="primary">
+                            No
+                        </Button>
+                        <Button onClick={confirmLeaveTournament} color="primary" autoFocus>
+                            Yes
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
                 <FormControl fullWidth className={styles.select}>
                     <InputLabel id="object-filter-label">Filter by Object</InputLabel>

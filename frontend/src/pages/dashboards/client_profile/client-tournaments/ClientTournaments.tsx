@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useGetPaginatedUserTournaments, useLeaveTournament } from "./clientTournamentsService";
-import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor } from "@mui/material";
+import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientTournaments.module.scss";
@@ -29,26 +29,37 @@ const ClientTournaments: React.FC = () => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
 
+     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedTournamentId, setSelectedTournamentId] = useState<number>();
+
     const { data, isLoading, isError, refetch } = useGetPaginatedUserTournaments(userId, page - 1, pageSize);
     const { mutate: leaveTournament } = useLeaveTournament();
 
     const handleLeaveTournament = (tournamentId: number) => {
-        leaveTournament(
-            { userId, tournamentId },
-            {
-                onSuccess: (data: ApiSuccessResponse) => {
-                    setSnackbarSeverity("success");
-                    setSnackbarMessage(data.message);
-                    setShowSnackbar(true);
-                    refetch();
-                },
-                onError: (error: AxiosError<ApiErrorResponse>) => {
-                    setSnackbarSeverity("error");
-                    setSnackbarMessage(error.response?.data.error || "Failed to leave tournament");
-                    setShowSnackbar(true);
-                },
-            }
-        );
+        setSelectedTournamentId(tournamentId);
+        setDialogOpen(true);
+    };
+
+    const confirmLeaveTournament = () => {
+        if (selectedTournamentId) {
+            leaveTournament(
+                { userId, tournamentId: selectedTournamentId },
+                {
+                    onSuccess: (data: ApiSuccessResponse) => {
+                        setSnackbarSeverity("success");
+                        setSnackbarMessage(data.message);
+                        setShowSnackbar(true);
+                        refetch();
+                    },
+                    onError: (error: AxiosError<ApiErrorResponse>) => {
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(error.response?.data.error || "Failed to leave tournament");
+                        setShowSnackbar(true);
+                    },
+                }
+            );
+        }
+        setDialogOpen(false);
     };
 
     const handleCloseSnackbar = () => {
@@ -69,6 +80,12 @@ const ClientTournaments: React.FC = () => {
         return <div>Error fetching tournaments</div>;
     }
 
+
+    //popup stuff
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    };
+
     const today = dayjs();
 
     return (
@@ -83,6 +100,28 @@ const ClientTournaments: React.FC = () => {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
+
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Leave Tournament"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to leave this tournament?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        No
+                    </Button>
+                    <Button onClick={confirmLeaveTournament} color="primary" autoFocus>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <div className={styles.tournamentsList}>
                 {data?.items.map(({ tournament, joinedAt }: UsersTournaments) => {
