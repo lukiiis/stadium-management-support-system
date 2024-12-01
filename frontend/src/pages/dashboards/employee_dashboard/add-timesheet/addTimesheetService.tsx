@@ -3,7 +3,8 @@ import { AxiosError } from "axios";
 import axiosInstance from "../../../../config/axiosConfig";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
-import { CreateReservationTimesheetData } from "../../../../shared/types/models/reservationTimesheet";
+import { CreateReservationTimesheetData, ReservationTimesheetDto } from "../../../../shared/types/models/reservationTimesheet";
+import { PaginatedResult } from "../../../../shared/types/pagination/pagination";
 
 export const useCreateReservationTimesheet = () => {
     return useMutation({
@@ -35,3 +36,19 @@ export const useGetObjectTypes = () => {
         queryFn: fetchAllObjectTypes,
     });
 }
+
+//fetching all timesheets
+const fetchPaginatedTimesheets = async (page: number, pageSize: number): Promise<PaginatedResult<ReservationTimesheetDto>> => {
+    const response = await axiosInstance.get<PaginatedResult<ReservationTimesheetDto>>('/reservation-timesheets/all-paginated', {
+        params: { page, pageSize },
+    });
+    return response.data;
+};
+
+export const useGetPaginatedTimesheets = (page: number, pageSize: number) => {
+    return useQuery<PaginatedResult<ReservationTimesheetDto>>({
+        queryKey: ['paginatedTimesheets', page],
+        queryFn: () => fetchPaginatedTimesheets(page, pageSize),
+        placeholderData: (prev) => prev,
+    });
+};

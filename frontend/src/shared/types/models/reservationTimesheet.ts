@@ -1,3 +1,5 @@
+import { ObjectTypeDto } from "./objectType";
+
 export interface CreateReservationTimesheetData {
     date: string,
     startTime: string,
@@ -5,4 +7,11 @@ export interface CreateReservationTimesheetData {
     objectId: number | null,
 }
 
-//export interface ReservationTimesheetDto {  }
+export interface ReservationTimesheetDto {
+    timesheetId: number,
+    date: string,
+    startTime: string,
+    endTime: string,
+    isTournament: boolean,
+    objectType: ObjectTypeDto,
+}

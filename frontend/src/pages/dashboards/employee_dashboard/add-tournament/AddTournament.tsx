@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert, Typography, Card, CardContent, Pagination } from "@mui/material";
 import styles from './AddTournament.module.scss';
-import { useCreateTournament, useGetObjectTypes } from "./addTournamentService";
+import { useCreateTournament, useGetObjectTypes, useGetPaginatedTournaments } from "./addTournamentService";
 import { AxiosError } from "axios";
-import { CreateTournamentData } from "../../../../shared/types/models/tournament";
+import { CreateTournamentData, TournamentDto } from "../../../../shared/types/models/tournament";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
 
@@ -13,6 +13,9 @@ const AddTournament: React.FC = () => {
     const [showError, setShowError] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [showSuccess, setShowSuccess] = useState<boolean>(false);
+    const [page, setPage] = useState(1);
+    const [showForm, setShowForm] = useState(false);
+    const pageSize = 5;
 
     const handleCloseSnackbar = () => {
         setShowError(false);
@@ -23,8 +26,9 @@ const AddTournament: React.FC = () => {
 
     const { data: objectTypes, isLoading: isLoadingObjects } = useGetObjectTypes();
     const createTournamentMutation = useCreateTournament();
+    const { data: paginatedTournaments, isLoading: isLoadingTournaments, refetch } = useGetPaginatedTournaments(page - 1, pageSize);
 
-    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<CreateTournamentData>();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateTournamentData>();
 
     const onSubmit = (data: CreateTournamentData) => {
         createTournamentMutation.mutate(data, {
@@ -32,7 +36,9 @@ const AddTournament: React.FC = () => {
                 console.log(`Successfully created tournament`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
-                reset();
+                setShowForm(false);
+                refetch();
+                // reset();
             },
             onError: (error: AxiosError<ApiErrorResponse>) => {
                 console.error(`Error creating tournament`);
@@ -40,15 +46,17 @@ const AddTournament: React.FC = () => {
                     setErrorMessage(error.response.data.error);
                     setShowError(true);
                 }
+                else{
+                    setErrorMessage(`Error creating tournament`);
+                    setShowError(true);
+                }
             },
         });
     };
 
-    useEffect(() => {
-        if (objectTypes?.length) {
-            setValue('objectId', objectTypes[0].objectId);
-        }
-    }, [objectTypes, setValue]);
+    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+    };
 
     return (
         <div className={styles.formContainer}>
@@ -76,9 +84,40 @@ const AddTournament: React.FC = () => {
                 </Alert>
             </Snackbar>
 
-            {isLoadingObjects ? (
+            {isLoadingTournaments ? (
                 <CircularProgress />
             ) : (
+                <div className={styles.tournamentList}>
+                    {paginatedTournaments?.items.map((tournament: TournamentDto) => (
+                        <Card key={tournament.tournamentId} className={styles.tournamentCard}>
+                            <CardContent>
+                                <Typography variant="h6">Tournament #{tournament.tournamentId}</Typography>
+                                <Typography variant="body1"><strong>Sport:</strong> {tournament.sport}</Typography>
+                                <Typography variant="body1"><strong>Max Slots:</strong> {tournament.maxSlots}</Typography>
+                                <Typography variant="body1"><strong>Occupied Slots:</strong> {tournament.occupiedSlots}</Typography>
+                                <Typography variant="body1"><strong>Start Date:</strong> {tournament.startDate}</Typography>
+                                <Typography variant="body1"><strong>End Date:</strong> {tournament.endDate}</Typography>
+                                <Typography variant="body1"><strong>Description:</strong> {tournament.description}</Typography>
+                                <Typography variant="body1"><strong>Object:</strong> {tournament.objectType.type}</Typography>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    <Pagination
+                        count={Math.ceil((paginatedTournaments?.totalCount || 1) / pageSize)}
+                        page={page}
+                        onChange={handlePageChange}
+                        className={styles.pagination}
+                        color="primary"
+                        size="large"
+                    />
+                </div>
+            )}
+
+            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
+                Add new tournament
+            </Button>
+
+            {showForm && (
                 <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
@@ -128,7 +167,7 @@ const AddTournament: React.FC = () => {
                             <InputLabel>Object</InputLabel>
                             <Select
                                 {...register("objectId", { required: "Object is required" })}
-                                defaultValue="" // Dodaj wartość domyślną
+                                defaultValue=""
                                 label="Object"
                             >
                                 {objectTypes?.map((obj: ObjectTypeDto) => (
@@ -137,7 +176,6 @@ const AddTournament: React.FC = () => {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {errors.objectId && <span className={styles.error}>{errors.objectId?.message}</span>}
                         </FormControl>
 
                         <Button type="submit" variant="contained" color="primary" fullWidth>

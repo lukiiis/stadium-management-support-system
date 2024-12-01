@@ -2,8 +2,9 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import axiosInstance from "../../../../config/axiosConfig"
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse"
-import { CreateTournamentData } from "../../../../shared/types/models/tournament"
+import { CreateTournamentData, TournamentDto } from "../../../../shared/types/models/tournament"
 import { ObjectTypeDto } from "../../../../shared/types/models/objectType"
+import { PaginatedResult } from "../../../../shared/types/pagination/pagination"
 
 export const useCreateTournament = () => {
     return useMutation({
@@ -34,3 +35,20 @@ export const useGetObjectTypes = () => {
         queryFn: fetchAllObjectTypes,
     });
 }
+
+//fetch all tournaments
+const fetchPaginatedTournaments = async (page: number, pageSize: number): Promise<PaginatedResult<TournamentDto>> => {
+    const response = await axiosInstance.get<PaginatedResult<TournamentDto>>('/tournaments/all-tournaments-paginated', {
+        params: { page, pageSize },
+    });
+    return response.data;
+};
+
+export const useGetPaginatedTournaments = (page: number, pageSize: number) => {
+    return useQuery<PaginatedResult<TournamentDto>>({
+        queryKey: ['paginatedTournaments', page],
+        queryFn: () => fetchPaginatedTournaments(page, pageSize),
+        placeholderData: (prev) => prev,
+        staleTime: 100000,
+    });
+};

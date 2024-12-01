@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.DTOs.ReservationTimesheet;
 using backend.Models;
+using backend.Services.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
@@ -10,9 +11,11 @@ namespace backend.Services
     {
         Task<List<ReservationTimesheet>> GetTimesheetsByDateRangeAndObjectId(DateOnly startDate, DateOnly endDate, int objectId);
         Task<ReservationTimesheet?> GetTimesheetByDateAndObjectId(DateOnly date, int objectId);
-        Task CreateTimesheetsForDateRangeAndObjectIdAndFlag(DateOnly startDate, DateOnly endDate, int objectId);
+        Task CreateTimesheetsForTournaments(DateOnly startDate, DateOnly endDate, int objectId);
         Task CreateReservationTimesheet(CreateReservationTimesheetDto dto);
         Task UpdateReservationTimesheet(UpdateReservationTimesheetDto dto);
+        Task<PaginatedResult<ReservationTimesheetDto>> GetAllTimesheetsPaginatedAsync(int page, int pageSize);
+
     }
 
     public class ReservationTimesheetsService(ApplicationDbContext context, IMapper mapper) : IReservationTimesheetsService
@@ -36,7 +39,7 @@ namespace backend.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task CreateTimesheetsForDateRangeAndObjectIdAndFlag(DateOnly startDate, DateOnly endDate, int objectId)
+        public async Task CreateTimesheetsForTournaments(DateOnly startDate, DateOnly endDate, int objectId)
         {
             var timesheets = new List<ReservationTimesheet>();
 
@@ -82,6 +85,22 @@ namespace backend.Services
 
             _context.ReservationTimesheets.Update(timesheet);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<PaginatedResult<ReservationTimesheetDto>> GetAllTimesheetsPaginatedAsync(int page, int pageSize)
+        {
+            var query = _context.ReservationTimesheets.AsQueryable();
+            var totalItems = await query.CountAsync();
+            var timesheets = await query.Skip((page) * pageSize).Take(pageSize).Include(t => t.ObjectType).ToListAsync();
+            var timesheetDtos = _mapper.Map<List<ReservationTimesheetDto>>(timesheets);
+
+            return new PaginatedResult<ReservationTimesheetDto>
+            {
+                Items = timesheetDtos,
+                TotalCount = totalItems,
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

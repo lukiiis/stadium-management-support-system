@@ -40,5 +40,20 @@ namespace backend.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpGet("all-paginated")]
+        //[Authorize(Policy = "EmployeeOnly")]
+        public async Task<IActionResult> GetAllTimesheetsPaginated(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                var result = await _reservationTimesheetsService.GetAllTimesheetsPaginatedAsync(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
     }
 }

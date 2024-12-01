@@ -69,13 +69,13 @@ namespace backend.Services
                     await _context.SaveChangesAsync();
 
                     //add timesheets FOR ALL TOURNAMENT DAYS
-                    await _reservationTimesheetsService.CreateTimesheetsForDateRangeAndObjectIdAndFlag(dto.StartDate, dto.EndDate, dto.ObjectId);
+                    await _reservationTimesheetsService.CreateTimesheetsForTournaments(dto.StartDate, dto.EndDate, dto.ObjectId);
                 }
             }
             else
             {
                 //if no or does not contain reservations, then create those timesheets with IsTournament=true
-                await _reservationTimesheetsService.CreateTimesheetsForDateRangeAndObjectIdAndFlag(dto.StartDate, dto.EndDate, dto.ObjectId);
+                await _reservationTimesheetsService.CreateTimesheetsForTournaments(dto.StartDate, dto.EndDate, dto.ObjectId);
             }
 
             var tournament = _mapper.Map<Tournament>(dto);
