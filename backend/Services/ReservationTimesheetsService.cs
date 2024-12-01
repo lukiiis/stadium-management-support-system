@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.DTOs.ReservationTimesheet;
 using backend.Models;
+using backend.Services.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
@@ -10,8 +11,11 @@ namespace backend.Services
     {
         Task<List<ReservationTimesheet>> GetTimesheetsByDateRangeAndObjectId(DateOnly startDate, DateOnly endDate, int objectId);
         Task<ReservationTimesheet?> GetTimesheetByDateAndObjectId(DateOnly date, int objectId);
-        Task CreateTimesheetsForDateRangeAndObjectIdAndFlag(DateOnly startDate, DateOnly endDate, int objectId);
+        Task CreateTimesheetsForTournaments(DateOnly startDate, DateOnly endDate, int objectId);
         Task CreateReservationTimesheet(CreateReservationTimesheetDto dto);
+        Task UpdateReservationTimesheet(UpdateReservationTimesheetDto dto);
+        Task<PaginatedResult<ReservationTimesheetDto>> GetAllTimesheetsPaginatedAsync(int page, int pageSize);
+
     }
 
     public class ReservationTimesheetsService(ApplicationDbContext context, IMapper mapper) : IReservationTimesheetsService
@@ -26,6 +30,7 @@ namespace backend.Services
                 .Where(rt => rt.ObjectId == objectId)
                 .ToListAsync();
         }
+
         public async Task<ReservationTimesheet?> GetTimesheetByDateAndObjectId(DateOnly date, int objectId)
         {
             return await _context.ReservationTimesheets
@@ -34,7 +39,7 @@ namespace backend.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task CreateTimesheetsForDateRangeAndObjectIdAndFlag(DateOnly startDate, DateOnly endDate, int objectId)
+        public async Task CreateTimesheetsForTournaments(DateOnly startDate, DateOnly endDate, int objectId)
         {
             var timesheets = new List<ReservationTimesheet>();
 
@@ -66,6 +71,44 @@ namespace backend.Services
 
             await _context.ReservationTimesheets.AddAsync(timesheetToAdd);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateReservationTimesheet(UpdateReservationTimesheetDto dto)
+        {
+            var timesheet = await _context.ReservationTimesheets.FindAsync(dto.TimesheetId);
+            if (timesheet == null)
+            {
+                throw new Exception("Timesheet not found.");
+            }
+
+            // Check if there are existing reservations for the given date and object ID
+            if (await _context.Reservations.AnyAsync(r => r.ReservationDate == timesheet.Date && r.ObjectId == timesheet.ObjectId))
+            {
+                throw new Exception("Cannot update timesheet when there are already reservations for that day.");
+            }
+
+            timesheet.StartTime = dto.StartTime;
+            timesheet.EndTime = dto.EndTime;
+
+            _context.ReservationTimesheets.Update(timesheet);
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<PaginatedResult<ReservationTimesheetDto>> GetAllTimesheetsPaginatedAsync(int page, int pageSize)
+        {
+            var query = _context.ReservationTimesheets.AsQueryable();
+            var totalItems = await query.CountAsync();
+            var timesheets = await query.Skip((page) * pageSize).Take(pageSize).Include(t => t.ObjectType).ToListAsync();
+            var timesheetDtos = _mapper.Map<List<ReservationTimesheetDto>>(timesheets);
+
+            return new PaginatedResult<ReservationTimesheetDto>
+            {
+                Items = timesheetDtos,
+                TotalCount = totalItems,
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

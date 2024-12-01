@@ -17,9 +17,9 @@ $border-radius: 8px;
     text-align: center;
     transition: background-color 0.3s ease;
 
-    &:hover {
-        background-color: darken($color, 10%);
-    }
+    // &:hover {
+    //     background-color: darken($color, 10%);
+    // }
 }
 
 .dashboardContainer {

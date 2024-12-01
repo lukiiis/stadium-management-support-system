@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.Data;
 using backend.DTOs.Reservation;
+using backend.Enums;
 using backend.Models;
 using backend.Services.Pagination;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace backend.Services
         Task<IEnumerable<Reservation>> GetReservationsByDateAndObject(DateOnly date, int objectId);
         Task<GetReservationListsDto> GetReservationScheduleForOneDay(DateOnly date, int ObjectId);
         Task<List<GetReservationListsDto>> GetReservationScheduleForOneWeek(DateOnly startDate, int objectId);
+        Task<bool?> UpdatePaymentStatusAsync(int reservationId);
     }
 
     public class ReservationsService(IReservationTimesheetsService reservationTimesheetsService, ApplicationDbContext context, IMapper mapper) : IReservationsService
@@ -238,5 +240,23 @@ namespace backend.Services
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool?> UpdatePaymentStatusAsync(int reservationId)
+        {
+            var reservation = await _context.Reservations.FindAsync(reservationId);
+            if (reservation == null)
+            {
+                return null;
+            }
+            if (reservation.PaymentStatus == PaymentStatus.PAID)
+            {
+                return false;
+            }
+
+            reservation.PaymentStatus = PaymentStatus.PAID;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

@@ -18,9 +18,9 @@ $border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 
-    &:hover {
-        background-color: darken($color, 10%);
-    }
+    // &:hover {
+    //     background-color: color.scale($color, $lightness: -23.1818181818%)
+    // }
 }
 
 // Styles
