@@ -15,3 +15,9 @@ export interface ReservationTimesheetDto {
     isTournament: boolean,
     objectType: ObjectTypeDto,
 }
+
+export interface UpdateReservationTimesheetData {
+    timesheetId: number,
+    startTime: string,
+    endTime: string,
+}

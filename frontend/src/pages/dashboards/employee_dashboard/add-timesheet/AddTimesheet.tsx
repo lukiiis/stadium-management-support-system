@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert, Typography, Card, CardContent, Pagination } from "@mui/material";
 import styles from './AddTimesheet.module.scss';
-import { useCreateReservationTimesheet, useGetObjectTypes, useGetPaginatedTimesheets } from "./addTimesheetService";
+import { useCreateReservationTimesheet, useGetObjectTypes, useGetPaginatedTimesheets, useUpdateReservationTimesheet } from "./addTimesheetService";
 import { AxiosError } from "axios";
-import { CreateReservationTimesheetData, ReservationTimesheetDto } from "../../../../shared/types/models/reservationTimesheet";
+import { CreateReservationTimesheetData, ReservationTimesheetDto, UpdateReservationTimesheetData } from "../../../../shared/types/models/reservationTimesheet";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 
 const AddTimesheet: React.FC = () => {
@@ -14,6 +14,7 @@ const AddTimesheet: React.FC = () => {
     const [showSuccess, setShowSuccess] = useState<boolean>(false);
     const [page, setPage] = useState(1);
     const [showForm, setShowForm] = useState(false);
+    const [editingTimesheetId, setEditingTimesheetId] = useState<number | null>(null);
     const pageSize = 5;
 
     const handleCloseSnackbar = () => {
@@ -25,11 +26,13 @@ const AddTimesheet: React.FC = () => {
 
     const { data: objectTypes, isLoading: isLoadingObjects } = useGetObjectTypes();
     const createTimesheetMutation = useCreateReservationTimesheet();
+    const updateTimesheetMutation = useUpdateReservationTimesheet();
     const { data: paginatedTimesheets, isLoading: isLoadingTimesheets, refetch } = useGetPaginatedTimesheets(page - 1, pageSize);
 
-    const { register, handleSubmit, setValue, formState: { errors }, reset, getValues } = useForm<CreateReservationTimesheetData>();
+    const { register: registerCreate, handleSubmit: handleSubmitCreate, formState: { errors: errorsCreate }, reset: resetCreate } = useForm<CreateReservationTimesheetData>();
+    const { register: registerUpdate, handleSubmit: handleSubmitUpdate, formState: { errors: errorsUpdate }, reset: resetUpdate } = useForm<UpdateReservationTimesheetData>();
 
-    const onSubmit = (data: CreateReservationTimesheetData) => {
+    const onSubmitCreate = (data: CreateReservationTimesheetData) => {
         const formattedData = {
             ...data,
             startTime: `${data.startTime}:00`,
@@ -40,8 +43,9 @@ const AddTimesheet: React.FC = () => {
                 console.log(`Successfully created timesheet`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
+                setShowForm(false);
                 refetch();
-                // reset();
+                resetCreate();
             },
             onError: (error: AxiosError<ApiErrorResponse>) => {
                 console.error(`Error creating timesheet`);
@@ -51,6 +55,36 @@ const AddTimesheet: React.FC = () => {
                 }
                 else {
                     setErrorMessage(`Error creating timesheet`);
+                    setShowError(true);
+                }
+            },
+        });
+    };
+
+    const onSubmitUpdate = (data: UpdateReservationTimesheetData) => {
+        const formattedData = {
+            ...data,
+            startTime: `${data.startTime}:00`,
+            endTime: `${data.endTime}:00`,
+        };
+        console.log(formattedData)
+        updateTimesheetMutation.mutate(formattedData, {
+            onSuccess: (data: ApiSuccessResponse) => {
+                console.log(`Successfully updated timesheet`);
+                setSuccessMessage(data.message);
+                setShowSuccess(true);
+                setEditingTimesheetId(null);
+                refetch();
+                resetUpdate();
+            },
+            onError: (error: AxiosError<ApiErrorResponse>) => {
+                console.error(`Error updating timesheet`);
+                if (error.response?.data?.error) {
+                    setErrorMessage(error.response.data.error);
+                    setShowError(true);
+                }
+                else {
+                    setErrorMessage(`Error updating timesheet`);
                     setShowError(true);
                 }
             },
@@ -96,9 +130,46 @@ const AddTimesheet: React.FC = () => {
                             <CardContent>
                                 <Typography variant="h6">Timesheet #{timesheet.timesheetId}</Typography>
                                 <Typography variant="body1"><strong>Date:</strong> {timesheet.date}</Typography>
-                                <Typography variant="body1"><strong>Start Time:</strong> {timesheet.startTime}</Typography>
-                                <Typography variant="body1"><strong>End Time:</strong> {timesheet.endTime}</Typography>
-                                <Typography variant="body1"><strong>Object:</strong> {timesheet.objectType.type}</Typography>
+                                {editingTimesheetId === timesheet.timesheetId ? (
+                                    <form onSubmit={handleSubmitUpdate(onSubmitUpdate)}>
+                                        <TextField
+                                            {...registerUpdate("startTime", { required: "Start Time is required" })}
+                                            label="Start Time"
+                                            type="time"
+                                            defaultValue={timesheet.startTime}
+                                            fullWidth
+                                            error={!!errorsUpdate.startTime}
+                                            helperText={errorsUpdate.startTime?.message}
+                                        />
+                                        <TextField
+                                            {...registerUpdate("endTime", { required: "End Time is required" })}
+                                            label="End Time"
+                                            type="time"
+                                            defaultValue={timesheet.endTime}
+                                            fullWidth
+                                            error={!!errorsUpdate.endTime}
+                                            helperText={errorsUpdate.endTime?.message}
+                                        />
+                                        <input type="hidden" {...registerUpdate("timesheetId")} value={timesheet.timesheetId} />
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Button type="submit" variant="contained" color="primary">
+                                                Update Timesheet
+                                            </Button>
+                                            <Button variant="outlined" color="secondary" onClick={() => setEditingTimesheetId(null)}>
+                                                Cancel
+                                            </Button>
+                                        </Box>
+                                    </form>
+                                ) : (
+                                    <>
+                                        <Typography variant="body1"><strong>Start Time:</strong> {timesheet.startTime}</Typography>
+                                        <Typography variant="body1"><strong>End Time:</strong> {timesheet.endTime}</Typography>
+                                        <Typography variant="body1"><strong>Object:</strong> {timesheet.objectType.type}</Typography>
+                                        <Button variant="outlined" color="primary" onClick={() => {setEditingTimesheetId(timesheet.timesheetId); console.log("tajmszit", editingTimesheetId)}}>
+                                            Edit
+                                        </Button>
+                                    </>
+                                )}
                             </CardContent>
                         </Card>
                     ))}
@@ -120,42 +191,42 @@ const AddTimesheet: React.FC = () => {
                     {isLoadingObjects ? (
                         <CircularProgress />
                     ) : (
-                        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+                        <form onSubmit={handleSubmitCreate(onSubmitCreate)} className={styles.form}>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 <TextField
-                                    {...register("date", { required: "Date is required" })}
+                                    {...registerCreate("date", { required: "Date is required" })}
                                     label="Date"
                                     type="date"
                                     defaultValue={new Date().toISOString().split('T')[0]}
                                     fullWidth
-                                    error={!!errors.date}
-                                    helperText={errors.date?.message}
+                                    error={!!errorsCreate.date}
+                                    helperText={errorsCreate.date?.message}
                                 />
 
                                 <TextField
-                                    {...register("startTime", { required: "Start Time is required" })}
+                                    {...registerCreate("startTime", { required: "Start Time is required" })}
                                     label="Start Time"
                                     type="time"
                                     defaultValue="08:00"
                                     fullWidth
-                                    error={!!errors.startTime}
-                                    helperText={errors.startTime?.message}
+                                    error={!!errorsCreate.startTime}
+                                    helperText={errorsCreate.startTime?.message}
                                 />
 
                                 <TextField
-                                    {...register("endTime", { required: "End Time is required" })}
+                                    {...registerCreate("endTime", { required: "End Time is required" })}
                                     label="End Time"
                                     type="time"
                                     defaultValue="22:00"
                                     fullWidth
-                                    error={!!errors.endTime}
-                                    helperText={errors.endTime?.message}
+                                    error={!!errorsCreate.endTime}
+                                    helperText={errorsCreate.endTime?.message}
                                 />
 
-                                <FormControl fullWidth error={!!errors.objectId}>
+                                <FormControl fullWidth error={!!errorsCreate.objectId}>
                                     <InputLabel>Object</InputLabel>
                                     <Select
-                                        {...register("objectId", { required: "Object is required" })}
+                                        {...registerCreate("objectId", { required: "Object is required" })}
                                         defaultValue=""
                                     >
                                         {objectTypes?.map((objectType) => (
@@ -174,7 +245,6 @@ const AddTimesheet: React.FC = () => {
                     )}
                 </>
             )}
-
         </div>
     );
 };
