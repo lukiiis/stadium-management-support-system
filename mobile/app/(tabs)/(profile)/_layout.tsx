@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import React from 'react';
 
-export default function HomeLayout() {
+export default function ProfileLayout() {
   return (
     <Stack
       screenOptions={{
@@ -13,7 +13,9 @@ export default function HomeLayout() {
           fontWeight: 'bold',
         },
       }}>
-      <Stack.Screen name="index" options={{ headerShown: false }}/>
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="clientReservations" />
+      <Stack.Screen name="clientTournaments" />
     </Stack>
   );
 }
