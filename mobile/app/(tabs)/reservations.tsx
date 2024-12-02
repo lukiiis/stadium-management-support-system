@@ -1,148 +1,126 @@
-import { View, Text } from 'react-native';
-import React, { useState } from 'react';
-import { ReservationListsResponse } from '@/shared/types/models/reservation';
-import { useGetDaySchedule } from '@/api/reservationsTabService';
-import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn } from 'react-native-reanimated';
+// app/(tabs)/reservations.tsx
+import { View, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
+import { useGetDaySchedule, useGetAllObjectTypes } from '@/api/reservationsTabService'
+import { Picker } from '@react-native-picker/picker'
+import TimeSheet from '@/components/TimeSheet'
+import Animated, { FadeIn } from 'react-native-reanimated'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function ReservationsScreen() {
-  const [formattedDate, setFormattedDate] = useState<string>(
-    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
-  );
+  const [date, setDate] = useState(new Date())
+  const [selectedObjectId, setSelectedObjectId] = useState<number>(1)
+  const [selectedHours, setSelectedHours] = useState<string[]>([])
+  const [selectedDate, setSelectedDate] = useState<string>('')
 
-  const { data, isLoading, error } = useGetDaySchedule(formattedDate, 1);
-  // context for selecting hours
-  const [selectedHours, setSelectedHours] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
-  const addSelectedHour = (hour: string) => {
-    setSelectedHours((prev) => [...prev, hour]);
-  };
+  const { data: schedule, isLoading, error } = useGetDaySchedule(formattedDate, selectedObjectId)
+  const { data: objectTypes } = useGetAllObjectTypes()
 
-  const removeSelectedHour = (hour: string) => {
-    setSelectedHours((prev) => prev.filter((h) => h !== hour));
-  };
+  const handlePreviousDay = () => {
+    const newDate = new Date(date)
+    newDate.setDate(date.getDate() - 1)
+    setDate(newDate)
+    setSelectedHours([])
+    setSelectedDate('')
+  }
 
-  const handleHourClick = (hour: string, date: string) => {
+  const handleNextDay = () => {
+    const newDate = new Date(date)
+    newDate.setDate(date.getDate() + 1)
+    setDate(newDate)
+    setSelectedHours([])
+    setSelectedDate('')
+  }
+
+  const handleHourSelect = (hour: string, date: string) => {
     if (selectedDate === '') {
-      setSelectedDate(date);
-      addSelectedHour(hour);
+      setSelectedDate(date)
+      setSelectedHours([hour])
     } else if (date === selectedDate) {
       const isAdjacent = selectedHours.some(selectedHour => {
-        const selectedHourInt = parseInt(selectedHour.split(":")[0], 10);
-        const hourInt = parseInt(hour.split(":")[0], 10);
-        return Math.abs(selectedHourInt - hourInt) === 1;
-      });
+        const selectedHourInt = parseInt(selectedHour.split(':')[0], 10)
+        const hourInt = parseInt(hour.split(':')[0], 10)
+        return Math.abs(selectedHourInt - hourInt) === 1
+      })
 
       if (selectedHours.includes(hour)) {
-        const sortedHours = selectedHours.slice().sort();
-        const currentIndex = sortedHours.indexOf(hour);
-        const prevHour = sortedHours[currentIndex - 1];
-        const nextHour = sortedHours[currentIndex + 1];
+        const sortedHours = [...selectedHours].sort()
+        const currentIndex = sortedHours.indexOf(hour)
+        const prevHour = sortedHours[currentIndex - 1]
+        const nextHour = sortedHours[currentIndex + 1]
 
         if (prevHour && nextHour) {
-          const [prevH] = prevHour.split(':').map(Number);
-          const [currH] = hour.split(':').map(Number);
-          const [nextH] = nextHour.split(':').map(Number);
+          const [prevH] = prevHour.split(':').map(Number)
+          const [currH] = hour.split(':').map(Number)
+          const [nextH] = nextHour.split(':').map(Number)
 
           if (prevH === currH - 1 && nextH === currH + 1) {
-            return;
+            return
           }
         }
 
-        removeSelectedHour(hour);
+        setSelectedHours(prev => prev.filter(h => h !== hour))
       } else if (selectedHours.length === 0 || isAdjacent) {
-        addSelectedHour(hour);
+        setSelectedHours(prev => [...prev, hour])
       }
     }
-  };
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <Animated.View entering={FadeIn}>
-          <Ionicons name="basketball" size={48} className="text-blue-500 mb-4" />
-          <Text className="text-gray-600 dark:text-gray-300">Loading tournaments...</Text>
-        </Animated.View>
-      </View>
-    )
-  }
-
-  if (error) {
-    return (
-      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <Animated.View entering={FadeIn} className="items-center">
-          <Ionicons name="alert-circle" size={48} className="text-red-500 mb-4" />
-          <Text className="text-gray-600 dark:text-gray-300">Error: {error.message}</Text>
-        </Animated.View>
-      </View>
-    )
   }
 
   return (
-    <div className={styles.main}>
-      {data && (
-        <>
-          <div className={styles.daysList}>
-            <div className={styles.hoursList}>
-              <h3>
-                {new Date(data.date).toLocaleDateString() === new Date().toLocaleDateString()
-                  ? 'Today'
-                  : new Date(data.date).toLocaleDateString()}
-              </h3>
-              <div>
-                {Arr</View>ay.from({ length: 17 }, (_, i) => 7 + i).map((hour) => {
-                  const hourStr = (hour).toString().padStart(2, '0') + ':00:00';
-                  let tileColor = 'gray';
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="p-4">
+        <Picker
+          selectedValue={selectedObjectId}
+          onValueChange={(itemValue) => setSelectedObjectId(Number(itemValue))}
+          className="bg-white dark:bg-gray-800 rounded-lg mb-4"
+        >
+          {objectTypes?.map(object => (
+            <Picker.Item
+              key={object.objectId}
+              label={`${object.type} - ${object.description}`}
+              value={object.objectId}
+            />
+          ))}
+        </Picker>
 
-                  const currentDate = new Date();
-                  const currentHour = currentDate.getHours();
-                  const isToday = new Date(data.date).toLocaleDateString() === currentDate.toLocaleDateString();
+        <Animated.View
+          entering={FadeIn}
+          className="flex-row items-center justify-between mb-4"
+        >
+          <TouchableOpacity
+            onPress={handlePreviousDay}
+            disabled={date.toDateString() === new Date().toDateString()}
+            className={`p-3 rounded-full shadow-sm ${date.toDateString() === new Date().toDateString()
+                ? 'bg-gray-200 dark:bg-gray-700'
+                : 'bg-white dark:bg-gray-800'
+              }`}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={date.toDateString() === new Date().toDateString() ? '#9CA3AF' : '#4A90E2'}
+            />
+          </TouchableOpacity>
 
-                  if (isToday && hour < currentHour) {
-                    tileColor = 'black';
-                  } else if (data.isTournament) {
-                    tileColor = 'brown';
-                  } else if (hourStr < data.reservationsStart || hourStr >= data.reservationsEnd) {
-                    tileColor = 'gray';
-                  } else if (data.reservedHours.includes(hourStr)) {
-                    tileColor = 'red';
-                  } else if (data.freeHours.includes(hourStr)) {
-                    if (selectedHours.length === 0) {
-                      tileColor = 'green';
-                    } else {
-                      const isAdjacent = selectedHours.some(selectedHour => {
-                        const selectedHourInt = parseInt(selectedHour.split(":")[0], 10);
-                        const hourInt = parseInt(hourStr.split(":")[0], 10);
-                        return Math.abs(selectedHourInt - hourInt) === 1;
-                      });
-                      tileColor = isAdjacent && data.date === selectedDate
-                        ? 'green'
-                        : 'darkgreen';
-                    }
-                  }
+          <TouchableOpacity
+            onPress={handleNextDay}
+            className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm"
+          >
+            <Ionicons name="chevron-forward" size={24} color="#4A90E2" />
+          </TouchableOpacity>
+        </Animated.View>
 
-                  if ((tileColor === 'green' || tileColor === 'darkgreen') &&
-                    selectedHours.includes(hourStr) &&
-                    selectedDate === data.date) {
-                    tileColor = 'blue';
-                  }
-
-                  return (
-                    <div
-                      key={hour}
-                      className={`${styles.hourTile} ${styles[tileColor]}`}
-                      onClick={() => (tileColor === 'green' || tileColor === 'blue') && handleHourClick(hourStr, daySchedule.date)}
-                    >
-                      {`${hour}:00`}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
+        {schedule && (
+          <TimeSheet
+            date={formattedDate}
+            schedule={schedule}
+            selectedHours={selectedHours}
+            onHourSelect={handleHourSelect}
+          />
+        )}
+      </View>
+    </ScrollView>
+  )
 }
