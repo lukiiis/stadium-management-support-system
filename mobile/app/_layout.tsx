@@ -44,7 +44,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <RootLayout />
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
       </ThemeProvider>
     </QueryClientProvider>
   );

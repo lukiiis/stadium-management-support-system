@@ -18,6 +18,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="reservations"
         options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar" color={color} size={size} />
           ),
@@ -27,6 +28,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tournaments"
         options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="trophy" color={color} size={size} />
           ),
@@ -36,6 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="objects"
         options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="cube" color={color} size={size} />
           ),
@@ -45,6 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(profile)"
         options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" color={color} size={size} />
           ),
