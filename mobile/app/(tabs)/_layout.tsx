@@ -55,6 +55,16 @@ export default function TabLayout() {
           tabBarLabel: 'Profile',
         }}
       />
+      <Tabs.Screen
+        name="(auth)"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" color={color} size={size} />
+          ),
+          tabBarLabel: 'Login',
+        }}
+      />
     </Tabs>
   );
 }

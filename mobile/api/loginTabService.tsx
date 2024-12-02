@@ -2,19 +2,15 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { UseFormReturn } from "react-hook-form";
 import axiosInstance from "@/config/axiosConfig";
-import { LoginData, LoginResponse, LoginStatus } from "@/shared/types/auth/login";
+import { LoginData, LoginResponse } from "@/shared/types/auth/login";
 import { ApiErrorResponse } from "@/shared/types/api/apiResponse";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 //custom hook
-export const useLoginUser = (setLoginInfo: React.Dispatch<React.SetStateAction<LoginStatus>>, loginForm: UseFormReturn<LoginData, unknown, undefined>) => {
+export const useLoginUser = (loginForm: UseFormReturn<LoginData, unknown, undefined>) => {
     return useMutation({
         mutationFn: loginUser,
         onSuccess: async (data: LoginResponse) => {
-            setLoginInfo({
-                status: "Success",
-                message: data.message
-            });
             await AsyncStorage.setItem("userId", data.userId.toString())
             await AsyncStorage.setItem("token", data.token);
             await AsyncStorage.setItem("firstName", data.firstName);
@@ -25,11 +21,6 @@ export const useLoginUser = (setLoginInfo: React.Dispatch<React.SetStateAction<L
         },
         onError: (error: AxiosError<ApiErrorResponse>) => {
             console.log(error);
-            //error login
-            setLoginInfo({
-                status: "Error",
-                message: error.response?.data.error
-            });
         },
     })
 }
