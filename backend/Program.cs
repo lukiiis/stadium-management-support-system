@@ -52,6 +52,20 @@ builder.Services.AddCors(options =>
         builder => builder.WithOrigins("http://localhost:3000")
                           .AllowAnyMethod()
                           .AllowAnyHeader());
+
+    options.AddPolicy("AllowLocalhost8081",
+    builder => builder.WithOrigins("http://localhost:8081")
+                      .AllowAnyMethod()
+                      .AllowAnyHeader());
+
+    options.AddPolicy("AllowExpo",
+    builder => builder.WithOrigins("exp://192.168.0.248:8081")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader());
+    options.AddPolicy("AllowAll",
+    builder => builder.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader());
 });
 
 builder.Services.AddScoped<LoginUser>();
@@ -81,6 +95,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowLocalhost3000");
+app.UseCors("AllowLocalhost8081");
+app.UseCors("AllowExpo");
+app.UseCors("AllowAll");
 
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
