@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchTournaments, TournamentDto } from '../../api/tournamentsService';
 
 export default function TournamentsScreen() {
-
+  console.log("data")
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['tournaments', 0, 10],
@@ -28,10 +28,6 @@ export default function TournamentsScreen() {
       </View>
     );
   }
-  console.log("eeeeeeeeeeeeeeeeeeee")
-
-  if(data)
-    console.log(data)
 
   return (
     <View className="flex-1 justify-center items-center bg-white dark:bg-black">

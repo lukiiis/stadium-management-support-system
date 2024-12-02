@@ -5,7 +5,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
-
+  console.log("eagsdeeeeeeeesdfasgaadeeeeeeeeeee")
   return (
     <View className="flex-1 justify-center items-center" style={{ backgroundColor: theme === 'dark' ? '#000' : '#fff' }}>
       <Text style={{ color: theme === 'dark' ? '#fff' : '#000' }}>Profile</Text>
