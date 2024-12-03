@@ -83,7 +83,7 @@ export default function ReservationsScreen() {
             Make a Reservation
           </Text>
         </Animated.View>
-  
+
         <Animated.View
           entering={FadeInDown.delay(200)}
           className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm"
@@ -94,7 +94,7 @@ export default function ReservationsScreen() {
               Select Facility
             </Text>
           </View>
-  
+
           <View className="bg-gray-50 dark:bg-gray-700 rounded-lg">
             <Picker
               selectedValue={selectedObjectId}
@@ -102,43 +102,27 @@ export default function ReservationsScreen() {
               style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}
             >
               {objectTypes?.map((object) => (
-                <Picker.Item 
-                  key={object.objectId} 
-                  label={object.type} 
-                  value={object.objectId} 
+                <Picker.Item
+                  key={object.objectId}
+                  label={object.type}
+                  value={object.objectId}
                 />
               ))}
             </Picker>
           </View>
         </Animated.View>
-  
-        <View className="flex-row justify-between items-center mb-6">
-          <TouchableOpacity
-            onPress={handlePreviousDay}
-            disabled={date.toDateString() === new Date().toDateString()}
-            className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm"
-          >
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color={date.toDateString() === new Date().toDateString() ? '#9CA3AF' : '#3b82f6'}
-            />
-          </TouchableOpacity>
-  
-          <TouchableOpacity
-            onPress={handleNextDay}
-            className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm"
-          >
-            <Ionicons name="chevron-forward" size={24} color="#3b82f6" />
-          </TouchableOpacity>
-        </View>
-  
-        {schedule && <TimeSheet
-          date={formattedDate}
-          schedule={schedule}
-          selectedHours={selectedHours}
-          onHourSelect={handleHourSelect}
-        />}
+
+        {schedule && (
+          <TimeSheet
+            date={formattedDate}
+            schedule={schedule}
+            selectedHours={selectedHours}
+            onHourSelect={handleHourSelect}
+            onPreviousDay={handlePreviousDay}
+            onNextDay={handleNextDay}
+            isToday={date.toDateString() === new Date().toDateString()}
+          />
+        )}
       </View>
     </ScrollView>
   )

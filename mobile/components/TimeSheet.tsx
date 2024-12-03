@@ -19,9 +19,12 @@ interface TimeSheetProps {
   }
   selectedHours: string[]
   onHourSelect: (hour: string, date: string) => void
+  onPreviousDay: () => void
+  onNextDay: () => void
+  isToday: boolean
 }
 
-export default function TimeSheet({ date, schedule, selectedHours, onHourSelect }: TimeSheetProps) {
+export default function TimeSheet({ date, schedule, selectedHours, onHourSelect, isToday, onNextDay, onPreviousDay }: TimeSheetProps) {
   const getHourIcon = (status: string) => {
     switch (status) {
       case 'green': return 'checkmark-circle-outline'
@@ -38,7 +41,7 @@ export default function TimeSheet({ date, schedule, selectedHours, onHourSelect 
     const currentHour = currentDate.getHours()
     const hour = parseInt(hourStr.split(':')[0], 10)
     const isToday = new Date(date).toDateString() === currentDate.toDateString()
-  
+
     if (isToday && hour < currentHour) return 'black'
     if (schedule.isTournament) return 'brown'
     if (hourStr < schedule.reservationsStart || hourStr >= schedule.reservationsEnd) return 'gray'
@@ -57,7 +60,7 @@ export default function TimeSheet({ date, schedule, selectedHours, onHourSelect 
   }
 
   const renderLegend = () => (
-    <Animated.View 
+    <Animated.View
       entering={FadeInDown.delay(200)}
       style={styles.legend}
     >
@@ -92,10 +95,10 @@ export default function TimeSheet({ date, schedule, selectedHours, onHourSelect 
         <Text style={[styles.tileText, status === 'gray' ? styles.darkText : styles.lightText]}>
           {`${hour}:00`}
         </Text>
-        <Ionicons 
-          name={icon} 
-          size={16} 
-          color={status === 'gray' ? '#666' : '#fff'} 
+        <Ionicons
+          name={icon}
+          size={16}
+          color={status === 'gray' ? '#666' : '#fff'}
           style={styles.tileIcon}
         />
       </TouchableOpacity>
@@ -103,17 +106,42 @@ export default function TimeSheet({ date, schedule, selectedHours, onHourSelect 
   }
 
   return (
-    <Animated.View 
+    <Animated.View
       entering={FadeInDown}
       style={styles.container}
     >
       <View style={styles.dateHeader}>
-        <Ionicons name="calendar-outline" size={24} color="#3b82f6" />
-        <Text style={styles.dateText}>
-          {new Date(date).toLocaleDateString() === new Date().toLocaleDateString()
-            ? 'Today'
-            : new Date(date).toLocaleDateString()}
-        </Text>
+        <TouchableOpacity
+          onPress={onPreviousDay}
+          disabled={isToday}
+          style={styles.dateButton}
+        >
+          <Ionicons
+            name="chevron-back"
+            size={24}
+            color={isToday ? '#9CA3AF' : '#3b82f6'}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.dateInfo}>
+          <Ionicons name="calendar-outline" size={24} color="#3b82f6" />
+          <Text style={styles.dateText}>
+            {new Date(date).toLocaleDateString() === new Date().toLocaleDateString()
+              ? 'Today'
+              : new Date(date).toLocaleDateString()}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={onNextDay}
+          style={styles.dateButton}
+        >
+          <Ionicons
+            name="chevron-forward"
+            size={24}
+            color="#3b82f6"
+          />
+        </TouchableOpacity>
       </View>
 
       {renderLegend()}
@@ -147,11 +175,11 @@ const styles = StyleSheet.create({
   dateHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-    gap: 8,
+    paddingHorizontal: 8,
   },
   dateText: {
     fontSize: 20,
@@ -241,5 +269,15 @@ const styles = StyleSheet.create({
   },
   brown: {
     backgroundColor: '#78350f',
+  },
+  dateInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dateButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
   },
 })
