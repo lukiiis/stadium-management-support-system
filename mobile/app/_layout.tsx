@@ -15,7 +15,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 SplashScreen.preventAutoHideAsync();
 
 function RootLayout() {
-  const { theme } = useTheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -33,6 +32,7 @@ function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
     </Stack>
   );
 }

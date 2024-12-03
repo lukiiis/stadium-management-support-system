@@ -10,7 +10,7 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <ScrollView className="flex-1 px-4">
         {/* Header */}
-        <Animated.View 
+        <Animated.View
           entering={FadeIn}
           className="py-8"
         >
@@ -27,7 +27,7 @@ export default function HomeScreen() {
 
         {/* Featured Cards */}
         <View className="py-4">
-          <Animated.Text 
+          <Animated.Text
             entering={FadeInDown.delay(100)}
             className="text-xl font-semibold mb-4 text-gray-800 dark:text-white"
           >
@@ -39,6 +39,13 @@ export default function HomeScreen() {
             description="Browse and reserve sports facilities for your next game or practice session"
             icon="calendar"
             link="/reservations"
+            delay={200}
+          />
+          <FeaturedCard
+            title="Settings"
+            description="Browse and reserve sports facilities for your next game or practice session"
+            icon="settings"
+            link="/settings"
             delay={200}
           />
 
@@ -60,7 +67,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Stats Section */}
-        <Animated.View 
+        <Animated.View
           entering={FadeInDown.delay(500)}
           className="flex-row justify-between bg-blue-500 p-6 rounded-xl mb-6"
         >
@@ -79,7 +86,7 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* About Section */}
-        <Animated.View 
+        <Animated.View
           entering={FadeInDown.delay(600)}
           className="mb-8"
         >

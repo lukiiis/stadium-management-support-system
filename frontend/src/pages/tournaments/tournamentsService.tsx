@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import axiosInstance from "../../config/axiosConfig";
 import { ObjectTypeDto } from "../../shared/types/models/objectType";
 import { TournamentDto } from "../../shared/types/models/tournament";
-import { UsersTournaments } from "../../shared/types/models/userTournament";
+import { JoinTournamentData, LeaveTournamentData, UsersTournaments } from "../../shared/types/models/userTournament";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
 import { PaginatedResult } from "../../shared/types/pagination/pagination";
 
@@ -82,12 +82,6 @@ export const useGetUsersTournaments = (userId: number) => {
 }
 
 // join tournament mutation
-interface JoinTournamentData {
-    userId: number,
-    tournamentId: number,
-    isPaid: boolean,
-}
-
 const joinTournament = async (joinTournamentData: JoinTournamentData) => {
     const res = await axiosInstance.post('/tournaments/join', joinTournamentData);
     return res.data;
@@ -107,11 +101,6 @@ export const useJoinTournament = () => {
 
 
 // leave tournament mutation
-interface LeaveTournamentData {
-    userId: number,
-    tournamentId: number,
-}
-
 const leaveTournament = async (leaveTournamentData: LeaveTournamentData) => {
     const res = await axiosInstance.delete('/tournaments/leave', {
         data: leaveTournamentData
