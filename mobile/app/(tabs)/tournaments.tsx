@@ -10,21 +10,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { ApiErrorResponse, ApiSuccessResponse } from '@/shared/types/api/apiResponse'
 import { AxiosError } from 'axios'
 import Toast from 'react-native-toast-message'
+import { authEmitter } from './_layout'
 
 export default function TournamentsScreen() {
   const [userId, setUserId] = useState<number | null>(null)
-  
-  // Load user ID on mount
+
+  // functionality checking if user is logged in
   useEffect(() => {
-    const loadUserId = async () => {
-      const id = await AsyncStorage.getItem('userId')
-      if (id) setUserId(parseInt(id))
+    loadUserId();
+
+    const handleAuthChange = () => {
+      loadUserId();
+    };
+
+    authEmitter.on('authStateChanged', handleAuthChange);
+
+    return () => {
+      authEmitter.off('authStateChanged', handleAuthChange);
+    };
+  }, []);
+
+  const loadUserId = async () => {
+    const id = await AsyncStorage.getItem('userId');
+    setUserId(id ? parseInt(id) : null);
+    if (!id) {
+      refetchUserTournaments();
     }
-    loadUserId()
-  }, [])
+  };
 
   const [searchQuery, setSearchQuery] = useState('')
-  
+
   const { data, isLoading, error } = useGetTournaments(0, 10);
   const { data: userTournaments, refetch: refetchUserTournaments } = useGetUsersTournaments(userId || 0)
   const joinTournamentMutation = useJoinTournament()
@@ -128,7 +143,7 @@ export default function TournamentsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown.delay(100)}
         className="px-4 pt-4 pb-2"
       >
@@ -138,7 +153,7 @@ export default function TournamentsScreen() {
         <Text className="text-gray-600 dark:text-gray-300 mb-4">
           Find and join upcoming tournaments
         </Text>
-        
+
         {/* Search Bar */}
         <View className="flex-row items-center bg-white dark:bg-gray-800 rounded-lg px-4 mb-4">
           <Ionicons name="search" size={20} className="text-gray-400" />
@@ -157,8 +172,8 @@ export default function TournamentsScreen() {
         data={filteredTournaments}
         keyExtractor={(tournament) => tournament.tournamentId.toString()}
         renderItem={({ item: tournament, index }) => (
-          <TournamentCard 
-            tournament={tournament} 
+          <TournamentCard
+            tournament={tournament}
             index={index}
             isUserInTournament={isUserInTournament(tournament.tournamentId)}
             onJoin={() => handleJoinTournament(tournament.tournamentId)}
