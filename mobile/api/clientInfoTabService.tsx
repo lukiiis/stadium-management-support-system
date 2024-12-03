@@ -3,17 +3,6 @@ import { ApiErrorResponse, ApiSuccessResponse } from "@/shared/types/api/apiResp
 import { ChangePasswordData, EditUserData, UserDto } from "@/shared/types/models/user";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { createContext } from "react";
-
-//context for snackbar adn token
-interface AccountInfoContextType {
-    userId: number,
-    setSnackbarSeverity: React.Dispatch<React.SetStateAction<string>>,
-    setSnackbarMessage: React.Dispatch<React.SetStateAction<string | null>>,
-    setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>,
-}
-
-export const AccountInfoContext = createContext<AccountInfoContextType | undefined>(undefined);
 
 // get user data
 export const useGetUserData = (userId: number) => {

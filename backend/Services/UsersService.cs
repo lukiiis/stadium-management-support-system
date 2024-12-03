@@ -17,7 +17,7 @@ namespace backend.Services
         Task BlockUserAsync(int userId);
         Task UnblockUserAsync(int userId);
         Task<User?> GetUserByEmail(string email);
-        Task<bool> IsEmailTaken(string email);
+        Task<bool> IsEmailTaken(string email, string userEmail);
         Task<bool> IsPhoneTaken(int phone);
         Task AddUser(User user);
         Task<User?> GetUserById(int id);
@@ -68,10 +68,10 @@ namespace backend.Services
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<bool> IsEmailTaken(string email)
+        public async Task<bool> IsEmailTaken(string email, string userEmail)
         {
             return await _context.Set<User>()
-                .AnyAsync(u => u.Email == email);
+                .AnyAsync(u => u.Email == email && u.Email != userEmail);
         }
 
         public async Task<bool> IsPhoneTaken(int phone)
@@ -116,6 +116,10 @@ namespace backend.Services
 
         public async Task UpdateUserDetailsAsync(UpdatePersonalDataDto request)
         {
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found.");
+
             if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
                 throw new ArgumentException("First name and last name are required.");
             if (request.Age < 0)
@@ -125,14 +129,11 @@ namespace backend.Services
             if (!Regex.IsMatch(request.Phone.ToString(), @"^\d{9,9}$"))
                 throw new ArgumentException("Invalid phone number format.");
 
-            if (await IsEmailTaken(request.Email))
+            if (await IsEmailTaken(request.Email, user.Email))
                 throw new ArgumentException("Email is already in use.");
-            if (await IsPhoneTaken(request.Phone))
-                throw new ArgumentException("Phone number is already in use.");
 
-            var user = await _context.Users.FindAsync(request.UserId);
-            if (user == null)
-                throw new KeyNotFoundException($"User with ID {request.UserId} not found.");
+            if (await IsPhoneTaken(request.Phone) && request.Phone != user.Phone)
+                throw new ArgumentException("Phone number is already in use.");
 
             // Aktualizacja pól
             user.FirstName = request.FirstName;
@@ -179,7 +180,7 @@ namespace backend.Services
 
         public async Task<UserDto> GetUserDtoById(int id)
         {
-            var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync();
+            var user = await _context.Users.Include(u => u.Address).Where(u => u.UserId == id).FirstOrDefaultAsync();
             return _mapper.Map<UserDto>(user);
         }
     }
