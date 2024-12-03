@@ -76,6 +76,15 @@ export default function TimeSheet({ date, schedule, selectedHours, onHourSelect,
         <View style={[styles.legendDot, styles.red]} />
         <Text style={styles.legendText}>Booked</Text>
       </View>
+      <View style={styles.legendItem}>
+        <View style={[styles.legendDot, styles.brown]} />
+        <Text style={styles.legendText}>Tournament</Text>
+      </View>
+      <View style={styles.legendItem}>
+      <View style={[styles.legendDot, styles.black]} />
+        <View style={[styles.legendDot, styles.gray]} />
+        <Text style={styles.legendText}>Unavailable</Text>
+      </View>
     </Animated.View>
   )
 
@@ -187,6 +196,7 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   legend: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'center',
     paddingVertical: 12,
