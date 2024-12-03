@@ -90,7 +90,7 @@ export default function ClientReservationsScreen() {
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <View className="space-y-4">
+                    <View className="space-y-4 flex flex-col gap-3">
                         {data?.items.map((reservation, index) => {
                             const reservationDate = dayjs(reservation.reservationDate);
                             const today = dayjs();

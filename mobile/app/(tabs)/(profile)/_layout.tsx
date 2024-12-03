@@ -19,6 +19,7 @@ export default function ProfileLayout() {
         <Stack.Screen name="profile" />
         <Stack.Screen name="clientReservations" />
         <Stack.Screen name="clientTournaments" />
+        <Stack.Screen name="clientInfo" />
       </Stack>
     </AuthGuard>
   );

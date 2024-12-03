@@ -1,7 +1,7 @@
 // app/(tabs)/(profile)/profile.tsx
 import { View, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,7 +36,7 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 px-4 py-8 bg-gray-50 dark:bg-gray-900">
       {/* Header Section */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown.delay(100)}
         className="items-center mb-8"
       >
@@ -52,10 +52,23 @@ export default function ProfileScreen() {
       </Animated.View>
 
       {/* Navigation Cards */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown.delay(200)}
-        className="space-y-4"
+        className="space-y-4 flex flex-col gap-3"
       >
+        <TouchableOpacity
+          onPress={() => router.push('/clientInfo')}
+          className="bg-white dark:bg-gray-800 p-4 rounded-xl flex-row items-center"
+        >
+          <View className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-full items-center justify-center">
+            <Ionicons name="person" size={24} color={theme === 'dark' ? '#F87171' : '#EF4444'} />
+          </View>
+          <View className="ml-4">
+            <Text className="text-lg font-semibold text-gray-800 dark:text-white">My Profile</Text>
+            <Text className="text-gray-600 dark:text-gray-400">View and edit your data</Text>
+          </View>
+        </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => router.push('/clientReservations')}
           className="bg-white dark:bg-gray-800 p-4 rounded-xl flex-row items-center"
@@ -81,10 +94,11 @@ export default function ProfileScreen() {
             <Text className="text-gray-600 dark:text-gray-400">Check your tournament entries</Text>
           </View>
         </TouchableOpacity>
+
       </Animated.View>
 
       {/* Logout Button */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInUp.delay(300)}
         className="mt-auto"
       >

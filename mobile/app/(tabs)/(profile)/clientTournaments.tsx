@@ -95,7 +95,7 @@ export default function ClientTournamentsScreen() {
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <View className="space-y-4">
+                    <View className="space-y-4 flex flex-col gap-3">
                         {data?.items.map(({ tournament, joinedAt }, index) => {
                             const tournamentStartDate = dayjs(tournament.startDate);
                             const today = dayjs();
