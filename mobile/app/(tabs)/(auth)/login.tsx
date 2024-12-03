@@ -11,6 +11,7 @@ import { AxiosError } from 'axios'
 import Toast, { BaseToast, BaseToastProps, ErrorToast } from 'react-native-toast-message'
 import { ApiErrorResponse } from '@/shared/types/api/apiResponse'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { authEmitter } from '../_layout'
 
 const toastConfig = {
   success: (props: React.JSX.IntrinsicAttributes & BaseToastProps) => (
@@ -59,8 +60,12 @@ export default function LoginScreen() {
           position: 'bottom',
           visibilityTime: 3000
         });
-        //router.replace('/(tabs)/(home)');
+
+        authEmitter.emit('authStateChanged');
         
+        setTimeout(() => {
+          router.replace('/(tabs)/(profile)/profile');
+        }, 2000);
       },
       onError: async (error: AxiosError<ApiErrorResponse>) => {
         Toast.show({

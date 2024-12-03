@@ -5,10 +5,32 @@ import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EventEmitter } from 'eventemitter3';
 
-// Create event emitter instance
 export const authEmitter = new EventEmitter();
 
 export default function TabLayout() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    checkAuthStatus();
+
+    // Listen for auth state changes
+    authEmitter.on('authStateChanged', checkAuthStatus);
+
+    return () => {
+      authEmitter.off('authStateChanged', checkAuthStatus);
+    };
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsAuthenticated(false);
+    }
+  };
+
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
@@ -47,6 +69,7 @@ export default function TabLayout() {
           tabBarLabel: 'Objects',
         }}
       />
+
       <Tabs.Screen
         name="(profile)"
         options={{
@@ -54,6 +77,7 @@ export default function TabLayout() {
             <Ionicons name="person" color={color} size={size} />
           ),
           tabBarLabel: 'Profile',
+          href: !isAuthenticated ? null : "/(tabs)/(profile)/profile"
         }}
       />
       <Tabs.Screen
@@ -63,6 +87,7 @@ export default function TabLayout() {
             <Ionicons name="log-in" color={color} size={size} />
           ),
           tabBarLabel: 'Login',
+          href: isAuthenticated ? null : "/(tabs)/(auth)/login"
         }}
       />
     </Tabs>
