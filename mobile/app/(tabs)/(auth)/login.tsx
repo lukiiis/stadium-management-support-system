@@ -74,6 +74,7 @@ export default function LoginScreen() {
         console.log("STORAGE", await AsyncStorage.getItem("token"));
         // or this without async function
         console.log("STORAGE", AsyncStorage.getItem("token").then(token => console.log(token)));
+        await AsyncStorage.clear();
       }
     })
   }
