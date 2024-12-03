@@ -1,15 +1,102 @@
 // app/(tabs)/tournaments.tsx
 import { View, Text, FlatList, TextInput } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import TournamentCard from '@/components/TournamentCard'
-import { useGetTournaments } from '@/api/tournamentsTabService'
+import { useGetTournaments, useGetUsersTournaments, useJoinTournament, useLeaveTournament } from '@/api/tournamentsTabService'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { ApiErrorResponse, ApiSuccessResponse } from '@/shared/types/api/apiResponse'
+import { AxiosError } from 'axios'
+import Toast from 'react-native-toast-message'
 
 export default function TournamentsScreen() {
+  const [userId, setUserId] = useState<number | null>(null)
+  
+  // Load user ID on mount
+  useEffect(() => {
+    const loadUserId = async () => {
+      const id = await AsyncStorage.getItem('userId')
+      if (id) setUserId(parseInt(id))
+    }
+    loadUserId()
+  }, [])
+
   const [searchQuery, setSearchQuery] = useState('')
+  
   const { data, isLoading, error } = useGetTournaments(0, 10);
+  const { data: userTournaments, refetch: refetchUserTournaments } = useGetUsersTournaments(userId || 0)
+  const joinTournamentMutation = useJoinTournament()
+  const leaveTournamentMutation = useLeaveTournament()
+
+  // Handle join tournament
+  const handleJoinTournament = (tournamentId: number) => {
+    if (!userId) return
+
+    joinTournamentMutation.mutate(
+      { userId, tournamentId, isPaid: false },
+      {
+        onSuccess: (data: ApiSuccessResponse) => {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: data.message,
+            position: 'bottom',
+            visibilityTime: 3000
+          })
+          refetchUserTournaments()
+        },
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: error.response?.data.error || 'Failed to join tournament',
+            position: 'bottom',
+            visibilityTime: 3000
+          })
+        }
+      }
+    )
+  }
+
+  // Handle leave tournament
+  const handleLeaveTournament = (tournamentId: number) => {
+    if (!userId) return
+
+    leaveTournamentMutation.mutate(
+      { userId, tournamentId },
+      {
+        onSuccess: (data: ApiSuccessResponse) => {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: data.message,
+            position: 'bottom',
+            visibilityTime: 3000
+          })
+          refetchUserTournaments()
+        },
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: error.response?.data.error || 'Failed to leave tournament',
+            position: 'bottom',
+            visibilityTime: 3000
+          })
+        }
+      }
+    )
+  }
+
+  // Check if user is in tournament
+  const isUserInTournament = (tournamentId: number): boolean => {
+    return userTournaments?.some(
+      userTournament => userTournament.tournament.tournamentId === tournamentId
+    ) || false
+  }
+
 
   if (isLoading) {
     return (
@@ -70,7 +157,14 @@ export default function TournamentsScreen() {
         data={filteredTournaments}
         keyExtractor={(tournament) => tournament.tournamentId.toString()}
         renderItem={({ item: tournament, index }) => (
-          <TournamentCard tournament={tournament} index={index} />
+          <TournamentCard 
+            tournament={tournament} 
+            index={index}
+            isUserInTournament={isUserInTournament(tournament.tournamentId)}
+            onJoin={() => handleJoinTournament(tournament.tournamentId)}
+            onLeave={() => handleLeaveTournament(tournament.tournamentId)}
+            userId={userId}
+          />
         )}
         contentContainerStyle={{ paddingVertical: 8 }}
         ListEmptyComponent={

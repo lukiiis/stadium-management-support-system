@@ -8,37 +8,11 @@ import { router } from 'expo-router'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { AxiosError } from 'axios'
-import Toast, { BaseToast, BaseToastProps, ErrorToast } from 'react-native-toast-message'
+import Toast from 'react-native-toast-message'
 import { ApiErrorResponse } from '@/shared/types/api/apiResponse'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { authEmitter } from '../_layout'
-
-const toastConfig = {
-  success: (props: React.JSX.IntrinsicAttributes & BaseToastProps) => (
-    <BaseToast
-      {...props}
-      style={{
-        borderLeftColor: '#22c55e',
-        marginBottom: 100 // Add bottom margin for safe area
-      }}
-      contentContainerStyle={{ paddingHorizontal: 15 }}
-      text1Style={{ fontSize: 15, fontWeight: 'bold' }}
-      text2Style={{ fontSize: 13 }}
-    />
-  ),
-  error: (props: React.JSX.IntrinsicAttributes & BaseToastProps) => (
-    <ErrorToast
-      {...props}
-      style={{
-        borderLeftColor: '#ef4444',
-        marginTop: 30 // Add bottom margin for safe area
-      }}
-      contentContainerStyle={{ paddingHorizontal: 15 }}
-      text1Style={{ fontSize: 15, fontWeight: 'bold' }}
-      text2Style={{ fontSize: 13 }}
-    />
-  )
-};
+import toastConfig from '@/shared/component_config/toastConfig'
 
 export default function LoginScreen() {
   const loginForm = useForm<LoginData>({
@@ -62,7 +36,7 @@ export default function LoginScreen() {
         });
 
         authEmitter.emit('authStateChanged');
-        
+
         setTimeout(() => {
           router.replace('/(tabs)/(profile)/profile');
         }, 2000);
