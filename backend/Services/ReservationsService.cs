@@ -162,7 +162,7 @@ namespace backend.Services
             var query = _context.Set<Reservation>()
                 .Where(r => r.UserId == userId)
                 .Include(r => r.ObjectType)
-                .OrderByDescending(r => r.ReservationDate);
+                .OrderByDescending(r => r.ReservedAt);
 
             var totalCount = await query.CountAsync();
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useGetPaginatedUserReservations, useCancelReservation } from "./clientReservationsService";
+import { useGetPaginatedUserReservations, useCancelReservation, useReservationPayment } from "./clientReservationsService";
 import { Card, CardContent, Typography, Button, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from "@mui/material";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
@@ -32,13 +32,12 @@ const ClientReservations: React.FC = () => {
     const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
 
     const { data, isLoading, isError, refetch } = useGetPaginatedUserReservations(userId, page - 1, pageSize);
-    const { mutate: cancelReservation } = useCancelReservation();
 
+    const { mutate: cancelReservation } = useCancelReservation();
     const handleCancelReservation = (reservationId: number) => {
         setSelectedReservationId(reservationId);
         setDialogOpen(true);
     };
-
     const confirmCancelReservation = () => {
         if (selectedReservationId) {
             cancelReservation(selectedReservationId,
@@ -59,6 +58,29 @@ const ClientReservations: React.FC = () => {
         }
         setDialogOpen(false);
     };
+
+    //reservation payment
+    const { mutate: reservationPayment } = useReservationPayment();
+    const handleReservationPayment = (tournamentId: number) => {
+        if (userId) {
+            reservationPayment(tournamentId,
+                {
+                    onSuccess: (data: ApiSuccessResponse) => {
+                        setSnackbarSeverity("success");
+                        setSnackbarMessage(data.message);
+                        setShowSnackbar(true);
+                        refetch();
+                    },
+                    onError: (error: AxiosError<ApiErrorResponse>) => {
+                        setSnackbarSeverity("error");
+                        setSnackbarMessage(error.response?.data.error || "Failed to pay for reservation");
+                        setShowSnackbar(true);
+                    },
+                }
+            );
+        }
+    };
+
 
     const handleCloseSnackbar = () => {
         setShowSnackbar(false);
@@ -140,6 +162,7 @@ const ClientReservations: React.FC = () => {
                         {data?.items.map((reservation: ReservationDto) => {
                             const reservationDate = dayjs(reservation.reservationDate);
                             const isFutureReservation = reservationDate.isAfter(today);
+                            const isReservationPaid = reservation.paymentStatus === "PAID";
 
                             return (
                                 <Card className={styles.reservationCard} key={reservation.reservationId}>
@@ -167,6 +190,16 @@ const ClientReservations: React.FC = () => {
                                                 onClick={() => handleCancelReservation(reservation.reservationId)}
                                             >
                                                 Cancel
+                                            </Button>
+                                        )}
+                                        {!isReservationPaid && (
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                className={styles.cancelButton}
+                                                onClick={() => handleReservationPayment(reservation.reservationId)}
+                                            >
+                                                Pay
                                             </Button>
                                         )}
                                     </CardContent>
