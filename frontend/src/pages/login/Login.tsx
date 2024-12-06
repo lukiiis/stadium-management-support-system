@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import styles from "./Login.module.scss"
-import { TextField, Button, CircularProgress, Snackbar, Alert, Paper, Typography, Container } from '@mui/material';
+import { TextField, Button, CircularProgress, Alert, Paper, Typography, Container } from '@mui/material';
 import { useLoginUser } from "./loginFunctions";
 import styled from "@emotion/styled";
 import { LoginData, LoginResponse } from "../../shared/types/auth/login";

@@ -11,15 +11,8 @@ import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/api
 import { ObjectTypeDto } from "../../shared/types/models/objectType";
 
 const Reservation: React.FC = () => {
-    const [isClient, setIsClient] = useState<boolean>(false);
     const [userId, setUserId] = useState<number | null>(null);
-
-    const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
-    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
-    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-
-    const [step, setStep] = useState<number>(1);
-    const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
+    const [isClient, setIsClient] = useState<boolean>(false);
 
     useEffect(() => {
         const role = localStorage.getItem("role");
@@ -32,24 +25,6 @@ const Reservation: React.FC = () => {
         }
     }, []);
 
-    const [date, setDate] = useState<Date>(new Date());
-    const [formattedDate, setFormattedDate] = useState<string>(
-        `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
-    );
-
-    useEffect(() => {
-        setFormattedDate(
-            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-        );
-    }, [date]);
-
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    const nextStep = () => {
-        setStep(prevStep => prevStep + 1);
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
     const nextStepCheckToken = () => {
         if (!isClient) {
             setSnackbarSeverity("error");
@@ -60,6 +35,28 @@ const Reservation: React.FC = () => {
             setStep(prevStep => prevStep + 1);
             scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
+    };
+
+    const [step, setStep] = useState<number>(1);
+    const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
+    const [date, setDate] = useState<Date>(new Date());
+    const [formattedDate, setFormattedDate] = useState<string>(
+        `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
+    );
+    const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setFormattedDate(
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        );
+    }, [date]);
+
+    const nextStep = () => {
+        setStep(prevStep => prevStep + 1);
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const prevStep = () => {
@@ -99,23 +96,18 @@ const Reservation: React.FC = () => {
             isPaid: payNow,
         }
 
-        try {
-            createReservationMutation.mutate(reservationData, {
-                onSuccess: (data: ApiSuccessResponse) => {
-                    setSnackbarSeverity("success");
-                    setSnackbarMessage(data.message);
-                    setShowSnackbar(true);
-                },
-                onError: (error: AxiosError<ApiErrorResponse>) => {
-                    setSnackbarSeverity("error");
-                    setSnackbarMessage(error.response?.data.error || "Failed to create reservation");
-                    setShowSnackbar(true);
-                }
-            })
-        }
-        catch (error) {
-            console.log(error)
-        }
+        createReservationMutation.mutate(reservationData, {
+            onSuccess: (data: ApiSuccessResponse) => {
+                setSnackbarSeverity("success");
+                setSnackbarMessage(data.message);
+                setShowSnackbar(true);
+            },
+            onError: (error: AxiosError<ApiErrorResponse>) => {
+                setSnackbarSeverity("error");
+                setSnackbarMessage(error.response?.data.error || "Failed to create reservation");
+                setShowSnackbar(true);
+            }
+        })
     }
 
     const handleCloseSnackbar = () => {
@@ -138,7 +130,6 @@ const Reservation: React.FC = () => {
 
     const isPreviousWeekDisabled = (): boolean => {
         const today = new Date();
-
         return date <= today;
     };
 

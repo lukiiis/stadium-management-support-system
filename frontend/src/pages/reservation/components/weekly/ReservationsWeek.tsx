@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { ReservationContext, ReservationListsResponse, ReservationScheduleProps, useGetWeekSchedule } from "../../reservationsService";
-import { Checkbox, CircularProgress } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 import styles from "./ReservationsWeek.module.scss";
 
 const ReservationsWeek: React.FC<ReservationScheduleProps> = ({ date, objectId }) => {

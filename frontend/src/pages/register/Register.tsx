@@ -16,8 +16,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { InputAdornment } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
+    const navigate = useNavigate();
     const [emailValid, setEmailValid] = useState<boolean>(false);
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
@@ -48,7 +50,7 @@ const Register = () => {
         emailValidationMutation.mutate(data.email, {
             onSuccess: (data: boolean) => {
                 if (data) {
-                    setAlertMessage("Email is valid and available!");
+                    setAlertMessage("Email is available!");
                     setAlertSeverity("success");
                     setShowAlert(true);
                     setEmailValid(true);
@@ -73,6 +75,9 @@ const Register = () => {
                 setAlertMessage("Registration successful!");
                 setAlertSeverity("success");
                 setShowAlert(true);
+                setTimeout(() => {
+                    navigate('/login');
+                }, 2000);
             },
             onError: (error: AxiosError<ApiErrorResponse>) => {
                 setAlertMessage(error.response?.data.error || "Registration failed");
@@ -84,13 +89,13 @@ const Register = () => {
 
     useEffect(() => {
         let timeoutId: number;
-        
+
         if (showAlert) {
             timeoutId = window.setTimeout(() => {
                 setShowAlert(false);
             }, 6000);
         }
-    
+
         return () => {
             if (timeoutId) {
                 window.clearTimeout(timeoutId);
@@ -175,6 +180,19 @@ const Register = () => {
                                                         "Continue"
                                                     )}
                                                 </Button>
+                                                <Typography
+                                                    variant="body2"
+                                                    align="center"
+                                                    sx={{ mt: 6 }}
+                                                >
+                                                    Already have an account?{' '}
+                                                    <Link
+                                                        to="/login"
+                                                        className="text-blue-600 no-underline hover:underline"
+                                                    >
+                                                        Sign in
+                                                    </Link>
+                                                </Typography>
                                             </motion.div>
                                         ) : (
                                             <motion.div
@@ -331,7 +349,7 @@ const Register = () => {
                                                         variant="contained"
                                                         type="submit"
                                                         onClick={registerForm.handleSubmit(onSubmit)}
-                                                        disabled={registerMutation.isPending}
+                                                        disabled={registerMutation.isPending || registerMutation.isSuccess}
                                                         className={styles.submitButton}
                                                     >
                                                         {registerMutation.isPending ? (
@@ -342,7 +360,7 @@ const Register = () => {
                                                     </Button>
                                                     <Button
                                                         variant="outlined"
-                                                        onClick={() => {setEmailValid(false); setShowAlert(false);}}
+                                                        onClick={() => { setEmailValid(false); setShowAlert(false); }}
                                                         className={styles.backButton}
                                                     >
                                                         Go Back
