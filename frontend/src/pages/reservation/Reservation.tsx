@@ -268,6 +268,7 @@ const Reservation: React.FC = () => {
                                                             control={
                                                                 <Switch
                                                                     checked={payNow}
+                                                                    disabled={createReservationMutation.isSuccess}
                                                                     onChange={(e) => setPayNow(e.target.checked)}
                                                                     color="primary"
                                                                 />
