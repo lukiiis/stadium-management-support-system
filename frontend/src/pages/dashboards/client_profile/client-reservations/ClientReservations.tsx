@@ -108,7 +108,6 @@ const ClientReservations: React.FC = () => {
 
     return (
         <div className={styles.container}>
-            {/* Snackbar for error messages */}
             <Snackbar
                 open={showSnackbar}
                 autoHideDuration={6000}
@@ -142,7 +141,6 @@ const ClientReservations: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Reservations */}
             {data?.items.length === 0 ? (
                 <div className="flex flex-col justify-center items-center gap-7">
                     <p className="text-2xl">You do not have any reservations.</p>

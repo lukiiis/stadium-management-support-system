@@ -1,26 +1,79 @@
 import { Link, Outlet } from "react-router-dom";
-import { Container, Typography, Box } from "@mui/material";
+import { Typography } from "@mui/material";
+import { motion } from "framer-motion";
+import PersonIcon from '@mui/icons-material/Person';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import styles from "./ClientProfile.module.scss";
 
 const ClientProfile = () => {
+    const firstName = localStorage.getItem("firstName") || '';
+    const lastName = localStorage.getItem("lastName") || '';
+    const role = localStorage.getItem("role") || '';
+
     return (
-        <Container className={styles.profileContainer}>
-            <Typography variant="h4" component="h1" className={styles.title}>
-                Client Profile
-            </Typography>
-            <Box className={styles.linksContainer}>
-                <Link to="information" className={`${styles.linkButton}`}>
-                    Profile
-                </Link>
-                <Link to="tournaments" className={`${styles.linkButton} ${styles.secondary}`}>
-                    Tournaments
-                </Link>
-                <Link to="reservations" className={`${styles.linkButton} ${styles.success}`}>
-                    Reservations
-                </Link>
-            </Box>
-            <Outlet />
-        </Container>
+        <div className={styles.pageContainer}>
+            <div className={styles.wrapper}>
+                <div className={styles.content}>
+                    <motion.div
+                        className={styles.profileHeader}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className={styles.avatarContainer}>
+                            <PersonIcon className={styles.avatarIcon} />
+                        </div>
+                        <Typography variant="h3" className={styles.userName}>
+                            {firstName} {lastName}
+                        </Typography>
+                        <Typography variant="subtitle1" className={styles.userRole}>
+                            {role}
+                        </Typography>
+                    </motion.div>
+
+                    <motion.div
+                        className={styles.navigationCards}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <Link to="information" className={styles.navCard}>
+                            <PersonIcon className={styles.navIcon} />
+                            <div className={styles.navContent}>
+                                <Typography variant="h6">Personal Info</Typography>
+                                <Typography variant="body2">View and edit your profile</Typography>
+                            </div>
+                        </Link>
+
+                        <Link to="tournaments" className={styles.navCard}>
+                            <EmojiEventsIcon className={styles.navIcon} />
+                            <div className={styles.navContent}>
+                                <Typography variant="h6">My Tournaments</Typography>
+                                <Typography variant="body2">Check your tournament entries</Typography>
+                            </div>
+                        </Link>
+
+                        <Link to="reservations" className={styles.navCard}>
+                            <EventNoteIcon className={styles.navIcon} />
+                            <div className={styles.navContent}>
+                                <Typography variant="h6">My Reservations</Typography>
+                                <Typography variant="body2">Manage your bookings</Typography>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+
+                    >
+                        <Outlet />
+                    </motion.div>
+                </div>
+            </div>
+        </div>
     );
 };
 
