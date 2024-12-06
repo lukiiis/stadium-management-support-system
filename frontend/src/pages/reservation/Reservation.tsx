@@ -176,23 +176,39 @@ const Reservation: React.FC = () => {
                                             </div>
 
                                             {objectTypes.data ? (
-                                                <FormControl fullWidth variant="outlined">
-                                                    <InputLabel>Facility Type</InputLabel>
-                                                    <Select
-                                                        value={selectedObjectId ?? ''}
-                                                        onChange={(e) => setSelectedObjectId(Number(e.target.value))}
-                                                        label="Facility Type"
-                                                    >
-                                                        <MenuItem value="" disabled>
-                                                            Select a facility
-                                                        </MenuItem>
-                                                        {objectTypes.data.map((object: ObjectTypeDto) => (
-                                                            <MenuItem key={object.objectId} value={object.objectId}>
-                                                                {object.type} - {object.description}
+                                                <>
+                                                    <FormControl fullWidth variant="outlined">
+                                                        <InputLabel>Facility Type</InputLabel>
+                                                        <Select
+                                                            value={selectedObjectId ?? ''}
+                                                            onChange={(e) => setSelectedObjectId(Number(e.target.value))}
+                                                            label="Facility Type"
+                                                        >
+                                                            <MenuItem value="" disabled>
+                                                                Select a facility
                                                             </MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                </FormControl>
+                                                            {objectTypes.data.map((object: ObjectTypeDto) => (
+                                                                <MenuItem key={object.objectId} value={object.objectId}>
+                                                                    {object.type} - {object.description}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                    {selectedObjectId && objectTypes.data && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: 20 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{ duration: 0.5 }}
+                                                            className={styles.imageContainer}
+                                                        >
+                                                            <img
+                                                                src={objectTypes.data.find(obj => obj.objectId === selectedObjectId)?.imageUrl}
+                                                                alt="Selected facility"
+                                                                className={styles.facilityImage}
+                                                            />
+                                                        </motion.div>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <Box className={styles.loading}>
                                                     <CircularProgress />
