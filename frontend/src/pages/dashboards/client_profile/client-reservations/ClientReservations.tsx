@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import { useGetPaginatedUserReservations, useCancelReservation, useReservationPayment } from "./clientReservationsService";
-import { Card, CardContent, Typography, Button, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from "@mui/material";
+import { Typography, Button, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from "@mui/material";
+import { CalendarMonth, LocationOn, AccessTime, Payment, Cancel, CalendarToday } from "@mui/icons-material";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientReservations.module.scss";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { ReservationDto } from "../../../../shared/types/models/reservation";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const ClientReservations: React.FC = () => {
-    const navigate = useNavigate();
-
     const token = localStorage.getItem("token");
 
-    // TO BE CHANGED --------------------------------------------------------------------------------------------------------------------------------------------------
     if (token === null) {
-        navigate("/login");
-        return;
+        return <Navigate to="/" replace />;
     }
+
     const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
 
     const [page, setPage] = useState(1);
@@ -107,7 +106,7 @@ const ClientReservations: React.FC = () => {
     const today = dayjs();
 
     return (
-        <div className={styles.container}>
+        <div className={styles.pageContainer}>
             <Snackbar
                 open={showSnackbar}
                 autoHideDuration={6000}
@@ -141,67 +140,135 @@ const ClientReservations: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            {data?.items.length === 0 ? (
-                <div className="flex flex-col justify-center items-center gap-7">
-                    <p className="text-2xl">You do not have any reservations.</p>
+            {isLoading ? (
+                <div className={styles.loader}>
+                    <CircularProgress size={60} />
+                </div>
+            ) : data?.items.length === 0 ? (
+                <motion.div
+                    className={styles.emptyState}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
+                    <Typography variant="h5">You don't have any reservations yet</Typography>
                     <Button
                         variant="contained"
-                        color="primary"
                         component={Link}
                         to="/reservations"
-                        className="mt-4"
+                        className={styles.createButton}
                     >
-                        Create reservation
+                        Create Reservation
                     </Button>
-                </div>
+                </motion.div>
             ) : (
-                <>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={styles.content}
+                >
                     <div className={styles.reservationsList}>
-                        {data?.items.map((reservation: ReservationDto) => {
+                        {data?.items.map((reservation: ReservationDto, index) => {
                             const reservationDate = dayjs(reservation.reservationDate);
                             const isFutureReservation = reservationDate.isAfter(today);
                             const isReservationPaid = reservation.paymentStatus === "PAID";
 
                             return (
-                                <Card className={styles.reservationCard} key={reservation.reservationId}>
-                                    <CardContent>
-                                        <Typography variant="h6" className={styles.reservationTitle}>
-                                            Reservation #{reservation.reservationId}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Date:</strong> {reservation.reservationDate}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Payment Status:</strong> {reservation.paymentStatus}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Price:</strong> ${reservation.price.toFixed(2)}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Object Type:</strong> {reservation.objectType.type}
-                                        </Typography>
-                                        {isFutureReservation && (
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                className={styles.cancelButton}
-                                                onClick={() => handleCancelReservation(reservation.reservationId)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        )}
-                                        {!isReservationPaid && (
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                className={styles.cancelButton}
-                                                onClick={() => handleReservationPayment(reservation.reservationId)}
-                                            >
-                                                Pay
-                                            </Button>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                <motion.div
+                                    key={reservation.reservationId}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                >
+                                    <div className={styles.reservationCard}>
+                                        <div className={styles.cardContent}>
+                                            <div className={styles.cardHeader}>
+                                                <div className={styles.facilityIcon}>
+                                                    <LocationOn />
+                                                </div>
+                                                <div className={styles.headerInfo}>
+                                                    <Typography variant="h6">
+                                                        {reservation.objectType.type}
+                                                    </Typography>
+                                                    <Typography variant="subtitle2" color="textSecondary">
+                                                        Reservation #{reservation.reservationId}
+                                                    </Typography>
+                                                </div>
+                                                <div className={`${styles.status} ${isFutureReservation ? styles.upcoming : styles.past}`}>
+                                                    {isFutureReservation ? 'Upcoming' : 'Past'}
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.details}>
+                                                <div className="flex flex-col gap-4">
+                                                    <div className={styles.detailItem}>
+                                                        <CalendarMonth className={styles.icon} />
+                                                        <Typography>
+                                                            {dayjs(reservation.reservationDate).format('MMM D, YYYY')}
+                                                        </Typography>
+                                                    </div>
+
+                                                    <div className={styles.detailItem}>
+                                                        <AccessTime className={styles.icon} />
+                                                        <Typography>
+                                                            {reservation.reservationStart} - {reservation.reservationEnd}
+                                                        </Typography>
+                                                    </div>
+
+                                                    <div className={styles.detailItem}>
+                                                        <Payment className={styles.icon} />
+                                                        <div className={styles.paymentInfo}>
+                                                            <Typography>
+                                                                ${reservation.price.toFixed(2)}
+                                                            </Typography>
+                                                            <div className={`${styles.paymentStatus} ${isReservationPaid ? styles.paid : styles.unpaid}`}>
+                                                                {reservation.paymentStatus}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className={styles.detailItem}>
+                                                        <div className={styles.reservedAtInfo}>
+                                                            <Typography variant="body2" color="textSecondary">
+                                                                Reserved on
+                                                            </Typography>
+                                                            <Typography>
+                                                                {dayjs(reservation.reservedAt).format('MMM D, YYYY')}
+                                                            </Typography>
+                                                        </div>
+                                                        <CalendarToday className={styles.icon} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {(isFutureReservation || !isReservationPaid) && (
+                                                <div className={styles.actions}>
+                                                    {isFutureReservation && (
+                                                        <Button
+                                                            variant="outlined"
+                                                            color="error"
+                                                            onClick={() => handleCancelReservation(reservation.reservationId)}
+                                                            startIcon={<Cancel />}
+                                                            className={styles.cancelButton}
+                                                        >
+                                                            Cancel Reservation
+                                                        </Button>
+                                                    )}
+                                                    {!isReservationPaid && (
+                                                        <Button
+                                                            variant="contained"
+                                                            color="primary"
+                                                            onClick={() => handleReservationPayment(reservation.reservationId)}
+                                                            startIcon={<Payment />}
+                                                            className={styles.payButton}
+                                                        >
+                                                            Pay Now
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
                             );
                         })}
                     </div>
@@ -214,7 +281,7 @@ const ClientReservations: React.FC = () => {
                         color="primary"
                         size="large"
                     />
-                </>
+                </motion.div>
             )}
         </div>
     );

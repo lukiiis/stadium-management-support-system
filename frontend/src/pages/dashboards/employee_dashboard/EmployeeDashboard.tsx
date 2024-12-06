@@ -6,7 +6,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import BlockIcon from '@mui/icons-material/Block';
 import styles from "./EmployeeDashboard.module.scss";
 
-const AdminDashboard = () => {
+const EmployeeDashboard = () => {
     return (
         <div className={styles.pageContainer}>
             <div className={styles.wrapper}>
@@ -21,10 +21,10 @@ const AdminDashboard = () => {
                             <AdminPanelSettingsIcon className={styles.avatarIcon} />
                         </div>
                         <Typography variant="h3" className={styles.title}>
-                            Admin Dashboard
+                            Employee Dashboard
                         </Typography>
                         <Typography variant="subtitle1" className={styles.subtitle}>
-                            Manage your system settings and users
+                            Manage Facilities and events
                         </Typography>
                     </motion.div>
 
@@ -64,4 +64,4 @@ const AdminDashboard = () => {
     );
 };
 
-export default AdminDashboard;
+export default EmployeeDashboard;

@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Navigate, Outlet } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import PersonIcon from '@mui/icons-material/Person';
@@ -10,6 +10,12 @@ const ClientProfile = () => {
     const firstName = localStorage.getItem("firstName") || '';
     const lastName = localStorage.getItem("lastName") || '';
     const role = localStorage.getItem("role") || '';
+
+    const token = localStorage.getItem("token");
+
+    if (token === null) {
+        return <Navigate to="/" replace />;
+    }
 
     return (
         <div className={styles.pageContainer}>
