@@ -1,25 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import ReservationsWeek from "./components/weekly/ReservationsWeek";
-import { Alert, AlertColor, Button, CircularProgress, Snackbar } from "@mui/material";
+import { Alert, AlertColor, Box, Button, CircularProgress, FormControl, FormControlLabel, InputLabel, MenuItem, Paper, Select, Snackbar, Stack, Step, StepLabel, Stepper, styled, Switch, Typography } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { calculateTimeRangeAndPrice, CreateReservationData, ReservationContext, useCreateReservation, useGetAllObjectTypes } from "./reservationsService";
 import { AxiosError } from "axios";
 import styles from "./Reservation.module.scss"
-import { Link } from "react-router-dom";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
 import { ObjectTypeDto } from "../../shared/types/models/objectType";
+import { AnimatePresence, motion } from "framer-motion";
+import dayjs from "dayjs";
+import { Link } from "react-router-dom";
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+    padding: theme.spacing(4),
+    borderRadius: 16,
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+}));
 
 const Reservation: React.FC = () => {
-    const [isClient, setIsClient] = useState<boolean>(false);
     const [userId, setUserId] = useState<number | null>(null);
-
-    const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
-    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
-    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-
-    const [step, setStep] = useState<number>(1);
-    const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
+    const [isClient, setIsClient] = useState<boolean>(false);
 
     useEffect(() => {
         const role = localStorage.getItem("role");
@@ -32,24 +33,6 @@ const Reservation: React.FC = () => {
         }
     }, []);
 
-    const [date, setDate] = useState<Date>(new Date());
-    const [formattedDate, setFormattedDate] = useState<string>(
-        `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
-    );
-
-    useEffect(() => {
-        setFormattedDate(
-            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-        );
-    }, [date]);
-
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    const nextStep = () => {
-        setStep(prevStep => prevStep + 1);
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
     const nextStepCheckToken = () => {
         if (!isClient) {
             setSnackbarSeverity("error");
@@ -60,6 +43,28 @@ const Reservation: React.FC = () => {
             setStep(prevStep => prevStep + 1);
             scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
+    };
+
+    const [step, setStep] = useState<number>(1);
+    const [selectedObjectId, setSelectedObjectId] = useState<number | null>(null);
+    const [date, setDate] = useState<Date>(new Date());
+    const [formattedDate, setFormattedDate] = useState<string>(
+        `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
+    );
+    const [snackbarSeverity, setSnackbarSeverity] = useState<string>("error")
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setFormattedDate(
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        );
+    }, [date]);
+
+    const nextStep = () => {
+        setStep(prevStep => prevStep + 1);
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const prevStep = () => {
@@ -99,23 +104,18 @@ const Reservation: React.FC = () => {
             isPaid: payNow,
         }
 
-        try {
-            createReservationMutation.mutate(reservationData, {
-                onSuccess: (data: ApiSuccessResponse) => {
-                    setSnackbarSeverity("success");
-                    setSnackbarMessage(data.message);
-                    setShowSnackbar(true);
-                },
-                onError: (error: AxiosError<ApiErrorResponse>) => {
-                    setSnackbarSeverity("error");
-                    setSnackbarMessage(error.response?.data.error || "Failed to create reservation");
-                    setShowSnackbar(true);
-                }
-            })
-        }
-        catch (error) {
-            console.log(error)
-        }
+        createReservationMutation.mutate(reservationData, {
+            onSuccess: (data: ApiSuccessResponse) => {
+                setSnackbarSeverity("success");
+                setSnackbarMessage(data.message);
+                setShowSnackbar(true);
+            },
+            onError: (error: AxiosError<ApiErrorResponse>) => {
+                setSnackbarSeverity("error");
+                setSnackbarMessage(error.response?.data.error || "Failed to create reservation");
+                setShowSnackbar(true);
+            }
+        })
     }
 
     const handleCloseSnackbar = () => {
@@ -138,182 +138,220 @@ const Reservation: React.FC = () => {
 
     const isPreviousWeekDisabled = (): boolean => {
         const today = new Date();
-
         return date <= today;
     };
 
     return (
         <ReservationContext.Provider value={{ selectedDate, setSelectedDate, selectedHours, addSelectedHour, removeSelectedHour, payNow, setPayNow }}>
-
-            <Snackbar
-                open={showSnackbar}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-
-            <div className={styles.container}>
-                <div ref={scrollRef}></div>
+            <div className={styles.pageContainer} ref={scrollRef}>
                 <div className={styles.wrapper}>
-                    {step === 1 && (
-                        <div className={styles.reservationStep}>
-                            <div className={styles.header}>
-                                <h1 className={styles.title}>Reservation Page</h1>
-                                <Button
-                                    variant="outlined"
-                                    endIcon={<ArrowForwardIcon />}
-                                    onClick={nextStep}
-                                    disabled={!selectedObjectId}
-                                    className={styles.nextButton}
-                                >
-                                    Next
-                                </Button>
-                            </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full"
+                    >
+                        <Stepper activeStep={step - 1} className={styles.stepper} alternativeLabel>
+                            {['Select Facility', 'Choose Time', 'Confirm Details'].map((label) => (
+                                <Step key={label}>
+                                    <StepLabel>{label}</StepLabel>
+                                </Step>
+                            ))}
+                        </Stepper>
 
-                            {objectTypes.data ? (
-                                <div className={styles.objectSelection}>
-                                    <label htmlFor="object-select" className={styles.label}>
-                                        Select Object:
-                                    </label>
-                                    <select
-                                        id="object-select"
-                                        onChange={(e) => setSelectedObjectId(Number(e.target.value))}
-                                        value={selectedObjectId ?? ''}
-                                        className={styles.select}
-                                    >
-                                        <option value="" disabled>
-                                            Select an object
-                                        </option>
-                                        {objectTypes.data.map((object: ObjectTypeDto) => (
-                                            <option key={object.objectId} value={object.objectId}>
-                                                {object.type} - {object.description}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            ) : (
-                                <div className={styles.loading}>
-                                    <CircularProgress />
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    {step === 2 && (
-                        <>
-                            <div className="flex justify-between">
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<ArrowBackIcon />}
-                                    onClick={prevStep}
-                                    className={styles.prevButton}
-                                >
-                                    Back
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    endIcon={<ArrowForwardIcon />}
-                                    onClick={nextStepCheckToken}
-                                    disabled={selectedHours.length === 0}
-                                    className={styles.nextButton}
-                                >
-                                    Next
-                                </Button>
-                            </div>
-                            {selectedObjectId !== null && (() => {
-                                return (
-                                    <div className={styles.wrapper}>
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<ArrowBackIcon />}
-                                            onClick={handlePreviousWeek}
-                                            className={styles.prevButton}
-                                            disabled={isPreviousWeekDisabled()}
-                                        >
-                                            Previous week
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            endIcon={<ArrowForwardIcon />}
-                                            onClick={handleNextWeek}
-                                            className={styles.nextButton}
-                                        >
-                                            Next week
-                                        </Button>
-                                        <ReservationsWeek date={formattedDate} objectId={selectedObjectId} />
-                                    </div>
-                                );
-                            })()}
-                        </>
-                    )}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={step}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <StyledPaper elevation={0}>
+                                    {/* Step 1: Facility Selection */}
+                                    {step === 1 && (
+                                        <Box className={styles.stepContent}>
+                                            <div className={styles.stepTitle}>
+                                                Select Your Facility
+                                            </div>
 
-                    {step === 3 && (() => {
-                        const selectedObject = objectTypes.data?.find(
-                            (obj) => obj.objectId === selectedObjectId
-                        );
+                                            {objectTypes.data ? (
+                                                <FormControl fullWidth variant="outlined">
+                                                    <InputLabel>Facility Type</InputLabel>
+                                                    <Select
+                                                        value={selectedObjectId ?? ''}
+                                                        onChange={(e) => setSelectedObjectId(Number(e.target.value))}
+                                                        label="Facility Type"
+                                                    >
+                                                        <MenuItem value="" disabled>
+                                                            Select a facility
+                                                        </MenuItem>
+                                                        {objectTypes.data.map((object: ObjectTypeDto) => (
+                                                            <MenuItem key={object.objectId} value={object.objectId}>
+                                                                {object.type} - {object.description}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            ) : (
+                                                <Box className={styles.loading}>
+                                                    <CircularProgress />
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    )}
 
-                        return (
-                            <div className={styles.reservationSummary}>
-                                {!createReservationMutation.isSuccess && (
-                                    <Button
-                                        variant="outlined"
-                                        startIcon={<ArrowBackIcon />}
-                                        onClick={prevStep}
-                                        className={styles.prevButton}
-                                        disabled={createReservationMutation.isSuccess}
-                                    >
-                                        Back
-                                    </Button>)
-                                }
+                                    {/* Step 2: Time Selection */}
+                                    {step === 2 && (
+                                        <Box className={styles.stepContent}>
+                                            <div className={styles.stepTitle}>
+                                                Select Time Slots
+                                            </div>
 
-                                <div className={styles.confirmationCard}>
-                                    <h1 className={styles.title}>Confirm Reservation</h1>
-                                    <div className={styles.details}>
-                                        <p><strong>Start time:</strong> {startTime}</p>
-                                        <p><strong>End time:</strong> {endTime}</p>
-                                        <p><strong>Date:</strong> {selectedDate}</p>
-                                        <p><strong>Price:</strong> {price}</p>
-                                        <p>
-                                            <strong>Object:</strong> {selectedObject?.type || 'Unknown'}
-                                        </p>
-                                        <p>
-                                            <strong>Name:</strong> {localStorage.getItem("firstName") || 'Unknown'}{' '}
-                                            {localStorage.getItem("lastName")}
-                                        </p>
-                                        <p>
-                                            <strong>Pay now:</strong> {payNow ? 'Yes' : 'No'}
-                                        </p>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-8">
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={createReservation}
-                                            className={styles.createButton}
-                                            disabled={createReservationMutation.isSuccess}
-                                        >
-                                            Create
-                                        </Button>
-                                        {createReservationMutation.isSuccess && (
-                                            <Link to="/profile/reservations">
+                                            <Box className={styles.weekNavigation}>
                                                 <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    className={styles.redirectButton}
-                                                    disabled={!createReservationMutation.isSuccess}
+                                                    variant="outlined"
+                                                    startIcon={<ArrowBackIcon />}
+                                                    onClick={handlePreviousWeek}
+                                                    disabled={isPreviousWeekDisabled()}
                                                 >
-                                                    Go to profile
+                                                    Previous Week
                                                 </Button>
-                                            </Link>
+                                                <Typography variant="h6">
+                                                    {dayjs(date).format('MMMM YYYY')}
+                                                </Typography>
+                                                <Button
+                                                    variant="outlined"
+                                                    endIcon={<ArrowForwardIcon />}
+                                                    onClick={handleNextWeek}
+                                                >
+                                                    Next Week
+                                                </Button>
+                                            </Box>
+
+                                            <Box className={styles.weekCalendar}>
+                                                <ReservationsWeek
+                                                    date={formattedDate}
+                                                    objectId={selectedObjectId as number}
+                                                />
+                                            </Box>
+                                        </Box>
+                                    )}
+
+                                    {/* Step 3: Confirmation */}
+                                    {step >= 3 && (
+                                        <Box className={styles.stepContent}>
+                                            <div className={styles.stepTitle}>
+                                                Confirm Reservation
+                                            </div>
+
+                                            <Paper className={styles.confirmationCard}>
+                                                <Box className={styles.details}>
+                                                    <Typography variant="h6" mb={3}>Reservation Details</Typography>
+
+                                                    <Stack spacing={3}>
+                                                        <Box display="flex" gap={4}>
+                                                            <Stack spacing={2} flex={1}>
+                                                                <Typography><strong>Date:</strong> {selectedDate}</Typography>
+                                                                <Typography><strong>Start Time:</strong> {startTime}</Typography>
+                                                                <Typography><strong>End Time:</strong> {endTime}</Typography>
+                                                            </Stack>
+
+                                                            <Stack spacing={2} flex={1}>
+                                                                <Typography><strong>Facility:</strong> {objectTypes.data?.find(obj => obj.objectId === selectedObjectId)?.type}</Typography>
+                                                                <Typography><strong>Price:</strong> ${price}</Typography>
+                                                                <Typography><strong>Payment:</strong> {payNow ? 'Pay Now' : 'Pay Later'}</Typography>
+                                                            </Stack>
+                                                        </Box>
+
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Switch
+                                                                    checked={payNow}
+                                                                    disabled={createReservationMutation.isSuccess}
+                                                                    onChange={(e) => setPayNow(e.target.checked)}
+                                                                    color="primary"
+                                                                />
+                                                            }
+                                                            label="Pay Now"
+                                                        />
+                                                    </Stack>
+                                                </Box>
+                                            </Paper>
+                                        </Box>
+                                    )}
+
+                                    {/* Navigation Buttons */}
+                                    <Box className={styles.navigationButtons}>
+                                        {step > 1 && (
+                                            createReservationMutation.isSuccess ? (
+                                                <Button
+                                                    variant="outlined"
+                                                    component={Link}
+                                                    to="/profile/reservations"
+                                                    startIcon={<ArrowForwardIcon />}
+                                                    className={styles.navButton}
+                                                >
+                                                    My profile
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    variant="outlined"
+                                                    onClick={prevStep}
+                                                    startIcon={<ArrowBackIcon />}
+                                                    className={styles.navButton}
+                                                    disabled={step === 3 && createReservationMutation.isSuccess}
+                                                >
+                                                    Back
+                                                </Button>
+                                            )
                                         )}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
+
+                                        {step < 3 ? (
+                                            <Button
+                                                variant="contained"
+                                                onClick={step === 1 ? nextStep : nextStepCheckToken}
+                                                endIcon={<ArrowForwardIcon />}
+                                                disabled={!selectedObjectId || (step === 2 && selectedHours.length === 0)}
+                                                className={styles.navButton}
+                                            >
+                                                Continue
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="contained"
+                                                onClick={createReservation}
+                                                disabled={createReservationMutation.isSuccess}
+                                                className={styles.submitButton}
+                                            >
+                                                {createReservationMutation.isPending ? (
+                                                    <CircularProgress size={24} color="inherit" />
+                                                ) : (
+                                                    'Confirm Reservation'
+                                                )}
+                                            </Button>
+                                        )}
+                                    </Box>
+                                </StyledPaper>
+                            </motion.div>
+                        </AnimatePresence>
+                    </motion.div>
+
+                    <Snackbar
+                        open={showSnackbar}
+                        autoHideDuration={6000}
+                        onClose={handleCloseSnackbar}
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    >
+                        <Alert
+                            onClose={handleCloseSnackbar}
+                            severity={snackbarSeverity as AlertColor}
+                            variant="filled"
+                            elevation={6}
+                        >
+                            {snackbarMessage}
+                        </Alert>
+                    </Snackbar>
                 </div>
             </div>
         </ReservationContext.Provider>

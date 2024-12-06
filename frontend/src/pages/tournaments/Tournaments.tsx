@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Tournaments = () => {
     const [selectedObjectId, setSelectedObjectId] = useState<string>("all");
@@ -59,10 +60,6 @@ const Tournaments = () => {
             setUserId(parseInt(storedUserId, 10));
         }
     }, []);
-
-    const handleSelectChange = (event: SelectChangeEvent) => {
-        setSelectedObjectId(event.target.value as string);
-    };
 
     const handleJoinTournament = (tournamentId: number) => {
         if (userId) {
@@ -140,93 +137,135 @@ const Tournaments = () => {
 
     return (
         <div className={styles.container}>
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Leave Tournament"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to leave this tournament?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        No
+                    </Button>
+                    <Button onClick={confirmLeaveTournament} color="primary" autoFocus>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <div className={styles.wrapper}>
-                <Snackbar
-                    open={showSnackbar}
-                    autoHideDuration={6000}
-                    onClose={handleCloseSnackbar}
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className={styles.header}
                 >
-                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity as AlertColor} variant="filled">
-                        {snackbarMessage}
-                    </Alert>
-                </Snackbar>
+                    <h1>Sports Tournaments</h1>
+                    <p>Join exciting tournaments and compete with others</p>
+                </motion.div>
 
-                <Dialog
-                    open={dialogOpen}
-                    onClose={handleCloseDialog}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className={styles.controls}
                 >
-                    <DialogTitle id="alert-dialog-title">{"Confirm Leave Tournament"}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to leave this tournament?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog} color="primary">
-                            No
-                        </Button>
-                        <Button onClick={confirmLeaveTournament} color="primary" autoFocus>
-                            Yes
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                    <FormControl variant="outlined" className={styles.select}>
+                        <InputLabel>Filter by Facility</InputLabel>
+                        <Select
+                            value={selectedObjectId}
+                            onChange={(e: SelectChangeEvent) => setSelectedObjectId(e.target.value)}
+                            label="Filter by Facility"
+                        >
+                            <MenuItem value="all">All Facilities</MenuItem>
+                            {objectTypes?.map(type => (
+                                <MenuItem key={type.objectId} value={type.objectId.toString()}>
+                                    {type.type}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </motion.div>
 
-                <FormControl fullWidth className={styles.select}>
-                    <InputLabel id="object-filter-label">Filter by Object</InputLabel>
-                    <Select
-                        labelId="object-filter-label"
-                        value={selectedObjectId}
-                        onChange={handleSelectChange}
+                <AnimatePresence>
+                    <motion.div
+                        className={styles.tournamentsList}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
                     >
-                        <MenuItem value="all">Show all tournaments</MenuItem>
-                        {objectTypes?.map(objectType => (
-                            <MenuItem key={objectType.objectId} value={objectType.objectId.toString()}>
-                                Show tournaments for object {objectType.objectId}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-
-                <div className={styles.tournamentsList}>
-                    {filteredTournaments?.map(tournament => (
-                        <div key={tournament.tournamentId} className={styles.tournamentCard}>
-                            <h3>{tournament.sport}</h3>
-                            <p><strong>Description:</strong> {tournament.description}</p>
-                            <p><strong>Max Slots:</strong> {tournament.maxSlots}</p>
-                            <p><strong>Occupied Slots:</strong> {tournament.occupiedSlots}</p>
-                            <p><strong>Start Date:</strong> {new Date(tournament.startDate).toLocaleDateString()}</p>
-                            <p><strong>End Date:</strong> {new Date(tournament.endDate).toLocaleDateString()}</p>
-                            <p><strong>Object Type:</strong> {tournament.objectType.type}</p>
-                            <img src={tournament.objectType.imageUrl} alt={tournament.objectType.type} className={styles.image} />
-
-                            {isClient && (
-                                <div className={styles.buttons}>
-                                    {!isUserInTournament(tournament.tournamentId) ? (
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => handleJoinTournament(tournament.tournamentId)}
-                                        >
-                                            Join
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            variant="outlined"
-                                            color="secondary"
-                                            onClick={() => handleLeaveTournament(tournament.tournamentId)}
-                                        >
-                                            Leave
-                                        </Button>
-                                    )}
+                        {filteredTournaments?.map((tournament, index) => (
+                            <motion.div
+                                key={tournament.tournamentId}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className={styles.tournamentCard}
+                            >
+                                <h3>{tournament.sport}</h3>
+                                <div className={styles.info}>
+                                    <p><strong>Description:</strong> <span>{tournament.description}</span></p>
+                                    <div className={styles.slots}>
+                                        <strong>Slots:</strong>
+                                        <div className={styles.progress}>
+                                            <div
+                                                className={styles.bar}
+                                                style={{ width: `${(tournament.occupiedSlots / tournament.maxSlots) * 100}%` }}
+                                            />
+                                        </div>
+                                        <span>{tournament.occupiedSlots}/{tournament.maxSlots}</span>
+                                    </div>
+                                    <p><strong>Start Date:</strong> <span>{new Date(tournament.startDate).toLocaleDateString()}</span></p>
+                                    <p><strong>End Date:</strong> <span>{new Date(tournament.endDate).toLocaleDateString()}</span></p>
+                                    <p><strong>Facility:</strong> <span>{tournament.objectType.type}</span></p>
                                 </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
 
+                                <div className={styles.imageContainer}>
+                                    <img src={tournament.objectType.imageUrl} alt={tournament.objectType.type} />
+                                </div>
+
+                                {isClient && (
+                                    <div className={styles.buttons}>
+                                        {!isUserInTournament(tournament.tournamentId) ? (
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => handleJoinTournament(tournament.tournamentId)}
+                                            >
+                                                Join Tournament
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="outlined"
+                                                color="secondary"
+                                                onClick={() => handleLeaveTournament(tournament.tournamentId)}
+                                            >
+                                                Leave Tournament
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </AnimatePresence>
                 <Pagination
                     count={Math.ceil((tournaments?.totalCount || 1) / pageSize)}
                     page={page}

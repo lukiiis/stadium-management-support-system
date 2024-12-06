@@ -1,130 +1,143 @@
-.nextButton, .prevButton {
-    background-color: #3f51b5;
-    color: white;
+.pageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    padding: 3rem 1rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
 
-    &:disabled {
-        background-color: #c5c5c5;
-        color: #ffffff;
+    @media (max-width: 600px) {
+        padding: 2rem 1rem;
     }
 }
-
-// .container {
-    
-// }
 
 .wrapper {
-    max-width: 1280px;
-    height: 100%;
-    margin: 0 auto;
+    width: 1260px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-// step 1
-.reservationStep {
-    display: flex;
-    flex-direction: column;
+.stepper {
+    width: 100%;
+    margin-bottom: 3rem;
+    background: white;
     padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stepContent {
+    padding: 2rem 0;
+}
+
+.stepTitle {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    background: linear-gradient(45deg, #1a237e, #3949ab);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+.navigationButtons {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        max-width: 600px;
-        margin-bottom: 1.5rem;
+    .navButton {
+        min-width: 160px;
+        height: 100%;
+        padding: 0.8rem 1.5rem;
+        transition: transform 0.2s ease;
 
-        .title {
-            font-size: 1.8rem;
-            font-weight: bold;
+        &:hover {
+            transform: translateY(-2px);
         }
     }
 
-    .objectSelection {
+    .submitButton {
+        background: linear-gradient(45deg, #1a237e, #3949ab);
+        color: white;
+        padding: 1rem 2rem;
         width: 100%;
-        max-width: 600px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        margin-top: 1.5rem;
+        font-weight: 600;
 
-        .label {
-            font-size: 1rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+        &:hover {
+            background: linear-gradient(45deg, #3949ab, #1a237e);
         }
 
-        .select {
-            width: 100%;
+        &:disabled {
+            background: #ccc;
+        }
+    }
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+}
+
+// Add animations for week calendar
+.weekCalendar {
+    animation: slideIn 0.5s ease;
+}
+
+.weekNavigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Add hover effects for selectable time slots
+.hourTile {
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// Confirmation card styling
+.confirmationCard {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+    .details {
+        display: grid;
+        gap: 1rem;
+        margin: 2rem 0;
+
+        p {
+            display: flex;
+            justify-content: space-between;
             padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
+            border-bottom: 1px solid #eee;
 
-            &:focus {
-                border-color: #3f51b5;
-                outline: none;
+            strong {
+                color: #1a237e;
             }
-        }
-    }
-
-    .loading {
-        margin-top: 2rem;
-    }
-}
-
-
-// step 3
-.reservationSummary {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-
-    .prevButton {
-        align-self: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .confirmationCard {
-        background-color: #f5f5f5;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 500px;
-
-        .title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .details {
-            p {
-                font-size: 1rem;
-                margin: 0.5rem 0;
-                strong {
-                    color: #3f51b5;
-                }
-            }
-        }
-
-        .createButton {
-            display: block;
-            margin: 1.5rem auto 0;
-            width: 100%;
-        }
-
-        .redirectButton {
-            display: block;
-        }
-
-        .infoMessage {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #888;
         }
     }
 }

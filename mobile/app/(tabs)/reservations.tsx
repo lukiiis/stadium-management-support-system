@@ -1,13 +1,16 @@
 // app/(tabs)/reservations.tsx
-import { View, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { useGetDaySchedule, useGetAllObjectTypes } from '@/api/reservationsTabService'
 import { Picker } from '@react-native-picker/picker'
 import TimeSheet from '@/components/TimeSheet'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
+import { useTheme } from '@/context/ThemeContext'
 
 export default function ReservationsScreen() {
+  const { theme } = useTheme();
+
   const [date, setDate] = useState(new Date())
   const [selectedObjectId, setSelectedObjectId] = useState<number>(1)
   const [selectedHours, setSelectedHours] = useState<string[]>([])
@@ -70,46 +73,43 @@ export default function ReservationsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <View className="p-4">
-        <Picker
-          selectedValue={selectedObjectId}
-          onValueChange={(itemValue) => setSelectedObjectId(Number(itemValue))}
-          className="bg-white dark:bg-gray-800 rounded-lg mb-4"
+      <View className="px-4 py-6">
+        <Animated.View
+          entering={FadeInDown.delay(100)}
+          className="flex-row items-center mb-6"
         >
-          {objectTypes?.map(object => (
-            <Picker.Item
-              key={object.objectId}
-              label={`${object.type} - ${object.description}`}
-              value={object.objectId}
-            />
-          ))}
-        </Picker>
+          <Ionicons name="calendar" size={24} color={theme === 'dark' ? '#fff' : '#1f2937'} />
+          <Text className="text-2xl font-bold text-gray-800 dark:text-white ml-2">
+            Make a Reservation
+          </Text>
+        </Animated.View>
 
         <Animated.View
-          entering={FadeIn}
-          className="flex-row items-center justify-between mb-4"
+          entering={FadeInDown.delay(200)}
+          className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm"
         >
-          <TouchableOpacity
-            onPress={handlePreviousDay}
-            disabled={date.toDateString() === new Date().toDateString()}
-            className={`p-3 rounded-full shadow-sm ${date.toDateString() === new Date().toDateString()
-                ? 'bg-gray-200 dark:bg-gray-700'
-                : 'bg-white dark:bg-gray-800'
-              }`}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color={date.toDateString() === new Date().toDateString() ? '#9CA3AF' : '#4A90E2'}
-            />
-          </TouchableOpacity>
+          <View className="flex-row items-center mb-4">
+            <Ionicons name="basketball-outline" size={20} color="#3b82f6" />
+            <Text className="text-lg font-semibold text-gray-800 dark:text-white ml-2">
+              Select Facility
+            </Text>
+          </View>
 
-          <TouchableOpacity
-            onPress={handleNextDay}
-            className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm"
-          >
-            <Ionicons name="chevron-forward" size={24} color="#4A90E2" />
-          </TouchableOpacity>
+          <View className="bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <Picker
+              selectedValue={selectedObjectId}
+              onValueChange={(itemValue) => setSelectedObjectId(itemValue)}
+              style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}
+            >
+              {objectTypes?.map((object) => (
+                <Picker.Item
+                  key={object.objectId}
+                  label={object.type}
+                  value={object.objectId}
+                />
+              ))}
+            </Picker>
+          </View>
         </Animated.View>
 
         {schedule && (
@@ -118,6 +118,9 @@ export default function ReservationsScreen() {
             schedule={schedule}
             selectedHours={selectedHours}
             onHourSelect={handleHourSelect}
+            onPreviousDay={handlePreviousDay}
+            onNextDay={handleNextDay}
+            isToday={date.toDateString() === new Date().toDateString()}
           />
         )}
       </View>

@@ -1,64 +1,151 @@
-// Home.tsx updates
+// Home.tsx
 import React from "react";
 import { useGetObjectTypes } from "./homeFunctions";
-import { CircularProgress, Typography, Container } from "@mui/material";
+import { CircularProgress, Typography, Container, Button, Box } from "@mui/material";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import styles from "./Home.module.scss";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Home: React.FC = () => {
     const { data: objectTypes, isLoading, error } = useGetObjectTypes();
 
-    if (isLoading) return (
-        <Container sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
-        </Container>
-    );
-
-    if (error) return (
-        <Container sx={{ textAlign: 'center', py: 4 }}>
-            <Typography color="error">Error loading object types</Typography>
-        </Container>
-    );
-
     return (
         <div className={styles.homeContainer}>
-            <div className={styles.carouselContainer}>
-                <Carousel
-                    showThumbs={false}
-                    autoPlay
-                    infiniteLoop
-                    interval={5000}
-                    showStatus={false}
-                >
-                    {objectTypes?.map((objectType) => (
-                        <div key={objectType.objectId} className={styles.carouselItem}>
-                            <img src={objectType.imageUrl} alt={objectType.type} />
-                            <div className={styles.carouselCaption}>
-                                <Typography variant="h5">{objectType.type}</Typography>
-                                <Typography variant="body1">{objectType.description}</Typography>
-                            </div>
-                        </div>
-                    ))}
-                </Carousel>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className={styles.heroSection}
+            >
+                <Typography variant="h1" className={styles.heroTitle}>
+                    Welcome to Stadium Management
+                </Typography>
+                <Typography variant="h4" className={styles.heroSubtitle}>
+                    Book your perfect sports venue today
+                </Typography>
+                <Box className={styles.heroCta}>
+                    <Button
+                        component={Link}
+                        to="/login"
+                        variant="contained"
+                        size="large"
+                        className={styles.ctaButton}
+                    >
+                        Get Started
+                    </Button>
+                </Box>
+            </motion.div>
+
+            <div className={styles.carouselSection}>
+                <Container maxWidth="xl">
+                    <Typography variant="h3" className={styles.sectionTitle}>
+                        Our Facilities
+                    </Typography>
+                    {isLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                            <CircularProgress />
+                        </Box>
+                    ) : error ? (
+                        <Typography color="error" sx={{ textAlign: 'center', py: 4 }}>
+                            Error loading facilities
+                        </Typography>
+                    ) : (
+                        <Carousel
+                            showThumbs={false}
+                            autoPlay
+                            infiniteLoop
+                            interval={5000}
+                            showStatus={false}
+                            className={styles.carousel}
+                        >
+                            {objectTypes?.map((objectType) => (
+                                <motion.div
+                                    key={objectType.objectId}
+                                    className={styles.carouselItem}
+                                    whileHover={{ scale: 1.02 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <img src={objectType.imageUrl} alt={objectType.type} />
+                                    <div className={styles.carouselCaption}>
+                                        <Typography variant="h5">{objectType.type}</Typography>
+                                        <Typography variant="body1">{objectType.description}</Typography>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </Carousel>
+                    )}
+                </Container>
             </div>
 
-            <Container className={styles.welcomeSection}>
-                <Typography variant="h1">Welcome to COMPANY NAME</Typography>
-                <Typography variant="body1">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Pellentesque condimentum nulla mauris, eget cursus urna venenatis in.
-                </Typography>
-            </Container>
+            <div className={styles.featuresSection}>
+                <Container maxWidth="lg">
+                    <Typography variant="h3" className={styles.sectionTitle}>
+                        Our Services
+                    </Typography>
+                    <div className={styles.featuresGrid}>
+                        <motion.div
+                            className={styles.featureCard}
+                            whileHover={{ y: -10 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Link to="/reservations" className={styles.featureLink}>
+                                <Typography variant="h5">Reservations</Typography>
+                                <Typography>Book your preferred time slot</Typography>
+                            </Link>
+                        </motion.div>
+                        <motion.div
+                            className={styles.featureCard}
+                            whileHover={{ y: -10 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Link to="/tournaments" className={styles.featureLink}>
+                                <Typography variant="h5">Tournaments</Typography>
+                                <Typography>Join exciting competitions</Typography>
+                            </Link>
+                        </motion.div>
+                        <motion.div
+                            className={styles.featureCard}
+                            whileHover={{ y: -10 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Link to="/objects" className={styles.featureLink}>
+                                <Typography variant="h5">Facilities</Typography>
+                                <Typography>Explore our venues</Typography>
+                            </Link>
+                        </motion.div>
+                    </div>
+                </Container>
+            </div>
 
-            <div className={styles.navigationSection}>
-                <h2>Check out our services</h2>
-                <div className={styles.links}>
-                    <Link to="reservations">Reservations</Link>
-                    <Link to="tournaments">Tournaments</Link>
-                    <Link to="objects">Objects</Link>
-                </div>
+            <div className={styles.ctaSection}>
+                <Container maxWidth="md">
+                    <Typography variant="h3">Ready to Get Started?</Typography>
+                    <Typography variant="body1" className={styles.ctaText}>
+                        Join our community and start booking your sports activities today
+                    </Typography>
+                    <Box className={styles.ctaButtons}>
+                        <Button
+                            component={Link}
+                            to="/register"
+                            variant="contained"
+                            size="large"
+                            className={styles.registerButton}
+                        >
+                            Register Now
+                        </Button>
+                        <Button
+                            component={Link}
+                            to="/login"
+                            variant="outlined"
+                            size="large"
+                            className={styles.loginButton}
+                        >
+                            Login
+                        </Button>
+                    </Box>
+                </Container>
             </div>
         </div>
     );

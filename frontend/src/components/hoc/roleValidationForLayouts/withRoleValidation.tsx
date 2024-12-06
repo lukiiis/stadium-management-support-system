@@ -1,23 +1,18 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { Navigate } from 'react-router-dom';
 
 const withRoleValidation = (Component: React.FC, requiredRole: string) => {
     const WrappedComponent = (props: any) => {
-        const navigate = useNavigate();
 
-        useEffect(() => {
-            const role = localStorage.getItem("role");
-            const token = localStorage.getItem("token");
-            const storedUserId = localStorage.getItem("userId");
+        const role = localStorage.getItem("role");
+        const token = localStorage.getItem("token");
+        const storedUserId = localStorage.getItem("userId");
 
-            if (role !== requiredRole || !token || !storedUserId) {
-                navigate("/");
-            }
-        }, []);
+        if (role !== requiredRole || !token || !storedUserId) {
+            return <Navigate to="/" replace />;
+        }
 
         return <Component {...props} />;
     };
-
     return WrappedComponent;
 };
 
