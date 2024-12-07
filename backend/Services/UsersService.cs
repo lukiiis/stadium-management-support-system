@@ -9,6 +9,7 @@ using backend.DTOs.User;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using AutoMapper;
 using backend.Services.Pagination;
+using backend.Enums;
 
 namespace backend.Services
 {
@@ -26,6 +27,7 @@ namespace backend.Services
         Task<UserDto> GetUserDtoById(int id);
         Task<List<UserDto>> GetAllUsersAsync();
         Task<PaginatedResult<UserDto>> GetUsersPaginatedAsync(int page, int pageSize);
+        Task PromoteToAdmin(int userId);
     }
 
     public class UsersService(ApplicationDbContext context, PasswordHasher passwordHasher, IMapper mapper) : IUsersService
@@ -53,6 +55,16 @@ namespace backend.Services
             if (user.Enabled == true) throw new Exception("User is already unblocked");
 
             user.Enabled = true;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task PromoteToAdmin(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) throw new Exception("User not found");
+            if (user.Role != Role.EMPLOYEE) throw new Exception("User is not an employee");
+
+            user.Role = Role.ADMIN;
             await _context.SaveChangesAsync();
         }
 

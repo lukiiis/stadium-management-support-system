@@ -14,7 +14,7 @@ const AddTimesheet: React.FC = () => {
     const [showSuccess, setShowSuccess] = useState<boolean>(false);
     const [page, setPage] = useState(1);
     const [showForm, setShowForm] = useState(false);
-    const [editingTimesheetId, setEditingTimesheetId] = useState<number | null>(null);
+    const [editingTimesheetId, setEditingTimesheetId] = useState<number>();
     const pageSize = 5;
 
     const handleCloseSnackbar = () => {
@@ -64,16 +64,17 @@ const AddTimesheet: React.FC = () => {
     const onSubmitUpdate = (data: UpdateReservationTimesheetData) => {
         const formattedData = {
             ...data,
+            timesheetId: editingTimesheetId as number,
             startTime: `${data.startTime}:00`,
             endTime: `${data.endTime}:00`,
         };
-        console.log(formattedData)
+
         updateTimesheetMutation.mutate(formattedData, {
             onSuccess: (data: ApiSuccessResponse) => {
                 console.log(`Successfully updated timesheet`);
                 setSuccessMessage(data.message);
                 setShowSuccess(true);
-                setEditingTimesheetId(null);
+                setEditingTimesheetId(-1);
                 refetch();
                 resetUpdate();
             },
@@ -91,9 +92,15 @@ const AddTimesheet: React.FC = () => {
         });
     };
 
-    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
     };
+
+    const selectTimesheet = (timesheetId: number) => {
+        setEditingTimesheetId(timesheetId);
+        console.log(timesheetId);
+    }
+    console.log("editingTimesheetId", editingTimesheetId);
 
     return (
         <div className={styles.formContainer}>
@@ -136,7 +143,6 @@ const AddTimesheet: React.FC = () => {
                                             {...registerUpdate("startTime", { required: "Start Time is required" })}
                                             label="Start Time"
                                             type="time"
-                                            defaultValue={timesheet.startTime}
                                             fullWidth
                                             error={!!errorsUpdate.startTime}
                                             helperText={errorsUpdate.startTime?.message}
@@ -145,17 +151,16 @@ const AddTimesheet: React.FC = () => {
                                             {...registerUpdate("endTime", { required: "End Time is required" })}
                                             label="End Time"
                                             type="time"
-                                            defaultValue={timesheet.endTime}
                                             fullWidth
                                             error={!!errorsUpdate.endTime}
                                             helperText={errorsUpdate.endTime?.message}
                                         />
-                                        <input type="hidden" {...registerUpdate("timesheetId")} value={timesheet.timesheetId} />
+                                        <input type="hidden" {...registerUpdate("timesheetId")} value={editingTimesheetId} />
                                         <Box sx={{ display: 'flex', gap: 2 }}>
                                             <Button type="submit" variant="contained" color="primary">
                                                 Update Timesheet
                                             </Button>
-                                            <Button variant="outlined" color="secondary" onClick={() => setEditingTimesheetId(null)}>
+                                            <Button variant="outlined" color="secondary" onClick={() => setEditingTimesheetId(-1)}>
                                                 Cancel
                                             </Button>
                                         </Box>
@@ -165,7 +170,7 @@ const AddTimesheet: React.FC = () => {
                                         <Typography variant="body1"><strong>Start Time:</strong> {timesheet.startTime}</Typography>
                                         <Typography variant="body1"><strong>End Time:</strong> {timesheet.endTime}</Typography>
                                         <Typography variant="body1"><strong>Object:</strong> {timesheet.objectType.type}</Typography>
-                                        <Button variant="outlined" color="primary" onClick={() => {setEditingTimesheetId(timesheet.timesheetId); console.log("tajmszit", editingTimesheetId)}}>
+                                        <Button variant="outlined" color="primary" onClick={() => selectTimesheet(timesheet.timesheetId)}>
                                             Edit
                                         </Button>
                                     </>
@@ -207,7 +212,7 @@ const AddTimesheet: React.FC = () => {
                                     {...registerCreate("startTime", { required: "Start Time is required" })}
                                     label="Start Time"
                                     type="time"
-                                    defaultValue="08:00"
+                                    defaultValue="08:00:00"
                                     fullWidth
                                     error={!!errorsCreate.startTime}
                                     helperText={errorsCreate.startTime?.message}
@@ -217,7 +222,7 @@ const AddTimesheet: React.FC = () => {
                                     {...registerCreate("endTime", { required: "End Time is required" })}
                                     label="End Time"
                                     type="time"
-                                    defaultValue="22:00"
+                                    defaultValue="22:00:00"
                                     fullWidth
                                     error={!!errorsCreate.endTime}
                                     helperText={errorsCreate.endTime?.message}

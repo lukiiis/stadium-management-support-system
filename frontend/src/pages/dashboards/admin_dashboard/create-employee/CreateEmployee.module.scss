@@ -1,19 +1,93 @@
-.formContainer {
-    max-width: 500px;
+.pageContainer {
+    padding: 2rem;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.formCard {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.title {
+    color: #1976d2;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    font-size: 2.5rem;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 2rem;
 }
 
-.error {
-    color: red;
-    font-size: 12px;
+.formSection {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+}
+
+.sectionTitle {
+    color: #1976d2;
+    margin-bottom: 1.5rem ;
+    font-weight: 500 ;
+    font-size: 1.1rem ;
+}
+
+.fieldsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.submitButton {
+    margin-top: 1rem ;
+    padding: 0.8rem ;
+    font-size: 1.1rem ;
+    text-transform: none ;
+    background: linear-gradient(45deg, #1976d2, #2196f3) ;
+    transition: transform 0.3s ease;
+    color: white;
+    font-weight: 600;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    &:disabled {
+        background: #ccc ;
+    }
+}
+
+@media (max-width: 600px) {
+    .pageContainer {
+        padding: 1rem;
+    }
+
+    .formSection {
+        padding: 1rem;
+    }
+
+    .fieldsGrid {
+        grid-template-columns: 1fr;
+    }
 }

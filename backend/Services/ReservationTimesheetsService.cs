@@ -87,6 +87,11 @@ namespace backend.Services
                 throw new Exception("Cannot update timesheet when there are already reservations for that day.");
             }
 
+            if(timesheet.IsTournament == true)
+            {
+                throw new Exception("There is tournament, can't update timesheet.");
+            }
+
             timesheet.StartTime = dto.StartTime;
             timesheet.EndTime = dto.EndTime;
 

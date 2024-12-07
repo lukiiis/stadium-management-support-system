@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using backend.DTOs.User;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using backend.Enums;
 
 namespace backend.Controllers
 {
@@ -111,6 +112,21 @@ namespace backend.Controllers
             {
                 await _usersService.UnblockUserAsync(userId);
                 return Ok(new { Message = "User has been unblocked." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpPut("{userId}/promote-to-admin")]
+        //[Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> PromoteToAdmin(int userId)
+        {
+            try
+            {
+                await _usersService.PromoteToAdmin(userId);
+                return Ok(new { Message = "User role updated to ADMIN." });
             }
             catch (Exception ex)
             {

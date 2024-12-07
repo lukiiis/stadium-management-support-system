@@ -45,7 +45,7 @@ const AdminDashboard = () => {
                         <Link to="block-account" className={styles.navCard}>
                             <BlockIcon className={styles.navIcon} />
                             <div className={styles.navContent}>
-                                <Typography variant="h6">Block Account</Typography>
+                                <Typography variant="h6">Manage Accounts</Typography>
                                 <Typography variant="body2">Manage user access</Typography>
                             </div>
                         </Link>

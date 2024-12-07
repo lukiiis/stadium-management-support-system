@@ -1,21 +1,22 @@
 import { Link, Navigate, Outlet } from "react-router-dom";
-import { Typography } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import PersonIcon from '@mui/icons-material/Person';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import styles from "./ClientProfile.module.scss";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import { useGetUserById } from "./clientProfileService";
 
 const ClientProfile = () => {
-    const firstName = localStorage.getItem("firstName") || '';
-    const lastName = localStorage.getItem("lastName") || '';
-    const role = localStorage.getItem("role") || '';
-
     const token = localStorage.getItem("token");
 
     if (token === null) {
         return <Navigate to="/" replace />;
     }
+
+    const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
+    const { data: user, isLoading } = useGetUserById(userId);
 
     return (
         <div className={styles.pageContainer}>
@@ -31,10 +32,22 @@ const ClientProfile = () => {
                             <PersonIcon className={styles.avatarIcon} />
                         </div>
                         <Typography variant="h3" className={styles.userName}>
-                            {firstName} {lastName}
+                            {isLoading ? (
+                                <CircularProgress />
+                            ) : (
+                                <>
+                                    {user?.firstName} {user?.lastName}
+                                </>
+                            )}
                         </Typography>
                         <Typography variant="subtitle1" className={styles.userRole}>
-                            {role}
+                            {isLoading ? (
+                                <CircularProgress />
+                            ) : (
+                                <>
+                                    {user?.role}
+                                </>
+                            )}
                         </Typography>
                     </motion.div>
 
