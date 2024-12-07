@@ -16,8 +16,6 @@ import { AxiosError } from 'axios';
 export default function ClientTournamentsScreen() {
     const { theme } = useTheme();
     const [userId, setUserId] = useState<number | null>(null);
-    const [page, setPage] = useState(1);
-    const pageSize = 5;
 
     useEffect(() => {
         loadUserId();
@@ -28,7 +26,7 @@ export default function ClientTournamentsScreen() {
         if (id) setUserId(parseInt(id));
     };
 
-    const { data, isLoading, refetch } = useGetPaginatedUserTournaments(userId || 0, page - 1, pageSize);
+    const { data, isLoading, refetch } = useGetPaginatedUserTournaments(userId || 0);
     const leaveTournamentMutation = useLeaveTournament();
 
     const handleLeaveTournament = (tournamentId: number) => {
@@ -80,7 +78,7 @@ export default function ClientTournamentsScreen() {
                         <Ionicons name="basketball" size={48} color="#60A5FA" />
                         <Text className="text-gray-600 dark:text-gray-300 mt-4">Loading tournaments...</Text>
                     </View>
-                ) : data?.items.length === 0 ? (
+                ) : data?.length === 0 ? (
                     <View className="flex-1 justify-center items-center py-8">
                         <Ionicons name="alert-circle-outline" size={48} color="#9CA3AF" />
                         <Text className="text-gray-500 dark:text-gray-400 mt-4 mb-2">
@@ -96,7 +94,7 @@ export default function ClientTournamentsScreen() {
                     </View>
                 ) : (
                     <View className="space-y-4 flex flex-col gap-3">
-                        {data?.items.map(({ tournament, joinedAt }, index) => {
+                        {data?.map(({ tournament, joinedAt }, index) => {
                             const tournamentStartDate = dayjs(tournament.startDate);
                             const today = dayjs();
                             const isFutureTournament = tournamentStartDate.isAfter(today);

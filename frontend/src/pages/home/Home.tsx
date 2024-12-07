@@ -5,10 +5,11 @@ import { CircularProgress, Typography, Container, Button, Box } from "@mui/mater
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import styles from "./Home.module.scss";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Home: React.FC = () => {
+    const navigate = useNavigate();
     const { data: objectTypes, isLoading, error } = useGetObjectTypes();
 
     return (
@@ -66,6 +67,7 @@ const Home: React.FC = () => {
                                     className={styles.carouselItem}
                                     whileHover={{ scale: 1.02 }}
                                     transition={{ duration: 0.3 }}
+                                    onClick={() => navigate(`/objects/${objectType.objectId}`)}
                                 >
                                     <img src={objectType.imageUrl} alt={objectType.type} />
                                     <div className={styles.carouselCaption}>

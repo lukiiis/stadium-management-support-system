@@ -8,35 +8,30 @@ import { PaginatedResult } from "@/shared/types/pagination/pagination";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-const fetchTournaments = async (page: number, pageSize: number): Promise<PaginatedResult<TournamentDto>> => {
-  try {
-    const response = await axiosInstance(`/tournaments/all-tournaments-paginated?page=${page}&pageSize=${pageSize}`);
-    return response.data;
-  }
-  catch (error: any) {
-    return error;
-  }
+const fetchTournaments = async (): Promise<TournamentDto[]> => {
+  const response = await axiosInstance(`/tournaments`);
+  return response.data;
 }
 
-export const useGetTournaments = (page: number, pageSize: number) => {
+export const useGetTournaments = () => {
   return useQuery({
-    queryKey: ['tournaments', page, pageSize],
-    queryFn: () => fetchTournaments(page, pageSize)
+    queryKey: ['tournaments'],
+    queryFn: fetchTournaments
   },);
 }
 
 // fetching tournaments that client has joined to show JOIN or LEAVE buttons
 const fetchUsersTournaments = async (userId: number): Promise<UsersTournaments[]> => {
   const response = await axiosInstance.get<UsersTournaments[]>(`/tournaments/joined-tournaments`, {
-      params: {userId}
+    params: { userId }
   });
   return response.data;
 };
 
 export const useGetUsersTournaments = (userId: number) => {
   return useQuery<UsersTournaments[]>({
-      queryKey:['usersTournaments', userId],
-      queryFn: () => fetchUsersTournaments(userId),
+    queryKey: ['usersTournaments', userId],
+    queryFn: () => fetchUsersTournaments(userId),
   });
 }
 
@@ -48,13 +43,13 @@ const joinTournament = async (joinTournamentData: JoinTournamentData) => {
 
 export const useJoinTournament = () => {
   return useMutation({
-      mutationFn: joinTournament,
-      onSuccess: (data: ApiSuccessResponse) => {
-          console.log(data)
-      },
-      onError: (error: AxiosError<ApiErrorResponse>) => {
-          console.log(error)
-      },   
+    mutationFn: joinTournament,
+    onSuccess: (data: ApiSuccessResponse) => {
+      console.log(data)
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      console.log(error)
+    },
   })
 }
 
@@ -62,19 +57,19 @@ export const useJoinTournament = () => {
 // leave tournament mutation
 const leaveTournament = async (leaveTournamentData: LeaveTournamentData) => {
   const res = await axiosInstance.delete('/tournaments/leave', {
-      data: leaveTournamentData
+    data: leaveTournamentData
   });
   return res.data;
 }
 
 export const useLeaveTournament = () => {
   return useMutation({
-      mutationFn: leaveTournament,
-      onSuccess: (data: ApiSuccessResponse) => {
-          console.log(data)
-      },
-      onError: (error: AxiosError<ApiErrorResponse>) => {
-          console.log(error)
-      },   
+    mutationFn: leaveTournament,
+    onSuccess: (data: ApiSuccessResponse) => {
+      console.log(data)
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      console.log(error)
+    },
   })
 }

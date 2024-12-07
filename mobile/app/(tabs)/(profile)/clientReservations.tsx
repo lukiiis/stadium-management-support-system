@@ -1,9 +1,8 @@
-// app/(tabs)/(profile)/clientReservations.tsx
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGetPaginatedUserReservations, useCancelReservation } from '@/api/clientReservationsTabService';
+import { useCancelReservation, useGetUserReservations, useReservationPayment } from '@/api/clientReservationsTabService';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -16,8 +15,6 @@ import toastConfig from '@/shared/component_config/toastConfig';
 export default function ClientReservationsScreen() {
     const { theme } = useTheme();
     const [userId, setUserId] = useState<number | null>(null);
-    const [page, setPage] = useState(1);
-    const pageSize = 5;
 
     useEffect(() => {
         loadUserId();
@@ -28,9 +25,10 @@ export default function ClientReservationsScreen() {
         if (id) setUserId(parseInt(id));
     };
 
-    const { data, isLoading, refetch } = useGetPaginatedUserReservations(userId || 0, page - 1, pageSize);
-    const cancelReservationMutation = useCancelReservation();
+    const { data, isLoading, refetch } = useGetUserReservations(userId || 0);
 
+    //reservation cancel
+    const cancelReservationMutation = useCancelReservation();
     const handleCancelReservation = (reservationId: number) => {
         cancelReservationMutation.mutate(reservationId, {
             onSuccess: (data: ApiSuccessResponse) => {
@@ -55,6 +53,35 @@ export default function ClientReservationsScreen() {
         });
     };
 
+    //reservation payment
+    const { mutate: reservationPayment } = useReservationPayment();
+    const handleReservationPayment = (reservationId: number) => {
+        reservationPayment(reservationId,
+            {
+                onSuccess: (data: ApiSuccessResponse) => {
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Success',
+                        text2: data.message,
+                        position: 'bottom',
+                        visibilityTime: 3000
+                    });
+                    refetch();
+                },
+                onError: (error: AxiosError<ApiErrorResponse>) => {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: error.response?.data.error || 'Failed to pay for the reservation',
+                        position: 'bottom',
+                        visibilityTime: 3000
+                    });
+                },
+            }
+        );
+
+    };
+
     if (!userId) return null;
 
     return (
@@ -75,7 +102,7 @@ export default function ClientReservationsScreen() {
                         <Ionicons name="time" size={48} color="#60A5FA" />
                         <Text className="text-gray-600 dark:text-gray-300 mt-4">Loading reservations...</Text>
                     </View>
-                ) : data?.items.length === 0 ? (
+                ) : data?.length === 0 ? (
                     <View className="flex-1 justify-center items-center py-8">
                         <Ionicons name="calendar-outline" size={48} color="#9CA3AF" />
                         <Text className="text-gray-500 dark:text-gray-400 mt-4 mb-2">
@@ -91,7 +118,7 @@ export default function ClientReservationsScreen() {
                     </View>
                 ) : (
                     <View className="space-y-4 flex flex-col gap-3">
-                        {data?.items.map((reservation, index) => {
+                        {data?.map((reservation, index) => {
                             const reservationDate = dayjs(reservation.reservationDate);
                             const today = dayjs();
                             const isPastReservation = reservationDate.isBefore(today, 'day');
@@ -200,13 +227,25 @@ export default function ClientReservationsScreen() {
                                     </View>
 
                                     {!isPastReservation && (
-                                        <TouchableOpacity
-                                            onPress={() => handleCancelReservation(reservation.reservationId)}
-                                            className="mt-2 bg-red-500 py-3 px-4 rounded-lg flex-row items-center justify-center"
-                                        >
-                                            <Ionicons name="close-circle-outline" size={20} color="white" />
-                                            <Text className="text-white font-semibold ml-2">Cancel Reservation</Text>
-                                        </TouchableOpacity>
+                                        <View className="flex-row gap-3">
+                                            <TouchableOpacity
+                                                onPress={() => handleCancelReservation(reservation.reservationId)}
+                                                className="flex-1 bg-red-500 py-3 px-4 rounded-lg flex-row items-center justify-center"
+                                            >
+                                                <Ionicons name="close-circle-outline" size={20} color="white" />
+                                                <Text className="text-white font-semibold ml-2">Cancel Reservation</Text>
+                                            </TouchableOpacity>
+
+                                            {reservation.paymentStatus === 'PENDING' && (
+                                                <TouchableOpacity
+                                                    onPress={() => handleReservationPayment(reservation.reservationId)}
+                                                    className="flex-1 bg-blue-500 py-3 px-4 rounded-lg flex-row items-center justify-center"
+                                                >
+                                                    <Ionicons name="card-outline" size={20} color="white" />
+                                                    <Text className="text-white font-semibold ml-2">Pay</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
                                     )}
                                 </Animated.View>
                             );

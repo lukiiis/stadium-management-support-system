@@ -42,6 +42,24 @@ const unblockUser = async (userId: number) => {
     return res.data;
 }
 
+//promote to admin
+export const usePromoteToAdmin = () => {
+    return useMutation({
+        mutationFn: promoteToAdmin,
+        onSuccess: (data: ApiSuccessResponse) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+            console.log(error)
+        },
+    })
+}
+
+const promoteToAdmin = async (userId: number) => {
+    const res = await axiosInstance.put(`/users/${userId}/promote-to-admin`);
+    return res.data;
+}
+
 
 // pagination get all users
 export const useGetPaginatedUsers = (page: number, pageSize: number) => {

@@ -1,14 +1,25 @@
 import React, { useState } from "react";
-import { useBlockUser, useUnblockUser, useGetPaginatedUsers } from "./blockUnblockAccountService";
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { useBlockUser, useUnblockUser, useGetPaginatedUsers, usePromoteToAdmin } from "./blockUnblockAccountService";
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress, Snackbar, Alert, Box, Paper, Typography } from "@mui/material";
 import styles from './BlockAccount.module.scss';
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { UserDto } from "../../../../shared/types/models/user";
+import { Navigate } from "react-router-dom";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import { motion } from "framer-motion";
 
 const BlockAccount: React.FC = () => {
+    const token = localStorage.getItem("token");
+
+    if (token === null) {
+        return <Navigate to="/" replace />;
+    }
+
+    const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
+
     const [page, setPage] = useState(0);
-    const [pageSize/*, setPageSize*/] = useState(5);
+    const [pageSize/*, setPageSize*/] = useState(10);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showError, setShowError] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -18,6 +29,7 @@ const BlockAccount: React.FC = () => {
 
     const blockUserMutation = useBlockUser();
     const unblockUserMutation = useUnblockUser();
+    const promoteToAdminMutation = usePromoteToAdmin();
 
     const handleBlock = (userId: number) => {
         blockUserMutation.mutate(userId, {
@@ -57,6 +69,28 @@ const BlockAccount: React.FC = () => {
                 }
                 else {
                     setErrorMessage(`Error unBlocked user`);
+                    setShowError(true);
+                }
+            },
+        });
+    };
+
+    const handlePromote = (userId: number) => {
+        promoteToAdminMutation.mutate(userId, {
+            onSuccess: (data: ApiSuccessResponse) => {
+                console.log(`Successfully promoted user to admin`);
+                setSuccessMessage(data.message);
+                setShowSuccess(true);
+                users.refetch();
+            },
+            onError: (error: AxiosError<ApiErrorResponse>) => {
+                console.error(`Error promoting user to admin`);
+                if (error.response?.data?.error) {
+                    setErrorMessage(error.response.data.error);
+                    setShowError(true);
+                }
+                else {
+                    setErrorMessage(`Error promoting user to admin`);
                     setShowError(true);
                 }
             },
@@ -109,54 +143,77 @@ const BlockAccount: React.FC = () => {
                 </Alert>
             </Snackbar>
 
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>First Name</TableCell>
-                            <TableCell>Last Name</TableCell>
-                            <TableCell>Age</TableCell>
-                            <TableCell>Phone</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Role</TableCell>
-                            <TableCell>Action</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {users.data?.items?.map((user: UserDto) => (
-                            <TableRow key={user.userId}>
-                                <TableCell>{user.userId}</TableCell>
-                                <TableCell>{user.firstName}</TableCell>
-                                <TableCell>{user.lastName}</TableCell>
-                                <TableCell>{user.age}</TableCell>
-                                <TableCell>{user.phone}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>{user.role}</TableCell>
-                                <TableCell>
-                                    {user.enabled ? (
-                                        <Button
-                                            variant="contained"
-                                            color="secondary"
-                                            onClick={() => handleBlock(user.userId)}
-                                        >
-                                            Block
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => handleUnblock(user.userId)}
-                                        >
-                                            Unblock
-                                        </Button>
-                                    )}
-                                </TableCell>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className={styles.card}
+            >
+                <Typography variant="h4" className={styles.title}>
+                    User Management
+                </Typography>
+
+                <TableContainer component={Paper} className={styles.tableContainer}>
+                    <Table>
+                        <TableHead>
+                            <TableRow className={styles.headerRow}>
+                                <TableCell>ID</TableCell>
+                                <TableCell>First Name</TableCell>
+                                <TableCell>Last Name</TableCell>
+                                <TableCell>Age</TableCell>
+                                <TableCell>Phone</TableCell>
+                                <TableCell>Email</TableCell>
+                                <TableCell>Role</TableCell>
+                                <TableCell align="center">Actions</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {users.data?.items?.map((user: UserDto) => (
+                                <TableRow
+                                    key={user.userId}
+                                    className={styles.dataRow}
+                                >
+                                    <TableCell>{user.userId}</TableCell>
+                                    <TableCell>{user.firstName}</TableCell>
+                                    <TableCell>{user.lastName}</TableCell>
+                                    <TableCell>{user.age}</TableCell>
+                                    <TableCell>{user.phone}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>
+                                        <span className={styles.roleChip}>
+                                            {user.role}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        {user.userId !== userId && (
+                                            <Box className={styles.actionButtons}>
+                                                <Button
+                                                    variant="contained"
+                                                    color={user.enabled ? "error" : "primary"}
+                                                    onClick={() => user.enabled ? handleBlock(user.userId) : handleUnblock(user.userId)}
+                                                    className={styles.actionButton}
+                                                >
+                                                    {user.enabled ? "Block" : "Unblock"}
+                                                </Button>
+                                                {user.role === "EMPLOYEE" && (
+                                                    <Button
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        onClick={() => handlePromote(user.userId)}
+                                                        className={styles.actionButton}
+                                                    >
+                                                        Promote
+                                                    </Button>
+                                                )}
+                                            </Box>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </motion.div>
 
             <TablePagination
                 rowsPerPageOptions={[10, 25, 50]}

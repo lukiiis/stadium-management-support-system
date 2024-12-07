@@ -23,7 +23,8 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Pagination
+    Pagination,
+    Typography
 } from "@mui/material";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../shared/types/api/apiResponse";
@@ -177,8 +178,12 @@ const Tournaments = () => {
                     transition={{ duration: 0.5 }}
                     className={styles.header}
                 >
-                    <h1>Sports Tournaments</h1>
-                    <p>Join exciting tournaments and compete with others</p>
+                    <Typography variant="h3" component="h1">
+                        Sports Tournaments
+                    </Typography>
+                    <Typography variant="subtitle1">
+                        Join exciting tournaments and compete with othersD
+                    </Typography>
                 </motion.div>
 
                 <motion.div

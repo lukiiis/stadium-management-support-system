@@ -6,6 +6,7 @@ import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
 import { CreateReservationTimesheetData, ReservationTimesheetDto, UpdateReservationTimesheetData } from "../../../../shared/types/models/reservationTimesheet";
 import { PaginatedResult } from "../../../../shared/types/pagination/pagination";
 
+//create timesheet
 export const useCreateReservationTimesheet = () => {
     return useMutation({
         mutationFn: createReservationTimesheetPost,
@@ -23,6 +24,23 @@ const createReservationTimesheetPost = async (reservationTimesheetData: CreateRe
     return res.data;
 }
 
+//update timesheet
+export const useUpdateReservationTimesheet = () => {
+    return useMutation({
+        mutationFn: updateReservationTimesheet,
+        onSuccess: (data: ApiSuccessResponse) => {
+            console.log(data);
+        },
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+            console.log(error);
+        },
+    });
+};
+
+const updateReservationTimesheet = async (updateData: UpdateReservationTimesheetData) => {
+    const res = await axiosInstance.put(`/reservation-timesheets/update`, updateData);
+    return res.data;
+};
 
 // fetching objects to get their id's
 const fetchAllObjectTypes = async (): Promise<ObjectTypeDto[]> => {
@@ -50,23 +68,5 @@ export const useGetPaginatedTimesheets = (page: number, pageSize: number) => {
         queryKey: ['paginatedTimesheets', page],
         queryFn: () => fetchPaginatedTimesheets(page, pageSize),
         placeholderData: (prev) => prev,
-    });
-};
-
-//update timesheet
-const updateReservationTimesheet = async (updateData: UpdateReservationTimesheetData) => {
-    const res = await axiosInstance.put(`/reservation-timesheets/update`, updateData);
-    return res.data;
-};
-
-export const useUpdateReservationTimesheet = () => {
-    return useMutation({
-        mutationFn: updateReservationTimesheet,
-        onSuccess: (data: ApiSuccessResponse) => {
-            console.log(data);
-        },
-        onError: (error: AxiosError<ApiErrorResponse>) => {
-            console.log(error);
-        },
     });
 };

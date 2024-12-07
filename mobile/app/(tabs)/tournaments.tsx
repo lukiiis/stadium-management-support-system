@@ -41,7 +41,7 @@ export default function TournamentsScreen() {
 
   const [searchQuery, setSearchQuery] = useState('')
 
-  const { data, isLoading, error } = useGetTournaments(0, 10);
+  const { data, isLoading, error } = useGetTournaments();
   const { data: userTournaments, refetch: refetchUserTournaments } = useGetUsersTournaments(userId || 0)
   const joinTournamentMutation = useJoinTournament()
   const leaveTournamentMutation = useLeaveTournament()
@@ -136,7 +136,7 @@ export default function TournamentsScreen() {
     )
   }
 
-  const filteredTournaments = data?.items.filter(tournament =>
+  const filteredTournaments = data?.filter(tournament =>
     tournament.sport.toLowerCase().includes(searchQuery.toLowerCase()) ||
     tournament.description.toLowerCase().includes(searchQuery.toLowerCase())
   )

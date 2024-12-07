@@ -1,22 +1,25 @@
 import React, { useState } from "react";
 import { useGetPaginatedUserTournaments, useLeaveTournament } from "./clientTournamentsService";
-import { Card, CardContent, Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { Typography, Button, CircularProgress, Snackbar, Alert, Pagination, AlertColor, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
+import SportsTennisIcon from '@mui/icons-material/SportsTennis';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import dayjs from "dayjs";
 import styles from "./ClientTournaments.module.scss";
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
 import { UsersTournaments } from "../../../../shared/types/models/userTournament";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const ClientTournaments: React.FC = () => {
-    const navigate = useNavigate();
-
-    const token = localStorage.getItem("token") as string;
+    const token = localStorage.getItem("token");
 
     if (token === null) {
-        navigate("/login");
-        return null;
+        return <Navigate to="/" replace />;
     }
 
     const userId = parseInt(jwtDecode<JwtPayload>(token).sub as string, 10);
@@ -71,10 +74,10 @@ const ClientTournaments: React.FC = () => {
         setPage(newPage);
     };
 
-        //popup stuff
-        const handleCloseDialog = () => {
-            setDialogOpen(false);
-        };
+    //popup stuff
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    };
 
     if (isLoading) {
         return <CircularProgress />;
@@ -86,8 +89,16 @@ const ClientTournaments: React.FC = () => {
 
     const today = dayjs();
 
+    const getSportIcon = (sport: string) => {
+        const sportLower = sport.toLowerCase();
+        if (sportLower.includes('football')) return <SportsFootballIcon />;
+        if (sportLower.includes('basketball')) return <SportsBasketballIcon />;
+        if (sportLower.includes('tennis')) return <SportsTennisIcon />;
+        return <EmojiEventsIcon />;
+    };
+
     return (
-        <div className={styles.container}>
+        <div className={styles.pageContainer}>
             <Snackbar
                 open={showSnackbar}
                 autoHideDuration={6000}
@@ -103,77 +114,123 @@ const ClientTournaments: React.FC = () => {
                 open={dialogOpen}
                 onClose={handleCloseDialog}
                 aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">{"Confirm Leave Tournament"}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
+                    <DialogContentText>
                         Are you sure you want to leave this tournament?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog} color="primary">
-                        No
-                    </Button>
-                    <Button onClick={confirmLeaveTournament} color="primary" autoFocus>
-                        Yes
-                    </Button>
+                    <Button onClick={handleCloseDialog}>No</Button>
+                    <Button onClick={confirmLeaveTournament} autoFocus>Yes</Button>
                 </DialogActions>
             </Dialog>
 
-            {data?.items.length === 0 ? (
-                <div className="flex flex-col justify-center items-center gap-7">
-                    <p className="text-2xl">You are not enrolled in any tournament.</p>
+            {isLoading ? (
+                <div className={styles.loader}>
+                    <CircularProgress />
+                </div>
+            ) : data?.items.length === 0 ? (
+                <motion.div
+                    className={styles.emptyState}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
+                    <Typography variant="h5">You are not enrolled in any tournament</Typography>
                     <Button
                         variant="contained"
                         color="primary"
                         component={Link}
                         to="/tournaments"
-                        className="mt-4"
+                        className={styles.browseButton}
                     >
-                        View available tournaments
+                        Browse Tournaments
                     </Button>
-                </div>
+                </motion.div>
             ) : (
-                <>
+                <motion.div className={styles.content}>
                     <div className={styles.tournamentsList}>
-                        {data?.items.map(({ tournament, joinedAt }: UsersTournaments) => {
-                            const tournamentStartDate = dayjs(tournament.startDate);
-                            const isFutureTournament = tournamentStartDate.isAfter(today);
+                        {data?.items.map(({ tournament, joinedAt }: UsersTournaments, index) => {
+                            const startDate = dayjs(tournament.startDate);
+                            const isFutureTournament = startDate.isAfter(today);
 
                             return (
-                                <Card className={styles.tournamentCard} key={tournament.tournamentId}>
-                                    <CardContent>
-                                        <Typography variant="h6" className={styles.tournamentTitle}>
-                                            {tournament.sport} Tournament #{tournament.tournamentId}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Start Date:</strong> {tournament.startDate}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>End Date:</strong> {tournament.endDate}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Description:</strong> {tournament.description}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Slots:</strong> {tournament.occupiedSlots}/{tournament.maxSlots}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            <strong>Joined At:</strong> {joinedAt}
-                                        </Typography>
-                                        {isFutureTournament && (
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                className={styles.leaveButton}
-                                                onClick={() => handleLeaveTournament(tournament.tournamentId)}
-                                            >
-                                                Leave
-                                            </Button>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                <motion.div
+                                    key={tournament.tournamentId}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                >
+                                    <div className={styles.tournamentCard}>
+                                        <div className={styles.cardContent}>
+                                            <div className={styles.cardHeader}>
+                                                <div className={styles.sportIcon}>
+                                                    {getSportIcon(tournament.sport)}
+                                                </div>
+                                                <div className={styles.titleSection}>
+                                                    <Typography variant="h6">{tournament.sport}</Typography>
+                                                    <Typography variant="subtitle2" color="textSecondary">
+                                                        Tournament #{tournament.tournamentId}
+                                                    </Typography>
+                                                </div>
+                                                <div className={`${styles.status} ${isFutureTournament ? styles.upcoming : styles.past}`}>
+                                                    {isFutureTournament ? 'Upcoming' : 'Past'}
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.details}>
+                                                <div className={styles.dateSection}>
+                                                    <div className={styles.dateInfo}>
+                                                        <Typography><strong>Starts:</strong></Typography>
+                                                        <Typography>{dayjs(tournament.startDate).format('MMM D, YYYY')}</Typography>
+                                                    </div>
+                                                    <div className={styles.dateInfo}>
+                                                        <Typography><strong>Ends:</strong></Typography>
+                                                        <Typography>{dayjs(tournament.endDate).format('MMM D, YYYY')}</Typography>
+                                                    </div>
+                                                </div>
+
+                                                <div className={styles.slots}>
+                                                    <Typography><strong>Slots:</strong></Typography>
+                                                    <div className={styles.progress}>
+                                                        <div
+                                                            className={styles.progressBar}
+                                                            style={{
+                                                                width: `${(tournament.occupiedSlots / tournament.maxSlots) * 100}%`,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Typography>{tournament.occupiedSlots}/{tournament.maxSlots}</Typography>
+                                                </div>
+
+                                                {tournament.description && (
+                                                    <Typography className={styles.description}>
+                                                        {tournament.description}
+                                                    </Typography>
+                                                )}
+
+                                                <div className={styles.joinedDate}>
+                                                    <Typography color="textSecondary">
+                                                        Joined on {dayjs(joinedAt).format('MMM D, YYYY')}
+                                                    </Typography>
+                                                </div>
+
+                                                {isFutureTournament && (
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="error"
+                                                        onClick={() => handleLeaveTournament(tournament.tournamentId)}
+                                                        className={styles.leaveButton}
+                                                        startIcon={<ExitToAppIcon />}
+                                                    >
+                                                        Leave Tournament
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
                             );
                         })}
                     </div>
@@ -186,7 +243,7 @@ const ClientTournaments: React.FC = () => {
                         color="primary"
                         size="large"
                     />
-                </>
+                </motion.div>
             )}
         </div>
     );

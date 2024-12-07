@@ -6,6 +6,8 @@ import styles from "./PasswordData.module.scss";
 import { AxiosError } from "axios";
 import { ApiSuccessResponse, ApiErrorResponse } from "../../../../../shared/types/api/apiResponse";
 import { ChangePasswordData } from "../../../../../shared/types/models/user";
+import { motion } from "framer-motion";
+import { VpnKey, Lock, LockReset } from "@mui/icons-material";
 
 interface PasswordDataProps {
     userId: number;
@@ -37,47 +39,74 @@ const PasswordData: React.FC<PasswordDataProps> = ({ userId }) => {
     };
 
     return (
-        <div className={styles.passwordData}>
-            <h2>Change Password</h2>
+        <motion.div
+            className={styles.passwordData}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
             <form onSubmit={handleSubmit(handlePasswordChange)}>
-                <TextField
-                    label="Current Password"
-                    type="password"
-                    {...register("currentPassword", { required: "Current password is required" })}
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.currentPassword}
-                    helperText={errors.currentPassword?.message}
-                />
-                <TextField
-                    label="New Password"
-                    type="password"
-                    {...register("newPassword", { 
-                        required: "New password is required", 
-                        minLength: { value: 8, message: "Password must be at least 6 characters long" }
-                    })}
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.newPassword}
-                    helperText={errors.newPassword?.message}
-                />
-                <TextField
-                    label="Confirm Password"
-                    type="password"
-                    {...register("confirmPassword", {
-                        required: "Please confirm your password",
-                        validate: (value) => value === getValues("newPassword") || "Passwords must match"
-                    })}
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.confirmPassword}
-                    helperText={errors.confirmPassword?.message}
-                />
-                <Button type="submit" variant="contained" color="primary">
-                    Change Password
+                <div className={styles.formFields}>
+                    <TextField
+                        label="Current Password"
+                        type="password"
+                        {...register("currentPassword", { required: "Current password is required" })}
+                        fullWidth
+                        error={!!errors.currentPassword}
+                        helperText={errors.currentPassword?.message}
+                        className={styles.field}
+                        slotProps={{
+                            input: {
+                                startAdornment: <VpnKey className={styles.icon} />,
+                            }
+                        }}
+                    />
+                    <TextField
+                        label="New Password"
+                        type="password"
+                        {...register("newPassword", {
+                            required: "New password is required",
+                            minLength: { value: 8, message: "Password must be at least 8 characters long" }
+                        })}
+                        fullWidth
+                        error={!!errors.newPassword}
+                        helperText={errors.newPassword?.message}
+                        className={styles.field}
+                        slotProps={{
+                            input: {
+                                startAdornment: <Lock className={styles.icon} />,
+                            }
+                        }}
+                    />
+                    <TextField
+                        label="Confirm Password"
+                        type="password"
+                        {...register("confirmPassword", {
+                            required: "Please confirm your password",
+                            validate: (value) => value === getValues("newPassword") || "Passwords must match"
+                        })}
+                        fullWidth
+                        error={!!errors.confirmPassword}
+                        helperText={errors.confirmPassword?.message}
+                        className={styles.field}
+                        slotProps={{
+                            input: {
+                                startAdornment: <Lock className={styles.icon} />,
+                            }
+                        }}
+                    />
+                </div>
+
+                <Button
+                    type="submit"
+                    variant="contained"
+                    className={styles.submitButton}
+                    startIcon={<LockReset />}
+                >
+                    Update Password
                 </Button>
             </form>
-        </div>
+        </motion.div>
     );
 };
 

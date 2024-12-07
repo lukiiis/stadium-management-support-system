@@ -147,7 +147,8 @@ namespace backend.Services
             var userTournaments = await _context.UsersTournaments
                 .Where(ut => ut.UserId == userId)
                 .Include(ut => ut.Tournament)
-                .Include(ut => ut.Tournament.ObjectType)
+                .ThenInclude(t => t.ObjectType)
+                .OrderByDescending(ut => ut.JoinedAt)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<UserTournamentDto>>(userTournaments);
@@ -223,7 +224,9 @@ namespace backend.Services
         public async Task<IEnumerable<TournamentDto>> GetAllTournaments()
         {
             var tournaments = await _context.Tournaments
+                .Where(t => t.StartDate >= DateOnly.FromDateTime(DateTime.Now))
                 .Include(t => t.ObjectType)
+                .OrderByDescending(t => t.StartDate)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<TournamentDto>>(tournaments);

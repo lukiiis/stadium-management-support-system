@@ -59,6 +59,9 @@ const Navbar = () => {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
+    const firstName = localStorage.getItem('firstName');
+    const lastName = localStorage.getItem('lastName');
+
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -190,12 +193,25 @@ const Navbar = () => {
                         ))}
                     </Box>
                     {localStorage.getItem("token") ? (
-                        <Box sx={{ flexGrow: 0 }}>
-                            <Tooltip title="Open settings">
-                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                                </IconButton>
-                            </Tooltip>
+                        <Box sx={{ flexGrow: 0, display:'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            {localStorage.getItem("token") && (
+                                <>
+                                    <Typography
+                                        sx={{
+                                            mr: 2,
+                                            color: 'white',
+                                            display: { xs: 'none', md: 'flex' }
+                                        }}
+                                    >
+                                        {firstName} {lastName}
+                                    </Typography>
+                                    <Tooltip title="Open settings">
+                                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                            <Avatar alt={`${firstName} ${lastName}`} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </>
+                            )}
                             <Menu
                                 sx={{ mt: '45px', padding: "100px" }}
                                 id="menu-appbar"

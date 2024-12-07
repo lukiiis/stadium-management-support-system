@@ -6,6 +6,8 @@ import styles from "./AddressData.module.scss";
 import { AxiosError } from "axios";
 import { ApiSuccessResponse, ApiErrorResponse } from "../../../../../shared/types/api/apiResponse";
 import { CreateAddressData, UpdateAddressData } from "../../../../../shared/types/models/address";
+import { Cancel, Edit, Home, LocationCity, LocationOn, MarkunreadMailbox, Save } from "@mui/icons-material";
+import { motion } from "framer-motion";
 
 interface AddressDataProps {
     userId: number;
@@ -18,7 +20,7 @@ const AddressData: React.FC<AddressDataProps> = ({ userId }) => {
     const { mutate: createAddress } = useCreateAddress();
     const { mutate: updateAddress } = useUpdateAddress();
 
-    const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm<CreateAddressData | UpdateAddressData>();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateAddressData | UpdateAddressData>();
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
@@ -81,93 +83,134 @@ const AddressData: React.FC<AddressDataProps> = ({ userId }) => {
     if (isLoading) return <CircularProgress />;
 
     return (
-        <div className={styles.addressData}>
-            <h2>Address</h2>
+        <motion.div
+            className={styles.addressData}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
             <form onSubmit={handleSubmit(onSubmit)}>
                 {!isEditing && data ? (
-                    <>
-                        <p>{data?.country}</p>
-                        <p>{data?.city}</p>
-                        <p>{data?.street}</p>
-                        <p>{data?.zipcode}</p>
-                    </>
+                    <div className={styles.viewMode}>
+                        <div className={styles.field}>
+                            <div className={styles.label}>
+                                <Home className={styles.icon} />
+                                <span>Country</span>
+                            </div>
+                            <span className={styles.value}>{data.country}</span>
+                        </div>
+                        <div className={styles.field}>
+                            <div className={styles.label}>
+                                <LocationCity className={styles.icon} />
+                                <span>City</span>
+                            </div>
+                            <span className={styles.value}>{data.city}</span>
+                        </div>
+                        <div className={styles.field}>
+                            <div className={styles.label}>
+                                <LocationOn className={styles.icon} />
+                                <span>Street</span>
+                            </div>
+                            <span className={styles.value}>{data.street}</span>
+                        </div>
+                        <div className={styles.field}>
+                            <div className={styles.label}>
+                                <MarkunreadMailbox className={styles.icon} />
+                                <span>Zipcode</span>
+                            </div>
+                            <span className={styles.value}>{data.zipcode}</span>
+                        </div>
+                    </div>
                 ) : (
-                    <>
+                    <div className={styles.editMode}>
                         <TextField
                             label="Country"
-                            defaultValue={getValues().country}
-                            placeholder={data?.country || ""}
                             {...register("country", { required: "Country is required" })}
-                            disabled={!isEditing}
                             fullWidth
-                            margin="normal"
-                            slotProps={{
-                                inputLabel: { shrink: true }
-                            }}
                             error={!!errors.country}
                             helperText={errors.country?.message}
+                            className={styles.field}
+                            slotProps={{
+                                input: {
+                                    startAdornment: <Home className={styles.icon} />,
+                                },
+                            }}
                         />
                         <TextField
                             label="City"
-                            defaultValue={getValues().city}
-                            placeholder={data?.city || ""}
                             {...register("city", { required: "City is required" })}
-                            disabled={!isEditing}
                             fullWidth
-                            margin="normal"
-                            slotProps={{
-                                inputLabel: { shrink: true }
-                            }}
                             error={!!errors.city}
                             helperText={errors.city?.message}
+                            className={styles.field}
+                            slotProps={{
+                                input: {
+                                    startAdornment: <LocationCity className={styles.icon} />,
+                                },
+                            }}
                         />
                         <TextField
                             label="Street"
-                            defaultValue={getValues().street}
-                            placeholder={data?.street || ""}
                             {...register("street", { required: "Street is required" })}
-                            disabled={!isEditing}
                             fullWidth
-                            margin="normal"
-                            slotProps={{
-                                inputLabel: { shrink: true }
-                            }}
                             error={!!errors.street}
                             helperText={errors.street?.message}
+                            className={styles.field}
+                            slotProps={{
+                                input: {
+                                    startAdornment: <LocationOn className={styles.icon} />,
+                                },
+                            }}
                         />
                         <TextField
                             label="Zipcode"
-                            defaultValue={getValues().zipcode}
-                            placeholder={data?.zipcode || ""}
                             {...register("zipcode", { required: "Zipcode is required" })}
-                            disabled={!isEditing}
                             fullWidth
-                            margin="normal"
-                            slotProps={{
-                                inputLabel: { shrink: true }
-                            }}
                             error={!!errors.zipcode}
                             helperText={errors.zipcode?.message}
+                            className={styles.field}
+                            slotProps={{
+                                input: {
+                                    startAdornment: <MarkunreadMailbox className={styles.icon} />,
+                                },
+                            }}
                         />
-                    </>
+                    </div>
                 )}
 
+
                 {!isEditing ? (
-                    <Button variant="outlined" onClick={() => setIsEditing(true)}>
-                        {data ? "Edit Address" : "Add Address"}
+                    <Button
+                        variant="contained"
+                        onClick={() => setIsEditing(true)}
+                        startIcon={<Edit />}
+                        className={styles.editButton}
+                    >
+                        {data ? 'Edit Address' : 'Add Address'}
                     </Button>
                 ) : (
                     <>
-                        <Button type="submit" variant="contained" color="primary">
-                            Submit
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            startIcon={<Save />}
+                            className={styles.editButton}
+                        >
+                            Save Changes
                         </Button>
-                        <Button variant="outlined" onClick={() => setIsEditing(false)}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => setIsEditing(false)}
+                            startIcon={<Cancel />}
+                            className={styles.cancelButton}
+                        >
                             Cancel
                         </Button>
                     </>
                 )}
+
             </form>
-        </div>
+        </motion.div>
     );
 };
 

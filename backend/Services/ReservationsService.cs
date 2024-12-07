@@ -152,6 +152,8 @@ namespace backend.Services
         {
             var reservations = await _context.Set<Reservation>()
                 .Where(r => r.UserId == userId)
+                .Include(r => r.ObjectType)
+                .OrderByDescending(r => r.ReservedAt)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<ReservationDto>>(reservations);
@@ -162,7 +164,7 @@ namespace backend.Services
             var query = _context.Set<Reservation>()
                 .Where(r => r.UserId == userId)
                 .Include(r => r.ObjectType)
-                .OrderByDescending(r => r.ReservationDate);
+                .OrderByDescending(r => r.ReservedAt);
 
             var totalCount = await query.CountAsync();
 

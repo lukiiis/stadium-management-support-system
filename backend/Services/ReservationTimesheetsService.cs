@@ -87,6 +87,11 @@ namespace backend.Services
                 throw new Exception("Cannot update timesheet when there are already reservations for that day.");
             }
 
+            if(timesheet.IsTournament == true)
+            {
+                throw new Exception("There is tournament, can't update timesheet.");
+            }
+
             timesheet.StartTime = dto.StartTime;
             timesheet.EndTime = dto.EndTime;
 
@@ -97,7 +102,7 @@ namespace backend.Services
 
         public async Task<PaginatedResult<ReservationTimesheetDto>> GetAllTimesheetsPaginatedAsync(int page, int pageSize)
         {
-            var query = _context.ReservationTimesheets.AsQueryable();
+            var query = _context.ReservationTimesheets.OrderByDescending(t => t.Date).AsQueryable();
             var totalItems = await query.CountAsync();
             var timesheets = await query.Skip((page) * pageSize).Take(pageSize).Include(t => t.ObjectType).ToListAsync();
             var timesheetDtos = _mapper.Map<List<ReservationTimesheetDto>>(timesheets);

@@ -1,22 +1,21 @@
 import axiosInstance from "@/config/axiosConfig";
 import { ApiSuccessResponse, ApiErrorResponse } from "@/shared/types/api/apiResponse";
 import { UsersTournaments, LeaveTournamentData } from "@/shared/types/models/userTournament";
-import { PaginatedResult } from "@/shared/types/pagination/pagination";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 // get joined tournaments paginated
-export const useGetPaginatedUserTournaments = (userId: number, page: number, pageSize: number) => {
-    return useQuery<PaginatedResult<UsersTournaments>>({
-        queryKey: ['userTournaments', userId, page],
-        queryFn: () => fetchPaginatedUserTournaments(userId, page, pageSize),
+export const useGetPaginatedUserTournaments = (userId: number) => {
+    return useQuery<UsersTournaments[]>({
+        queryKey: ['userTournaments', userId],
+        queryFn: () => fetchPaginatedUserTournaments(userId),
         placeholderData: (prev) => prev,
     });
 }
 
-const fetchPaginatedUserTournaments = async (userId: number, page: number, pageSize: number): Promise<PaginatedResult<UsersTournaments>> => {
-    const response = await axiosInstance.get<PaginatedResult<UsersTournaments>>(`/tournaments/joined-tournaments-paginated`, {
-        params: { userId, page, pageSize }
+const fetchPaginatedUserTournaments = async (userId: number): Promise<UsersTournaments[]> => {
+    const response = await axiosInstance.get<UsersTournaments[]>(`/tournaments/joined-tournaments`, {
+        params: { userId }
     });
     return response.data;
 };

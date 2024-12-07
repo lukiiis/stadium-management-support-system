@@ -1,22 +1,109 @@
 .addressData {
-    padding: 1.5rem;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+ 
+    border-radius: 16px;
 
     h2 {
-        color: #444;
-        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        color: #1a237e;
     }
 
     form {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
-    }
 
-    button {
-        align-self: flex-start;
+        .editMode {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+
+            .field {
+                position: relative;
+                transition: transform 0.3s ease;
+
+                &:hover {
+                    transform: translateY(-2px);
+                }
+
+                .icon {
+                    color: #1a237e;
+                    opacity: 0.7;
+                    margin-right: 0.5rem;
+                }
+            }
+        }
+
+        .viewMode {
+            display: grid;
+            gap: 1rem;
+
+            .field {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                background: rgba(0, 0, 0, 0.02);
+                border-radius: 8px;
+
+                .label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    color: #666;
+
+                    .icon {
+                        color: #1a237e;
+                        opacity: 0.7;
+                    }
+                }
+
+                .value {
+                    font-weight: 500;
+                    color: #1a237e;
+                }
+            }
+        }
+
+
+        button {
+            min-width: 120px;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+            }
+
+            &.editButton {
+                background: linear-gradient(45deg, #1a237e, #3949ab);
+                color: white;
+
+                &:hover {
+                    background: linear-gradient(45deg, #3949ab, #1a237e);
+                }
+            }
+
+            &.cancelButton {
+                border: 2px solid #1a237e;
+                color: #1a237e;
+
+                &:hover {
+                    background: rgba(26, 35, 126, 0.05);
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .addressData {
+        form {
+            .editMode {
+                grid-template-columns: 1fr;
+            }
+        }
     }
 }
