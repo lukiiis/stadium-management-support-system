@@ -102,7 +102,7 @@ namespace backend.Services
 
         public async Task<PaginatedResult<ReservationTimesheetDto>> GetAllTimesheetsPaginatedAsync(int page, int pageSize)
         {
-            var query = _context.ReservationTimesheets.AsQueryable();
+            var query = _context.ReservationTimesheets.OrderByDescending(t => t.Date).AsQueryable();
             var totalItems = await query.CountAsync();
             var timesheets = await query.Skip((page) * pageSize).Take(pageSize).Include(t => t.ObjectType).ToListAsync();
             var timesheetDtos = _mapper.Map<List<ReservationTimesheetDto>>(timesheets);

@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert, Typography, Card, CardContent, Pagination } from "@mui/material";
+import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert, Typography, Pagination } from "@mui/material";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import styles from './AddTimesheet.module.scss';
 import { useCreateReservationTimesheet, useGetObjectTypes, useGetPaginatedTimesheets, useUpdateReservationTimesheet } from "./addTimesheetService";
 import { AxiosError } from "axios";
 import { CreateReservationTimesheetData, ReservationTimesheetDto, UpdateReservationTimesheetData } from "../../../../shared/types/models/reservationTimesheet";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
+import { AnimatePresence, motion } from "framer-motion";
+import { ObjectTypeDto } from "../../../../shared/types/models/objectType";
 
 const AddTimesheet: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -15,7 +22,7 @@ const AddTimesheet: React.FC = () => {
     const [page, setPage] = useState(1);
     const [showForm, setShowForm] = useState(false);
     const [editingTimesheetId, setEditingTimesheetId] = useState<number>();
-    const pageSize = 5;
+    const pageSize = 10;
 
     const handleCloseSnackbar = () => {
         setShowError(false);
@@ -96,15 +103,210 @@ const AddTimesheet: React.FC = () => {
         setPage(value);
     };
 
-    const selectTimesheet = (timesheetId: number) => {
-        setEditingTimesheetId(timesheetId);
-        console.log(timesheetId);
-    }
-    console.log("editingTimesheetId", editingTimesheetId);
-
     return (
-        <div className={styles.formContainer}>
-            {/* Snackbar for error messages */}
+        <motion.div
+            className={styles.formContainer}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className={styles.header}>
+                <Typography variant="h2">Timesheets</Typography>
+                <Button
+                    variant="contained"
+                    className={styles.button}
+                    startIcon={showForm ? <CloseIcon /> : <AddIcon />}
+                    onClick={() => setShowForm(!showForm)}
+                >
+                    {showForm ? 'Cancel' : 'Add New Timesheet'}
+                </Button>
+            </div>
+
+            <AnimatePresence>
+                {showForm && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className={styles.form}
+                    >
+                        {isLoadingObjects ? (
+                            <div className={styles.loading}>
+                                <div className={styles.spinner} />
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmitCreate(onSubmitCreate)}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <TextField
+                                        {...registerCreate("date")}
+                                        type="date"
+                                        label="Date"
+                                        defaultValue={new Date().toISOString().split('T')[0]}
+                                        fullWidth
+                                        InputLabelProps={{ shrink: true }}
+                                        error={!!errorsCreate.date}
+                                        helperText={errorsCreate.date?.message}
+                                    />
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                                        <TextField
+                                            {...registerCreate("startTime")}
+                                            label="Start Time"
+                                            type="time"
+                                            defaultValue="08:00"
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errorsCreate.startTime}
+                                            helperText={errorsCreate.startTime?.message}
+                                        />
+                                        <TextField
+                                            {...registerCreate("endTime")}
+                                            label="End Time"
+                                            type="time"
+                                            defaultValue="22:00"
+                                            fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                            error={!!errorsCreate.endTime}
+                                            helperText={errorsCreate.endTime?.message}
+                                        />
+                                    </Box>
+                                    <FormControl fullWidth error={!!errorsCreate.objectId}>
+                                        <InputLabel>Facility</InputLabel>
+                                        <Select
+                                            {...registerCreate("objectId")}
+                                            label="Facility"
+                                            defaultValue=""
+                                        >
+                                            {objectTypes?.map((type: ObjectTypeDto) => (
+                                                <MenuItem key={type.objectId} value={type.objectId}>
+                                                    {type.type}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        className={styles.button}
+                                        disabled={createTimesheetMutation.isPending}
+                                    >
+                                        {createTimesheetMutation.isPending ? (
+                                            <CircularProgress size={24} />
+                                        ) : (
+                                            'Create Timesheet'
+                                        )}
+                                    </Button>
+                                </Box>
+                            </form>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {isLoadingTimesheets ? (
+                <div className={styles.loading}>
+                    <div className={styles.spinner} />
+                </div>
+            ) : (
+                <motion.div
+                    className={styles.timesheetList}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                >
+                    {paginatedTimesheets?.items.map((timesheet: ReservationTimesheetDto) => (
+                        <motion.div
+                            key={timesheet.timesheetId}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                        >
+                            <div className={styles.timesheetCard}>
+                                <div className={styles.cardContent}>
+                                    <div className={styles.cardHeader}>
+                                        <Typography variant="h6">
+                                            Timesheet #{timesheet.timesheetId}
+                                        </Typography>
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            startIcon={editingTimesheetId === timesheet.timesheetId ? <CloseIcon /> : <EditIcon />}
+                                            onClick={() => editingTimesheetId === timesheet.timesheetId
+                                                ? setEditingTimesheetId(-1)
+                                                : setEditingTimesheetId(timesheet.timesheetId)}
+                                        >
+                                            {editingTimesheetId === timesheet.timesheetId ? 'Cancel' : 'Edit'}
+                                        </Button>
+                                    </div>
+
+                                    <div className={styles.cardBody}>
+                                        <div className={styles.fieldGroup}>
+                                            <DateRangeIcon color="primary" />
+                                            <Typography><strong>Date:</strong> {timesheet.date}</Typography>
+                                        </div>
+
+                                        {editingTimesheetId === timesheet.timesheetId ? (
+                                            <form onSubmit={handleSubmitUpdate(onSubmitUpdate)} className={styles.editForm}>
+                                                <TextField
+                                                    {...registerUpdate("startTime")}
+                                                    label="Start Time"
+                                                    type="time"
+                                                    fullWidth
+                                                    defaultValue={timesheet.startTime.slice(0, 5)}
+                                                    InputLabelProps={{ shrink: true }}
+                                                    error={!!errorsUpdate.startTime}
+                                                    helperText={errorsUpdate.startTime?.message}
+                                                />
+                                                <TextField
+                                                    {...registerUpdate("endTime")}
+                                                    label="End Time"
+                                                    type="time"
+                                                    fullWidth
+                                                    defaultValue={timesheet.endTime.slice(0, 5)}
+                                                    InputLabelProps={{ shrink: true }}
+                                                    error={!!errorsUpdate.endTime}
+                                                    helperText={errorsUpdate.endTime?.message}
+                                                />
+                                                <div className={styles.actionButtons}>
+                                                    <Button
+                                                        type="submit"
+                                                        variant="contained"
+                                                        className={styles.button}
+                                                        disabled={updateTimesheetMutation.isPending}
+                                                    >
+                                                        {updateTimesheetMutation.isPending ? (
+                                                            <CircularProgress size={24} />
+                                                        ) : (
+                                                            'Update'
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </form>
+                                        ) : (
+                                            <>
+                                                <div className={styles.fieldGroup}>
+                                                    <AccessTimeIcon color="primary" />
+                                                    <Typography><strong>Time:</strong> {timesheet.startTime.slice(0, 5)} - {timesheet.endTime.slice(0, 5)}</Typography>
+                                                </div>
+                                                <Typography><strong>Facility:</strong> {timesheet.objectType.type}</Typography>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            )}
+            {paginatedTimesheets && paginatedTimesheets.totalCount > 1 && (
+                <div className={styles.pagination}>
+                    <Pagination
+                        count={Math.ceil((paginatedTimesheets.totalCount || 1) / pageSize)}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="large"
+                    />
+                </div>
+            )}
+
             <Snackbar
                 open={showError}
                 autoHideDuration={6000}
@@ -116,7 +318,6 @@ const AddTimesheet: React.FC = () => {
                 </Alert>
             </Snackbar>
 
-            {/* Snackbar for success messages */}
             <Snackbar
                 open={showSuccess}
                 autoHideDuration={6000}
@@ -127,130 +328,7 @@ const AddTimesheet: React.FC = () => {
                     {successMessage}
                 </Alert>
             </Snackbar>
-
-            {isLoadingTimesheets ? (
-                <CircularProgress />
-            ) : (
-                <div className={styles.timesheetList}>
-                    {paginatedTimesheets?.items.map((timesheet: ReservationTimesheetDto) => (
-                        <Card key={timesheet.timesheetId} className={styles.timesheetCard}>
-                            <CardContent>
-                                <Typography variant="h6">Timesheet #{timesheet.timesheetId}</Typography>
-                                <Typography variant="body1"><strong>Date:</strong> {timesheet.date}</Typography>
-                                {editingTimesheetId === timesheet.timesheetId ? (
-                                    <form onSubmit={handleSubmitUpdate(onSubmitUpdate)}>
-                                        <TextField
-                                            {...registerUpdate("startTime", { required: "Start Time is required" })}
-                                            label="Start Time"
-                                            type="time"
-                                            fullWidth
-                                            error={!!errorsUpdate.startTime}
-                                            helperText={errorsUpdate.startTime?.message}
-                                        />
-                                        <TextField
-                                            {...registerUpdate("endTime", { required: "End Time is required" })}
-                                            label="End Time"
-                                            type="time"
-                                            fullWidth
-                                            error={!!errorsUpdate.endTime}
-                                            helperText={errorsUpdate.endTime?.message}
-                                        />
-                                        <input type="hidden" {...registerUpdate("timesheetId")} value={editingTimesheetId} />
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Button type="submit" variant="contained" color="primary">
-                                                Update Timesheet
-                                            </Button>
-                                            <Button variant="outlined" color="secondary" onClick={() => setEditingTimesheetId(-1)}>
-                                                Cancel
-                                            </Button>
-                                        </Box>
-                                    </form>
-                                ) : (
-                                    <>
-                                        <Typography variant="body1"><strong>Start Time:</strong> {timesheet.startTime}</Typography>
-                                        <Typography variant="body1"><strong>End Time:</strong> {timesheet.endTime}</Typography>
-                                        <Typography variant="body1"><strong>Object:</strong> {timesheet.objectType.type}</Typography>
-                                        <Button variant="outlined" color="primary" onClick={() => selectTimesheet(timesheet.timesheetId)}>
-                                            Edit
-                                        </Button>
-                                    </>
-                                )}
-                            </CardContent>
-                        </Card>
-                    ))}
-                    <Pagination
-                        count={Math.ceil((paginatedTimesheets?.totalCount || 1) / pageSize)}
-                        page={page}
-                        onChange={handlePageChange}
-                        className={styles.pagination}
-                        color="primary"
-                        size="large"
-                    />
-                </div>
-            )}
-            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-                Add new timesheet
-            </Button>
-            {showForm && (
-                <>
-                    {isLoadingObjects ? (
-                        <CircularProgress />
-                    ) : (
-                        <form onSubmit={handleSubmitCreate(onSubmitCreate)} className={styles.form}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <TextField
-                                    {...registerCreate("date", { required: "Date is required" })}
-                                    label="Date"
-                                    type="date"
-                                    defaultValue={new Date().toISOString().split('T')[0]}
-                                    fullWidth
-                                    error={!!errorsCreate.date}
-                                    helperText={errorsCreate.date?.message}
-                                />
-
-                                <TextField
-                                    {...registerCreate("startTime", { required: "Start Time is required" })}
-                                    label="Start Time"
-                                    type="time"
-                                    defaultValue="08:00:00"
-                                    fullWidth
-                                    error={!!errorsCreate.startTime}
-                                    helperText={errorsCreate.startTime?.message}
-                                />
-
-                                <TextField
-                                    {...registerCreate("endTime", { required: "End Time is required" })}
-                                    label="End Time"
-                                    type="time"
-                                    defaultValue="22:00:00"
-                                    fullWidth
-                                    error={!!errorsCreate.endTime}
-                                    helperText={errorsCreate.endTime?.message}
-                                />
-
-                                <FormControl fullWidth error={!!errorsCreate.objectId}>
-                                    <InputLabel>Object</InputLabel>
-                                    <Select
-                                        {...registerCreate("objectId", { required: "Object is required" })}
-                                        defaultValue=""
-                                    >
-                                        {objectTypes?.map((objectType) => (
-                                            <MenuItem key={objectType.objectId} value={objectType.objectId}>
-                                                {objectType.type}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-
-                                <Button type="submit" variant="contained" color="primary">
-                                    Create Timesheet
-                                </Button>
-                            </Box>
-                        </form>
-                    )}
-                </>
-            )}
-        </div>
+        </motion.div>
     );
 };
 
