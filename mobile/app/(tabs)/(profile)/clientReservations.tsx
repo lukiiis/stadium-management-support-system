@@ -1,9 +1,8 @@
-// app/(tabs)/(profile)/clientReservations.tsx
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGetPaginatedUserReservations, useCancelReservation } from '@/api/clientReservationsTabService';
+import { useCancelReservation, useGetUserReservations } from '@/api/clientReservationsTabService';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -16,8 +15,6 @@ import toastConfig from '@/shared/component_config/toastConfig';
 export default function ClientReservationsScreen() {
     const { theme } = useTheme();
     const [userId, setUserId] = useState<number | null>(null);
-    const [page, setPage] = useState(1);
-    const pageSize = 5;
 
     useEffect(() => {
         loadUserId();
@@ -28,7 +25,7 @@ export default function ClientReservationsScreen() {
         if (id) setUserId(parseInt(id));
     };
 
-    const { data, isLoading, refetch } = useGetPaginatedUserReservations(userId || 0, page - 1, pageSize);
+    const { data, isLoading, refetch } = useGetUserReservations(userId || 0);
     const cancelReservationMutation = useCancelReservation();
 
     const handleCancelReservation = (reservationId: number) => {
@@ -75,7 +72,7 @@ export default function ClientReservationsScreen() {
                         <Ionicons name="time" size={48} color="#60A5FA" />
                         <Text className="text-gray-600 dark:text-gray-300 mt-4">Loading reservations...</Text>
                     </View>
-                ) : data?.items.length === 0 ? (
+                ) : data?.length === 0 ? (
                     <View className="flex-1 justify-center items-center py-8">
                         <Ionicons name="calendar-outline" size={48} color="#9CA3AF" />
                         <Text className="text-gray-500 dark:text-gray-400 mt-4 mb-2">
@@ -91,7 +88,11 @@ export default function ClientReservationsScreen() {
                     </View>
                 ) : (
                     <View className="space-y-4 flex flex-col gap-3">
-                        {data?.items.map((reservation, index) => {
+                        {/* 
+    
+
+                         */}
+                        {data?.map((reservation, index) => {
                             const reservationDate = dayjs(reservation.reservationDate);
                             const today = dayjs();
                             const isPastReservation = reservationDate.isBefore(today, 'day');

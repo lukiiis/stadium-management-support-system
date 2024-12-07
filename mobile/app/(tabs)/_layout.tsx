@@ -60,15 +60,6 @@ export default function TabLayout() {
           tabBarLabel: 'Tournaments',
         }}
       />
-      <Tabs.Screen
-        name="objects"
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cube" color={color} size={size} />
-          ),
-          tabBarLabel: 'Objects',
-        }}
-      />
 
       <Tabs.Screen
         name="(profile)"

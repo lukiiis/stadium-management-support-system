@@ -37,18 +37,6 @@ export const useGetAllObjectTypes = () => {
     });
 }
 
-// -------------- CONTEXT FOR RESERVED HOURS -------------
-interface ReservationContextType {
-    selectedDate: string;
-    setSelectedDate: React.Dispatch<React.SetStateAction<string>>;
-    selectedHours: string[];
-    addSelectedHour: (hour: string) => void;
-    removeSelectedHour: (hour: string) => void;
-    payNow: boolean;
-    setPayNow: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export const ReservationContext = createContext<ReservationContextType | undefined>(undefined);
 
 export const calculateTimeRangeAndPrice = (selectedHours: string[]) => {
     if (selectedHours.length === 0) {
@@ -68,6 +56,7 @@ export const calculateTimeRangeAndPrice = (selectedHours: string[]) => {
 
     return { startTime, endTime, price };
 };
+
 
 // ------------- CREATE RESERVATION -------------------
 export const useCreateReservation = () => {
