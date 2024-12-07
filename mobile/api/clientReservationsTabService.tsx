@@ -39,3 +39,21 @@ const cancelReservation = async (reservationId: number) => {
     });
     return res.data;
 }
+
+// pay for reservation
+export const useReservationPayment = () => {
+    return useMutation({
+        mutationFn: reservationPayment,
+        onSuccess: (data: ApiSuccessResponse) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+            console.log(error)
+        },
+    })
+}
+
+const reservationPayment = async (reservationId: number) => {
+    const res = await axiosInstance.put(`/reservations/update-payment-status/${reservationId}`)
+    return res.data;
+}

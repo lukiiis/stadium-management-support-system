@@ -60,9 +60,9 @@ const ClientReservations: React.FC = () => {
 
     //reservation payment
     const { mutate: reservationPayment } = useReservationPayment();
-    const handleReservationPayment = (tournamentId: number) => {
+    const handleReservationPayment = (reservationId: number) => {
         if (userId) {
-            reservationPayment(tournamentId,
+            reservationPayment(reservationId,
                 {
                     onSuccess: (data: ApiSuccessResponse) => {
                         setSnackbarSeverity("success");
