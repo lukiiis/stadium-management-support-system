@@ -17,6 +17,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { InputAdornment } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthGuard } from "../../components/guards/AuthGuard";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -380,4 +381,10 @@ const Register = () => {
     );
 };
 
-export default Register;
+export default function ProtectedRegister() {
+    return (
+        <AuthGuard>
+            <Register />
+        </AuthGuard>
+    );
+}

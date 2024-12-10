@@ -42,7 +42,18 @@ export default function ReservationsScreen() {
 
   const [step, setStep] = useState<number>(1);
   const nextStep = () => {
-    setStep(prevStep => prevStep + 1);
+    if (userId) {
+      setStep(prevStep => prevStep + 1);
+    }
+    else {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: "You have to be logged in to continue",
+        position: 'bottom',
+        visibilityTime: 3000
+      })
+    }
   };
 
   const prevStep = () => {

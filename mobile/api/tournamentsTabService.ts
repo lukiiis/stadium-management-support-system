@@ -32,6 +32,7 @@ export const useGetUsersTournaments = (userId: number) => {
   return useQuery<UsersTournaments[]>({
     queryKey: ['usersTournaments', userId],
     queryFn: () => fetchUsersTournaments(userId),
+    refetchInterval: 5000,
   });
 }
 
