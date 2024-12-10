@@ -194,20 +194,22 @@ const Reservation: React.FC = () => {
                                                             ))}
                                                         </Select>
                                                     </FormControl>
-                                                    {selectedObjectId && objectTypes.data && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 20 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ duration: 0.5 }}
-                                                            className={styles.imageContainer}
-                                                        >
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ duration: 0.5 }}
+                                                        className={selectedObjectId && objectTypes.data ? styles.imageContainer : styles.imageContainerEmpty}
+                                                    >
+                                                        {selectedObjectId && objectTypes.data && (
+
                                                             <img
                                                                 src={objectTypes.data.find(obj => obj.objectId === selectedObjectId)?.imageUrl}
                                                                 alt="Selected facility"
                                                                 className={styles.facilityImage}
                                                             />
-                                                        </motion.div>
-                                                    )}
+
+                                                        )}
+                                                    </motion.div>
                                                 </>
                                             ) : (
                                                 <Box className={styles.loading}>
