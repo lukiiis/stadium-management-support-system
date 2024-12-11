@@ -282,7 +282,7 @@ export default function ReservationsScreen() {
                           <Text className="text-gray-600 dark:text-gray-400 ml-3 font-medium">Time</Text>
                         </View>
                         <Text className="text-gray-800 dark:text-gray-200 font-semibold">
-                          {startTime} - {endTime}
+                          {startTime?.slice(0, 5)} - {endTime?.slice(0, 5)}
                         </Text>
                       </View>
                     </View>

@@ -271,8 +271,8 @@ const Reservation: React.FC = () => {
                                                         <Box display="flex" gap={4}>
                                                             <Stack spacing={2} flex={1}>
                                                                 <Typography><strong>Date:</strong> {selectedDate}</Typography>
-                                                                <Typography><strong>Start Time:</strong> {startTime}</Typography>
-                                                                <Typography><strong>End Time:</strong> {endTime}</Typography>
+                                                                <Typography><strong>Start Time:</strong> {startTime?.slice(0, 5)}</Typography>
+                                                                <Typography><strong>End Time:</strong> {endTime?.slice(0, 5)}</Typography>
                                                             </Stack>
 
                                                             <Stack spacing={2} flex={1}>
