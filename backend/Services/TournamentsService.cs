@@ -108,7 +108,6 @@ namespace backend.Services
             {
                 UserId = dto.UserId,
                 TournamentId = dto.TournamentId,
-                PaymentStatus = dto.IsPaid ? PaymentStatus.PAID : PaymentStatus.PENDING,
                 JoinedAt = DateTime.Now
             };
 

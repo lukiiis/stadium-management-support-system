@@ -12,7 +12,6 @@ namespace backend.DTOs.User
         public string Email { get; set; }
         public string Role { get; set; }
         public DateTime CreatedAt { get; set; }
-        public double? Wallet { get; set; }
         public string? Position { get; set; }
         public double? Salary { get; set; }
         public bool Enabled { get; set; }

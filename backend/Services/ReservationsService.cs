@@ -113,10 +113,6 @@ namespace backend.Services
         //creating valid reservation
         public async Task<string> CreateReservation(CreateReservationDto dto)
         {
-            //todo check if user wants to pay now - if no, change status to PENDING, if yes, ask on frontend if he wants to use his wallet - if yes, pay from wallet+normal if he does not have cash, if no, everything stays as it is
-
-
-
             //check if there is timesheet for this date
             var timesheet = await _reservationTimesheetsService.GetTimesheetByDateAndObjectId(dto.ReservationDate, dto.ObjectId);
             if (timesheet == null)

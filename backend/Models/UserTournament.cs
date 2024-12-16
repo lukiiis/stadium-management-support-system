@@ -9,8 +9,6 @@ namespace backend.Models
 
         public int TournamentId { get; set; }
         public Tournament Tournament { get; set; }
-
-        public PaymentStatus PaymentStatus { get; set; }
         public DateTime? JoinedAt { get; set; }
     }
 }

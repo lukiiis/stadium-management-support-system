@@ -9,7 +9,6 @@ export interface UserDto {
     email: string,
     role: string,
     createdAt: string | null,
-    wallet: number | null,
     position: string | null,
     salary: number | null,
     enabled: boolean | null,
