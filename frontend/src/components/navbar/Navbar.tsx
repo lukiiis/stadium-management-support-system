@@ -11,7 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
@@ -104,7 +104,7 @@ const Navbar = () => {
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <Link to="/" className="flex items-center">
-                        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                        <EmojiEventsIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
                         <Typography
                             variant="h6"
                             noWrap
@@ -118,7 +118,7 @@ const Navbar = () => {
                                 textDecoration: 'none',
                             }}
                         >
-                            LOGO
+                            SMSS
                         </Typography>
                     </Link>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -162,7 +162,7 @@ const Navbar = () => {
                         </Menu>
                     </Box>
                     <Link to="/" className="flex justify-start items-start">
-                        <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                        <EmojiEventsIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
                         <Typography
                             variant="h5"
                             noWrap
@@ -177,7 +177,7 @@ const Navbar = () => {
                                 textDecoration: 'none',
                             }}
                         >
-                            LOGO
+                            SMSS
                         </Typography>
                     </Link>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
