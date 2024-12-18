@@ -75,8 +75,7 @@ const Home: React.FC = () => {
                                 >
                                     <img src={objectType.imageUrl} alt={objectType.type} />
                                     <div className={styles.carouselCaption}>
-                                        <Typography variant="h5">{objectType.type}</Typography>
-                                        <Typography variant="body1">{objectType.description}</Typography>
+                                        <Typography variant="h5">{objectType.type.toUpperCase()}</Typography>
                                     </div>
                                 </motion.div>
                             ))}

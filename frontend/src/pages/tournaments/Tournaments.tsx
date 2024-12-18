@@ -184,7 +184,7 @@ const Tournaments = () => {
                         Sports Tournaments
                     </Typography>
                     <Typography variant="subtitle1">
-                        Join exciting tournaments and compete with othersD
+                        Join exciting tournaments and compete with others
                     </Typography>
                 </motion.div>
 

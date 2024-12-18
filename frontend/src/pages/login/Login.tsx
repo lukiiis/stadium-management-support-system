@@ -12,7 +12,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import { InputAdornment } from "@mui/material";
 import { AxiosError } from "axios";
 import { ApiErrorResponse } from "../../shared/types/api/apiResponse";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthGuard } from "../../components/guards/AuthGuard";
 
 const LoginTextField = styled(TextField)({
@@ -141,6 +141,19 @@ const Login = () => {
                                         >
                                             {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
                                         </Button>
+                                        <Typography
+                                            variant="body2"
+                                            align="center"
+                                            sx={{ mt: 2 }}
+                                        >
+                                            Do not have an account yet?{' '}
+                                            <Link
+                                                to="/register"
+                                                className="text-blue-600 no-underline hover:underline"
+                                            >
+                                                Sign up
+                                            </Link>
+                                        </Typography>
                                     </div>
                                 </form>
                             </motion.div>

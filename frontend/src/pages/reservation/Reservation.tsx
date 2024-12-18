@@ -189,7 +189,7 @@ const Reservation: React.FC = () => {
                                                             </MenuItem>
                                                             {objectTypes.data.map((object: ObjectTypeDto) => (
                                                                 <MenuItem key={object.objectId} value={object.objectId}>
-                                                                    {object.type} - {object.description}
+                                                                    {object.type}
                                                                 </MenuItem>
                                                             ))}
                                                         </Select>

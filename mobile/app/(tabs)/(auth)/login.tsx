@@ -27,19 +27,30 @@ export default function LoginScreen() {
   const onSubmit = async (data: LoginData) => {
     await loginMutation.mutateAsync(data, {
       onSuccess: (data: LoginResponse) => {
-        Toast.show({
-          type: 'success',
-          text1: 'Success',
-          text2: data.message,
-          position: 'bottom',
-          visibilityTime: 3000
-        });
+        if (data.role === "CLIENT") {
+          Toast.show({
+            type: 'success',
+            text1: 'Success',
+            text2: data.message,
+            position: 'bottom',
+            visibilityTime: 3000
+          });
 
-        authEmitter.emit('authStateChanged');
+          authEmitter.emit('authStateChanged');
 
-        setTimeout(() => {
-          router.replace('/(tabs)/(profile)/profile');
-        }, 2000);
+          setTimeout(() => {
+            router.replace('/(tabs)/(profile)/profile');
+          }, 2000);
+        }
+        else {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: "Please use web application to login to your account",
+            position: 'bottom',
+            visibilityTime: 3000
+          });
+        }
       },
       onError: async (error: AxiosError<ApiErrorResponse>) => {
         Toast.show({

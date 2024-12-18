@@ -127,6 +127,14 @@ const ClientTournaments: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
+            <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+            >
+                My Tournaments
+            </motion.h1>
+
             {isLoading ? (
                 <div className={styles.loader}>
                     <CircularProgress />

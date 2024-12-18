@@ -137,8 +137,8 @@ export default function ClientTournamentsScreen() {
                                     </View>
 
                                     {/* Date Section */}
-                                    <View className="border-t border-b border-gray-100 dark:border-gray-700 py-3 mb-3">
-                                        <View className="flex-row justify-between items-center mb-2">
+                                    <View className="border-t border-b border-gray-100 dark:border-gray-700 py-3 mb-3 flex flex-col gap-2">
+                                        <View className="flex-row justify-between items-center">
                                             <View className="flex-row items-center">
                                                 <Ionicons name="calendar-outline" size={20} color={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
                                                 <Text className="text-gray-600 dark:text-gray-300 ml-2">Starts</Text>
@@ -154,6 +154,15 @@ export default function ClientTournamentsScreen() {
                                             </View>
                                             <Text className="text-gray-800 dark:text-gray-200 font-medium">
                                                 {dayjs(tournament.endDate).format('MMM D, YYYY')}
+                                            </Text>
+                                        </View>
+                                        <View className="flex-row justify-between items-center">
+                                            <View className="flex-row items-center">
+                                                <Ionicons name="location-outline" size={20} color={theme === 'dark' ? '#9CA3AF' : '#6B7280'} />
+                                                <Text className="text-gray-600 dark:text-gray-300 ml-2">Facility</Text>
+                                            </View>
+                                            <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                                                {tournament.objectType.type}
                                             </Text>
                                         </View>
                                     </View>

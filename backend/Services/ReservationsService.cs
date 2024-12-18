@@ -113,7 +113,6 @@ namespace backend.Services
         //creating valid reservation
         public async Task<string> CreateReservation(CreateReservationDto dto)
         {
-            //check if there is timesheet for this date
             var timesheet = await _reservationTimesheetsService.GetTimesheetByDateAndObjectId(dto.ReservationDate, dto.ObjectId);
             if (timesheet == null)
                 throw new Exception("There is no timesheet for that date, try again later");
@@ -121,7 +120,6 @@ namespace backend.Services
             if (timesheet.IsTournament == true)
                 throw new Exception("There is tournament on that day, please choose different date");
 
-            //CHECK IF THERE IS ALREADY A RESERVATION FOR THESE HOURS (GET RESERVATIONS BY DAY AND OBJECT)
             if (await IsReservationDurationCorrect(dto.ReservationDate, dto.ReservationStart, dto.ReservationEnd, dto.ObjectId) == false)
                 throw new Exception("Reservation hours intercept with each other, please change reservation hours");
 
