@@ -1,11 +1,36 @@
 import { View, Text, ScrollView, ImageBackground } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import FeaturedCard from '@/components/FeaturedCard'
+import { authEmitter } from '../_layout'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function HomeScreen() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    checkAuthStatus();
+
+    // Listen for auth state changes
+    authEmitter.on('authStateChanged', checkAuthStatus);
+
+    return () => {
+      authEmitter.off('authStateChanged', checkAuthStatus);
+    };
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsAuthenticated(false);
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <ScrollView className="flex-1">
@@ -16,7 +41,7 @@ export default function HomeScreen() {
           <View className="h-full bg-black/40 px-4 justify-center">
             <Animated.View entering={FadeIn}>
               <Text className="text-5xl font-bold text-white">
-                SMSS
+                S M S S
               </Text>
               <Text className="text-xl text-gray-100 mt-4 max-w-[300px]">
                 Your one-stop platform for sports venue management
@@ -46,10 +71,9 @@ export default function HomeScreen() {
 
           <View className="mt-8">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-xl font-semibold text-gray-800 dark:text-white">
+              <Text className="text-xl font-semibold text-gray-800 dark:text-white text-center w-full">
                 Quick Actions
               </Text>
-              <Ionicons name="arrow-forward" size={20} color="#6B7280" />
             </View>
 
             <FeaturedCard
@@ -66,17 +90,27 @@ export default function HomeScreen() {
               link="/tournaments"
               delay={400}
             />
-            <FeaturedCard
-              title="Explore Facilities"
-              description="Discover world-class sports venues near you"
-              icon="map"
-              link="/facilities"
-              delay={500}
-            />
+            {isAuthenticated ? (
+              <FeaturedCard
+                title="My Profile"
+                description="Manage your reservations and tournaments"
+                icon="person"
+                link="/profile"
+                delay={400}
+              />
+            ) : (
+              <FeaturedCard
+                title="Login"
+                description="Login to your account to create reservations"
+                icon="log-in"
+                link="/login"
+                delay={400}
+              />
+            )}
           </View>
 
           <View className="mt-8 mb-6">
-            <Text className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+            <Text className="text-xl font-semibold mb-4 text-gray-800 dark:text-white text-center w-full">
               Latest Updates
             </Text>
             <Animated.View
