@@ -12,6 +12,8 @@ const Home: React.FC = () => {
     const navigate = useNavigate();
     const { data: objectTypes, isLoading, error } = useGetObjectTypes();
 
+    const token = localStorage.getItem("token");
+
     return (
         <div className={styles.homeContainer}>
             <motion.div
@@ -21,21 +23,23 @@ const Home: React.FC = () => {
                 className={styles.heroSection}
             >
                 <Typography variant="h1" className={styles.heroTitle}>
-                    Welcome to Stadium Management
+                    Welcome to Stadium Management System
                 </Typography>
                 <Typography variant="h4" className={styles.heroSubtitle}>
                     Book your perfect sports venue today
                 </Typography>
                 <Box className={styles.heroCta}>
-                    <Button
-                        component={Link}
-                        to="/login"
-                        variant="contained"
-                        size="large"
-                        className={styles.ctaButton}
-                    >
-                        Get Started
-                    </Button>
+                    {!token && (
+                        <Button
+                            component={Link}
+                            to="/login"
+                            variant="contained"
+                            size="large"
+                            className={styles.ctaButton}
+                        >
+                            Get Started
+                        </Button>
+                    )}
                 </Box>
             </motion.div>
 
@@ -71,8 +75,7 @@ const Home: React.FC = () => {
                                 >
                                     <img src={objectType.imageUrl} alt={objectType.type} />
                                     <div className={styles.carouselCaption}>
-                                        <Typography variant="h5">{objectType.type}</Typography>
-                                        <Typography variant="body1">{objectType.description}</Typography>
+                                        <Typography variant="h5">{objectType.type.toUpperCase()}</Typography>
                                     </div>
                                 </motion.div>
                             ))}
@@ -125,28 +128,30 @@ const Home: React.FC = () => {
                 <Container maxWidth="md">
                     <Typography variant="h3">Ready to Get Started?</Typography>
                     <Typography variant="body1" className={styles.ctaText}>
-                        Join our community and start booking your sports activities today
+                        {token ? ("Create reservations for great facilities and explore our services!") : ("Join our community and start booking your sports activities today")}
                     </Typography>
-                    <Box className={styles.ctaButtons}>
-                        <Button
-                            component={Link}
-                            to="/register"
-                            variant="contained"
-                            size="large"
-                            className={styles.registerButton}
-                        >
-                            Register Now
-                        </Button>
-                        <Button
-                            component={Link}
-                            to="/login"
-                            variant="outlined"
-                            size="large"
-                            className={styles.loginButton}
-                        >
-                            Login
-                        </Button>
-                    </Box>
+                    {!token && (
+                        <Box className={styles.ctaButtons}>
+                            <Button
+                                component={Link}
+                                to="/register"
+                                variant="contained"
+                                size="large"
+                                className={styles.registerButton}
+                            >
+                                Register Now
+                            </Button>
+                            <Button
+                                component={Link}
+                                to="/login"
+                                variant="outlined"
+                                size="large"
+                                className={styles.loginButton}
+                            >
+                                Login
+                            </Button>
+                        </Box>
+                    )}
                 </Container>
             </div>
         </div>

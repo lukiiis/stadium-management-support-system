@@ -33,7 +33,7 @@
     width: 120px;
     height: 120px;
     margin: 0 auto 1.5rem;
-    background: linear-gradient(45deg, #d32f2f, #f44336);
+    background: linear-gradient(45deg, #6e2fd3, #8207e7);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@
 
 .title {
     font-weight: 600 !important;
-    background: linear-gradient(45deg, #d32f2f, #f44336);
+    background: linear-gradient(45deg, #6e2fd3, #8207e7);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -87,13 +87,13 @@
 
 .navIcon {
     font-size: 32px !important;
-    color: #d32f2f;
+    color: #6e2fd3;
 }
 
 .navContent {
     h6 {
         font-weight: 600 !important;
-        color: #d32f2f;
+        color: #8207e7;
         margin-bottom: 0.25rem !important;
     }
 

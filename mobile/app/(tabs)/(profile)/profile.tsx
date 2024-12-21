@@ -46,9 +46,6 @@ export default function ProfileScreen() {
         <Text className="text-2xl font-bold text-gray-800 dark:text-white">
           {userData.firstName} {userData.lastName}
         </Text>
-        <Text className="text-gray-600 dark:text-gray-400 mt-1">
-          {userData.role}
-        </Text>
       </Animated.View>
 
       {/* Navigation Cards */}

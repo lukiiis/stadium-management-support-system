@@ -83,7 +83,7 @@ const PasswordData: React.FC<PasswordDataProps> = ({ userId }) => {
                         type="password"
                         {...register("confirmPassword", {
                             required: "Please confirm your password",
-                            validate: (value) => value === getValues("newPassword") || "Passwords must match"
+                            validate: (value) => value === getValues("newPassword") || "Passwords do not match"
                         })}
                         fullWidth
                         error={!!errors.confirmPassword}

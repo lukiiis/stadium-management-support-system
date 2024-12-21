@@ -66,6 +66,9 @@ namespace backend.Services
             if (timesheet != null)
                 throw new Exception("There is already a timesheet for this day");
 
+            if(dto.StartTime >= dto.EndTime)
+                throw new Exception("Start time can not be later than end time");
+
             var timesheetToAdd = _mapper.Map<ReservationTimesheet>(dto);
             timesheetToAdd.IsTournament = false;
 
@@ -77,20 +80,16 @@ namespace backend.Services
         {
             var timesheet = await _context.ReservationTimesheets.FindAsync(dto.TimesheetId);
             if (timesheet == null)
-            {
                 throw new Exception("Timesheet not found.");
-            }
 
-            // Check if there are existing reservations for the given date and object ID
             if (await _context.Reservations.AnyAsync(r => r.ReservationDate == timesheet.Date && r.ObjectId == timesheet.ObjectId))
-            {
                 throw new Exception("Cannot update timesheet when there are already reservations for that day.");
-            }
 
             if(timesheet.IsTournament == true)
-            {
-                throw new Exception("There is tournament, can't update timesheet.");
-            }
+                throw new Exception("There is tournament that day, can't update timesheet.");
+
+            if (dto.StartTime >= dto.EndTime)
+                throw new Exception("Start time can not be later than end time.");
 
             timesheet.StartTime = dto.StartTime;
             timesheet.EndTime = dto.EndTime;

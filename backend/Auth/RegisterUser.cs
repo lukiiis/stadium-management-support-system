@@ -32,7 +32,6 @@ namespace backend.Auth
                 Password = _passwordHasher.HashPassword(request.Password),
                 CreatedAt = DateTime.Today,
                 Role = request.Role == "ADMIN" ? Role.ADMIN : request.Role == "EMPLOYEE" ? Role.EMPLOYEE : Role.CLIENT,
-                Wallet = request.Role == "CLIENT" ? 0.0 : null,
                 Enabled = true
             };
 
@@ -61,7 +60,6 @@ namespace backend.Auth
                 Password = _passwordHasher.HashPassword("employee"),
                 CreatedAt = DateTime.Today,
                 Role = Role.EMPLOYEE,
-                Wallet = null,
                 Enabled = true,
                 Address = null,
             };

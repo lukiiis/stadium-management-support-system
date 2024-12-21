@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert, Typography, Card, CardContent, Pagination } from "@mui/material";
+import { TextField, MenuItem, Select, Button, FormControl, InputLabel, Box, CircularProgress, Snackbar, Alert, Typography, Pagination } from "@mui/material";
 import styles from './AddTournament.module.scss';
 import CloseIcon from '@mui/icons-material/Close';
 import SportsTennisIcon from '@mui/icons-material/SportsTennis';
@@ -198,25 +198,23 @@ const AddTournament: React.FC = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >
-                            <Card>
-                                <CardContent>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <SportsTennisIcon sx={{ color: '#1976d2' }} />
-                                        <Box>
-                                            <Typography variant="h6">{tournament.sport}</Typography>
-                                            <Typography color="textSecondary">
-                                                Sport: {tournament.sport}
-                                            </Typography>
-                                            <Typography color="textSecondary">
-                                                Slots: {tournament.maxSlots}
-                                            </Typography>
-                                            <Typography color="textSecondary">
-                                                Dates: {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                </CardContent>
-                            </Card>
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <SportsTennisIcon sx={{ color: '#1976d2' }} />
+                                <Box>
+                                    <Typography variant="h6">{tournament.sport}</Typography>
+                                    <Typography color="textSecondary">
+                                        Sport: {tournament.sport}
+                                    </Typography>
+                                    <Typography color="textSecondary">
+                                        Slots: {tournament.maxSlots}
+                                    </Typography>
+                                    <Typography color="textSecondary">
+                                        Dates: {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
                         </motion.div>
                     ))}
 

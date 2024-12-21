@@ -43,9 +43,9 @@ const Tournaments = () => {
     const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
 
     const [page, setPage] = useState(1);
-    const [pageSize] = useState(8);
+    const [pageSize] = useState(9);
 
-    const { data: tournaments, isLoading: loadingTournaments } = useGetPaginatedTournaments(page - 1, pageSize);
+    const { data: tournaments, isLoading: loadingTournaments, refetch: refetchTournaments } = useGetPaginatedTournaments(page - 1, pageSize);
     const { data: objectTypes, isLoading: loadingObjectTypes } = useGetObjectTypes();
     const { data: usersTournaments, isLoading: loadingUsersTournaments, refetch: refetchUsersTournaments } = useGetUsersTournaments(userId || 0);
     const joinTournamentMutation = useJoinTournament();
@@ -71,6 +71,7 @@ const Tournaments = () => {
                         setSnackbarSeverity("success");
                         setSnackbarMessage(data.message);
                         setShowSnackbar(true);
+                        refetchTournaments();
                         refetchUsersTournaments();
                     },
                     onError: (error: AxiosError<ApiErrorResponse>) => {
@@ -97,6 +98,7 @@ const Tournaments = () => {
                         setSnackbarSeverity("success");
                         setSnackbarMessage(data.message);
                         setShowSnackbar(true);
+                        refetchTournaments();
                         refetchUsersTournaments();
                     },
                     onError: (error: AxiosError<ApiErrorResponse>) => {
@@ -182,7 +184,7 @@ const Tournaments = () => {
                         Sports Tournaments
                     </Typography>
                     <Typography variant="subtitle1">
-                        Join exciting tournaments and compete with othersD
+                        Join exciting tournaments and compete with others
                     </Typography>
                 </motion.div>
 
@@ -248,7 +250,7 @@ const Tournaments = () => {
 
                                 {isClient && (
                                     <div className={styles.buttons}>
-                                        {!isUserInTournament(tournament.tournamentId) ? (
+                                        {!isUserInTournament(tournament.tournamentId) && tournament.occupiedSlots !== tournament.maxSlots ? (
                                             <Button
                                                 variant="contained"
                                                 color="primary"
@@ -256,13 +258,21 @@ const Tournaments = () => {
                                             >
                                                 Join Tournament
                                             </Button>
-                                        ) : (
+                                        ) : isUserInTournament(tournament.tournamentId) ? (
                                             <Button
                                                 variant="outlined"
                                                 color="secondary"
                                                 onClick={() => handleLeaveTournament(tournament.tournamentId)}
                                             >
                                                 Leave Tournament
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                disabled
+                                            >
+                                                Tournament Full
                                             </Button>
                                         )}
                                     </div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import BlockIcon from '@mui/icons-material/Block';
+import KeyIcon from '@mui/icons-material/VpnKey';
 import styles from "./AdminDashboard.module.scss";
 
 const AdminDashboard = () => {
@@ -24,7 +25,7 @@ const AdminDashboard = () => {
                             Admin Dashboard
                         </Typography>
                         <Typography variant="subtitle1" className={styles.subtitle}>
-                            Manage your system settings and users
+                            Manage system settings and users
                         </Typography>
                     </motion.div>
 
@@ -34,6 +35,14 @@ const AdminDashboard = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                     >
+                        <Link to="password" className={styles.navCard}>
+                            <KeyIcon className={styles.navIcon} />
+                            <div className={styles.navContent}>
+                                <Typography variant="h6">Change password</Typography>
+                                <Typography variant="body2">Account password modification</Typography>
+                            </div>
+                        </Link>
+
                         <Link to="create-employee" className={styles.navCard}>
                             <PersonAddIcon className={styles.navIcon} />
                             <div className={styles.navContent}>

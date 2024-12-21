@@ -2,7 +2,6 @@ import { TournamentDto } from "./tournament";
 
 export interface UsersTournaments {
     tournament: TournamentDto,
-    paymentStatus: string,
     joinedAt: string,
 }
 

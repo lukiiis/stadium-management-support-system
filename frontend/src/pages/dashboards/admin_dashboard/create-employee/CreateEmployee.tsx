@@ -71,9 +71,9 @@ const CreateEmployee: React.FC = () => {
         >
             <div className={styles.formCard}>
                 <div className="p-10">
-                    <p className={styles.title}>
+                    <h1>
                         Create New Employee
-                    </p>
+                    </h1>
                     <p className={styles.subtitle}>
                         Enter the details of the new employee below
                     </p>

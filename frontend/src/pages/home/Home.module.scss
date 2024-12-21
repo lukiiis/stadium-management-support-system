@@ -1,4 +1,3 @@
-// Home.module.scss
 .homeContainer {
     min-height: 100vh;
     background-color: #f8f9fa;
@@ -6,7 +5,7 @@
 }
 
 .heroSection {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/stadium-hero.jpg');
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../../assets/img/stadium-hero.jpg');
     background-size: cover;
     background-position: center;
     height: 80vh;

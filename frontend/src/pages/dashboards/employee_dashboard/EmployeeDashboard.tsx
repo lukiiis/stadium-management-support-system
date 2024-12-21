@@ -2,8 +2,9 @@ import { Link, Outlet } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import BlockIcon from '@mui/icons-material/Block';
+import KeyIcon from '@mui/icons-material/Key';
+import EditCalendarIcon from '@mui/icons-material/EditCalendar';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import styles from "./EmployeeDashboard.module.scss";
 
 const EmployeeDashboard = () => {
@@ -24,7 +25,7 @@ const EmployeeDashboard = () => {
                             Employee Dashboard
                         </Typography>
                         <Typography variant="subtitle1" className={styles.subtitle}>
-                            Manage Facilities and events
+                            Manage timesheets and tournaments
                         </Typography>
                     </motion.div>
 
@@ -34,8 +35,17 @@ const EmployeeDashboard = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                     >
+
+                        <Link to="password" className={styles.navCard}>
+                            <KeyIcon className={styles.navIcon} />
+                            <div className={styles.navContent}>
+                                <Typography variant="h6">Change password</Typography>
+                                <Typography variant="body2">Account password modification</Typography>
+                            </div>
+                        </Link>
+
                         <Link to="add-timesheet" className={styles.navCard}>
-                            <PersonAddIcon className={styles.navIcon} />
+                            <EditCalendarIcon className={styles.navIcon} />
                             <div className={styles.navContent}>
                                 <Typography variant="h6">Create Timesheet</Typography>
                                 <Typography variant="body2">Add new timesheet for a facility</Typography>
@@ -43,7 +53,7 @@ const EmployeeDashboard = () => {
                         </Link>
 
                         <Link to="add-tournament" className={styles.navCard}>
-                            <BlockIcon className={styles.navIcon} />
+                            <EmojiEventsIcon className={styles.navIcon} />
                             <div className={styles.navContent}>
                                 <Typography variant="h6">Create Tournament</Typography>
                                 <Typography variant="body2">Add a new tournament for clients</Typography>

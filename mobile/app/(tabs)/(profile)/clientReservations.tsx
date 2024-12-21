@@ -121,7 +121,7 @@ export default function ClientReservationsScreen() {
                         {data?.map((reservation, index) => {
                             const reservationDate = dayjs(reservation.reservationDate);
                             const today = dayjs();
-                            const isPastReservation = reservationDate.isBefore(today, 'day');
+                            const isPastReservation = reservationDate.isAfter(today);
                             const status = isPastReservation ? 'Completed' : 'Upcoming';
 
                             return (
@@ -226,7 +226,7 @@ export default function ClientReservationsScreen() {
                                         </View>
                                     </View>
 
-                                    {!isPastReservation && (
+                                    {isPastReservation && (
                                         <View className="flex-row gap-3">
                                             <TouchableOpacity
                                                 onPress={() => handleCancelReservation(reservation.reservationId)}

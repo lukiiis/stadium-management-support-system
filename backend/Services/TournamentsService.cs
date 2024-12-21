@@ -35,8 +35,10 @@ namespace backend.Services
 
         public async Task CreateTournament(CreateTournamentDto dto)
         {
+            if(dto.StartDate > dto.EndDate)
+                throw new Exception("Start tournament date can't be later than end tournament date");
             //CHECK IF THERE IS ALREADY A TOURNAMENT FOR THOSE DAYS SO THEY WILL NOT INTERCEPT WITH EACH OTHER BY OBJECTID
-            if(await IsTournamentDateRangeAvailable(dto) == false)
+            if (await IsTournamentDateRangeAvailable(dto) == false)
                 throw new Exception("There is already an existing tournament for that date, choose other dates");
 
 
@@ -108,7 +110,6 @@ namespace backend.Services
             {
                 UserId = dto.UserId,
                 TournamentId = dto.TournamentId,
-                PaymentStatus = dto.IsPaid ? PaymentStatus.PAID : PaymentStatus.PENDING,
                 JoinedAt = DateTime.Now
             };
 

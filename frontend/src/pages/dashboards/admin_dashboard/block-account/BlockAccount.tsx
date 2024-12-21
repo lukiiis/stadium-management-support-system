@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useBlockUser, useUnblockUser, useGetPaginatedUsers, usePromoteToAdmin } from "./blockUnblockAccountService";
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress, Snackbar, Alert, Box, Paper, Typography } from "@mui/material";
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress, Snackbar, Alert, Box, Paper } from "@mui/material";
 import styles from './BlockAccount.module.scss';
 import { AxiosError } from "axios";
 import { ApiErrorResponse, ApiSuccessResponse } from "../../../../shared/types/api/apiResponse";
@@ -149,9 +149,9 @@ const BlockAccount: React.FC = () => {
                 transition={{ duration: 0.5 }}
                 className={styles.card}
             >
-                <Typography variant="h4" className={styles.title}>
+                <h1>
                     User Management
-                </Typography>
+                </h1>
 
                 <TableContainer component={Paper} className={styles.tableContainer}>
                     <Table>

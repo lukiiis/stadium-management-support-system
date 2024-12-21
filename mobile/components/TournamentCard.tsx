@@ -5,6 +5,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { TournamentDto } from '@/shared/types/models/tournament'
 import { useTheme } from '@/context/ThemeContext'
+import dayjs from 'dayjs'
 
 interface TournamentCardProps {
   tournament: TournamentDto
@@ -46,16 +47,28 @@ export default function TournamentCard({
           {tournament.description}
         </Text>
 
-        <View className="flex-row justify-between items-center mb-3">
-          <View className="flex-row items-center">
-            <Ionicons
-              name="calendar"
-              size={16}
-              className="text-gray-500 dark:text-gray-400"
-            />
-            <Text className="ml-1 text-gray-500 dark:text-gray-400">
-              {new Date(tournament.startDate).toLocaleDateString()}
-            </Text>
+        <View className="flex-row justify-between items-start mb-3">
+          <View className='flex flex-col gap-2'>
+            <View className="flex-row items-center">
+              <Ionicons
+                name="calendar-outline"
+                size={16}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <Text className="ml-1 text-gray-500 dark:text-gray-400">
+                Starts: {dayjs(tournament.startDate).format('MMM D, YYYY')}
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Ionicons
+                name="calendar"
+                size={16}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <Text className="ml-1 text-gray-500 dark:text-gray-400">
+                Ends: {dayjs(tournament.endDate).format('MMM D, YYYY')}
+              </Text>
+            </View>
           </View>
 
           <View className="flex-row items-center">
@@ -70,6 +83,16 @@ export default function TournamentCard({
           </View>
         </View>
 
+        <View className="flex-row items-center">
+          <Ionicons
+            name="location-outline"
+            size={16}
+            className="text-gray-500 dark:text-gray-400"
+          />
+          <Text className="ml-1 text-gray-500 dark:text-gray-400">
+            {tournament.objectType.type}
+          </Text>
+        </View>
         {userId && (
           <View className="mt-4">
             {isUserInTournament ? (

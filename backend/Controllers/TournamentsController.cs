@@ -54,7 +54,7 @@ namespace backend.Controllers
             try
             {
                 await _tournamentsService.LeaveTournamentAsync(dto);
-                return Ok(new { Message = "User has successfully left the tournament." });
+                return Ok(new { Message = "You successfully left the tournament." });
             }
             catch (Exception ex)
             {

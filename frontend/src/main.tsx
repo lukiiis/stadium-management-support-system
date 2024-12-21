@@ -26,6 +26,8 @@ import ClientReservations from './pages/dashboards/client_profile/client-reserva
 import ClientTournaments from './pages/dashboards/client_profile/client-tournaments/ClientTournaments'
 import ObjectDetails from './pages/objects/object-details/ObjectDetails'
 import { UserProvider } from './context/UserContext'
+import ChangePasswordEmp from './pages/dashboards/employee_dashboard/change-password/ChangePasswordEmp'
+import ChangePasswordAdmin from './pages/dashboards/admin_dashboard/change-password/ChangePasswordAdmin'
 
 const router = createBrowserRouter([
   {
@@ -88,6 +90,10 @@ const router = createBrowserRouter([
         element: <EmployeeDashboard />,
         children: [
           {
+            path: "/employee-dashboard/password",
+            element: <ChangePasswordEmp />
+          },
+          {
             path: "/employee-dashboard/add-tournament",
             element: <AddTournament />
           },
@@ -107,6 +113,10 @@ const router = createBrowserRouter([
         path: "/admin-dashboard",
         element: <AdminDashboard />,
         children: [
+          {
+            path: "/admin-dashboard/password",
+            element: <ChangePasswordAdmin />
+          },
           {
             path: "/admin-dashboard/create-employee",
             element: <CreateEmployee />

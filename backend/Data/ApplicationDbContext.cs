@@ -35,7 +35,6 @@ namespace backend.Data
                 eb.Property(u => u.Password).HasColumnName("password").HasMaxLength(250).IsRequired();
                 eb.Property(u => u.Role).HasConversion<string>().HasColumnName("role").IsRequired();
                 eb.Property(u => u.CreatedAt).HasColumnName("created_at").HasColumnType("date").HasDefaultValueSql("CURRENT_DATE");
-                eb.Property(u => u.Wallet).HasColumnName("wallet").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Salary).HasColumnName("salary").HasColumnType("decimal(12,2)");
                 eb.Property(u => u.Position).HasColumnName("position").HasMaxLength(100);
                 eb.Property(u => u.Enabled).HasConversion<bool>().HasColumnName("enabled").HasDefaultValue(true);
@@ -74,7 +73,6 @@ namespace backend.Data
 
                 eb.Property(ut => ut.UserId).HasColumnName("user_id").ValueGeneratedOnAdd();
                 eb.Property(ut => ut.TournamentId).HasColumnName("tournament_id").ValueGeneratedOnAdd();
-                eb.Property(ut => ut.PaymentStatus).HasConversion<string>().HasColumnName("payment_status").IsRequired();
                 eb.Property(ut => ut.JoinedAt).HasColumnType("timestamp").HasColumnName("joined_at").HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
