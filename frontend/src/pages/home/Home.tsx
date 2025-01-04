@@ -1,4 +1,3 @@
-// Home.tsx
 import React from "react";
 import { useGetObjectTypes } from "./homeFunctions";
 import { CircularProgress, Typography, Container, Button, Box } from "@mui/material";

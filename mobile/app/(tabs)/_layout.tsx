@@ -1,4 +1,3 @@
-// app/(tabs)/_layout.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +12,7 @@ export default function TabLayout() {
   useEffect(() => {
     checkAuthStatus();
 
-    // Listen for auth state changes
+    // listen for auth state changes
     authEmitter.on('authStateChanged', checkAuthStatus);
 
     return () => {

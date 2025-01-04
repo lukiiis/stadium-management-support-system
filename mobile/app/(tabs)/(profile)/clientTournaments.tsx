@@ -1,4 +1,3 @@
-// app/(tabs)/(profile)/clientTournaments.tsx
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';

@@ -94,8 +94,6 @@ namespace backend.Controllers
         {
             try
             {
-                //add token extraction and send the Id to the function (only for prod)
-
                 var status = await _reservationsService.CreateReservation(dto);
                 return Ok(new { Message = status });
             }
@@ -105,15 +103,12 @@ namespace backend.Controllers
             }
         }
 
-        //delete reservation if has not started TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
         [HttpDelete("delete")]
         //[Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> DeleteReservation([FromQuery] int reservationId)
         {
             try
             {
-                //add token extraction and send the Id to the function (only for prod)
-
                 await _reservationsService.DeleteReservation(reservationId);
                 return Ok(new { Message = "Reservation deleted successfully" });
             }

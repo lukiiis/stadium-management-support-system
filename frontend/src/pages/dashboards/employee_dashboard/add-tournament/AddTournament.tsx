@@ -80,7 +80,7 @@ const AddTournament: React.FC = () => {
                         fontWeight: 600
                     }}
                 >
-                    Create Tournament
+                    Tournaments
                 </Typography>
                 <Button
                     variant="contained"
@@ -198,22 +198,29 @@ const AddTournament: React.FC = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >
-
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <div className="flex items-center gap-6 w-full">
                                 <SportsTennisIcon sx={{ color: '#1976d2' }} />
-                                <Box>
-                                    <Typography variant="h6">{tournament.sport}</Typography>
-                                    <Typography color="textSecondary">
-                                        Sport: {tournament.sport}
-                                    </Typography>
-                                    <Typography color="textSecondary">
-                                        Slots: {tournament.maxSlots}
-                                    </Typography>
-                                    <Typography color="textSecondary">
-                                        Dates: {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
-                                    </Typography>
-                                </Box>
-                            </Box>
+                                <div className="flex justify-between w-full">
+
+                                    <div>
+                                        <Typography variant="h5">{tournament.sport}</Typography>
+                                        <Typography color="textSecondary">
+                                            Slots: {tournament.maxSlots}
+                                        </Typography>
+                                        <Typography color="textSecondary">
+                                            Dates: {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
+                                        </Typography>
+                                        <Typography color="textSecondary" sx={{ marginTop: 2 }}>
+                                            Description: {tournament.description}
+                                        </Typography>
+                                    </div>
+                                    <div>
+                                        <Typography color="textSecondary">
+                                            Facility: {tournament.objectType.type}
+                                        </Typography>
+                                    </div>
+                                </div>
+                            </div>
 
                         </motion.div>
                     ))}

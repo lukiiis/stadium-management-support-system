@@ -13,7 +13,7 @@ export default function HomeScreen() {
   useEffect(() => {
     checkAuthStatus();
 
-    // Listen for auth state changes
+    // listen for auth state changes
     authEmitter.on('authStateChanged', checkAuthStatus);
 
     return () => {

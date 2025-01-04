@@ -1,4 +1,3 @@
-// components/TournamentCard.tsx
 import { View, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
 import Animated, { FadeInDown } from 'react-native-reanimated'

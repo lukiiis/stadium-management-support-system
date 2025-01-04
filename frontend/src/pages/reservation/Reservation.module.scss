@@ -83,7 +83,6 @@
     padding: 3rem 0;
 }
 
-// Add animations for week calendar
 .weekCalendar {
     animation: slideIn 0.5s ease;
 }
@@ -106,7 +105,6 @@
     }
 }
 
-// Add hover effects for selectable time slots
 .hourTile {
     transition: all 0.2s ease;
 
@@ -116,7 +114,6 @@
     }
 }
 
-// Confirmation card styling
 .confirmationCard {
     background: white;
     border-radius: 16px;

@@ -1,4 +1,3 @@
-// app/(tabs)/tournaments.tsx
 import { View, Text, FlatList, TextInput } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -46,7 +45,6 @@ export default function TournamentsScreen() {
   const joinTournamentMutation = useJoinTournament()
   const leaveTournamentMutation = useLeaveTournament()
 
-  // Handle join tournament
   const handleJoinTournament = (tournamentId: number) => {
     if (!userId) return
 
@@ -76,7 +74,6 @@ export default function TournamentsScreen() {
     )
   }
 
-  // Handle leave tournament
   const handleLeaveTournament = (tournamentId: number) => {
     if (!userId) return
 
@@ -106,7 +103,6 @@ export default function TournamentsScreen() {
     )
   }
 
-  // Check if user is in tournament
   const isUserInTournament = (tournamentId: number): boolean => {
     return userTournaments?.some(
       userTournament => userTournament.tournament.tournamentId === tournamentId
@@ -144,7 +140,6 @@ export default function TournamentsScreen() {
   return (
     <>
       <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-        {/* Header */}
         <Animated.View
           entering={FadeInDown.delay(100)}
           className="px-4 pt-4 pb-2"
@@ -156,7 +151,6 @@ export default function TournamentsScreen() {
             Find and join upcoming tournaments
           </Text>
 
-          {/* Search Bar */}
           <View className="flex-row items-center bg-white dark:bg-gray-800 rounded-lg px-4 mb-4">
             <Ionicons name="search" size={20} className="text-gray-400" />
             <TextInput
@@ -169,7 +163,6 @@ export default function TournamentsScreen() {
           </View>
         </Animated.View>
 
-        {/* Tournaments List */}
         <FlatList
           data={filteredTournaments}
           keyExtractor={(tournament) => tournament.tournamentId.toString()}

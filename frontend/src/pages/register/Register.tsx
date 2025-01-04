@@ -1,4 +1,3 @@
-// Register.tsx
 import { useEffect, useState } from "react";
 import styles from "./Register.module.scss";
 import { useForm } from "react-hook-form";

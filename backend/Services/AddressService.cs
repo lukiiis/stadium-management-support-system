@@ -28,15 +28,6 @@ namespace backend.Services
             return _mapper.Map<List<AddressDto>>(addresses);
         }
 
-        //public async Task<AddressDto> GetByAddressIdAsync(int addressId)
-        //{
-        //    var address = await _context.Addresses.FindAsync(addressId);
-        //    if (address == null)
-        //        throw new KeyNotFoundException($"Address with ID {addressId} not found.");
-
-        //    return _mapper.Map<AddressDto>(address);
-        //}
-
         public async Task<AddressDto> GetAddressByUserIdAsync(int userId)
         {
             var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync(u => u.UserId == userId);
@@ -45,7 +36,6 @@ namespace backend.Services
 
             return _mapper.Map<AddressDto>(user.Address);
         }
-
 
         // Create
         public async Task CreateAddressAsync(CreateAddressDto createAddressDto)

@@ -9,7 +9,7 @@ import { authEmitter } from '../app/(tabs)/_layout';
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
-  // Check auth on mount
+  // check auth on mount
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem('token');
@@ -26,7 +26,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Check auth on screen focus
+  // check auth on screen focus
   useFocusEffect(
     React.useCallback(() => {
       const checkAuth = async () => {

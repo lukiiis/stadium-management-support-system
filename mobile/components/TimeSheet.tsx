@@ -1,11 +1,10 @@
-// components/TimeSheet.tsx
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
 import React from 'react'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 
 const { width } = Dimensions.get('window')
-const TILE_SIZE = (width - 80) / 4 // 4 tiles per row with padding
+const TILE_SIZE = (width - 80) / 4 // 4 tiles per row
 
 interface TimeSheetProps {
   date: string

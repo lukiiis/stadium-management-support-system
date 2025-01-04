@@ -1,4 +1,3 @@
-// components/FeaturedCard.tsx
 import { View, Text, Pressable } from 'react-native'
 import React from 'react'
 import { Link, Href } from 'expo-router'

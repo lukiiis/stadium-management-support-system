@@ -168,7 +168,7 @@ const Reservation: React.FC = () => {
                                 transition={{ duration: 0.3 }}
                             >
                                 <StyledPaper elevation={0}>
-                                    {/* Step 1: Facility Selection */}
+                                    {/* step 1: Facility Selection */}
                                     {step === 1 && (
                                         <Box className={styles.stepContent}>
                                             <div className={styles.stepTitle}>
@@ -219,7 +219,7 @@ const Reservation: React.FC = () => {
                                         </Box>
                                     )}
 
-                                    {/* Step 2: Time Selection */}
+                                    {/* step 2: Time Selection */}
                                     {step === 2 && (
                                         <Box className={styles.stepContent}>
                                             <div className={styles.stepTitle}>
@@ -256,7 +256,7 @@ const Reservation: React.FC = () => {
                                         </Box>
                                     )}
 
-                                    {/* Step 3: Confirmation */}
+                                    {/* step 3: Confirmation */}
                                     {step >= 3 && (
                                         <Box className={styles.stepContent}>
                                             <div className={styles.stepTitle}>
@@ -299,7 +299,6 @@ const Reservation: React.FC = () => {
                                         </Box>
                                     )}
 
-                                    {/* Navigation Buttons */}
                                     <Box className={styles.navigationButtons}>
                                         {step > 1 && (
                                             createReservationMutation.isSuccess ? (

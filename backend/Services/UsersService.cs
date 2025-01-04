@@ -147,7 +147,6 @@ namespace backend.Services
             if (await IsPhoneTaken(request.Phone) && request.Phone != user.Phone)
                 throw new ArgumentException("Phone number is already in use.");
 
-            // Aktualizacja pól
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
             user.Age = request.Age;

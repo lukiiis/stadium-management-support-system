@@ -1,5 +1,3 @@
-// FILE: api/tournaments.ts
-
 import axiosInstance from "@/config/axiosConfig";
 import { ApiSuccessResponse, ApiErrorResponse } from "@/shared/types/api/apiResponse";
 import { TournamentDto } from "@/shared/types/models/tournament";

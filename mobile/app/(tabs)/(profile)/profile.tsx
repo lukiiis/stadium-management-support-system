@@ -1,4 +1,3 @@
-// app/(tabs)/(profile)/profile.tsx
 import { View, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
@@ -35,7 +34,6 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 px-4 py-8 bg-gray-50 dark:bg-gray-900">
-      {/* Header Section */}
       <Animated.View
         entering={FadeInDown.delay(100)}
         className="items-center mb-8"
@@ -48,7 +46,6 @@ export default function ProfileScreen() {
         </Text>
       </Animated.View>
 
-      {/* Navigation Cards */}
       <Animated.View
         entering={FadeInDown.delay(200)}
         className="space-y-4 flex flex-col gap-3"
@@ -93,8 +90,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
       </Animated.View>
-
-      {/* Logout Button */}
+      
       <Animated.View
         entering={FadeInUp.delay(300)}
         className="mt-auto"

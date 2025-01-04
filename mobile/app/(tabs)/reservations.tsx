@@ -1,4 +1,3 @@
-// app/(tabs)/reservations.tsx
 import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useGetDaySchedule, useGetAllObjectTypes, useCreateReservation, calculateTimeRangeAndPrice } from '@/api/reservationsTabService'

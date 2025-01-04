@@ -1,4 +1,3 @@
-// app/(auth)/login.tsx
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
 import { useForm, Controller } from 'react-hook-form'
@@ -61,9 +60,9 @@ export default function LoginScreen() {
           visibilityTime: 3000
         });
         // can do this with async function
-        console.log("STORAGE", await AsyncStorage.getItem("token"));
+        //console.log("STORAGE", await AsyncStorage.getItem("token"));
         // or this without async function
-        console.log("STORAGE", AsyncStorage.getItem("token").then(token => console.log(token)));
+        //console.log("STORAGE", AsyncStorage.getItem("token").then(token => console.log(token)));
         await AsyncStorage.clear();
       }
     })
