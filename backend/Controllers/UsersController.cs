@@ -18,7 +18,7 @@ namespace backend.Controllers
         private readonly RegisterUser _registerUser = new(usersService, passwordHasher, tokenProvider);
 
         [HttpGet("id/{id}")]
-        //[Authorize(Policy = "AuthorizedOnly")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _usersService.GetUserDtoById(id);
@@ -29,7 +29,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("get-all")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _usersService.GetAllUsersAsync();
@@ -37,6 +37,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("paginated/get-all")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetUsersPaginated([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
         {
             var result = await _usersService.GetUsersPaginatedAsync(page, pageSize);
@@ -74,7 +75,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("register-employee")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RegisterEmployee([FromBody] RegisterUser.EmployeeRequest request)
         {
             try
@@ -90,7 +91,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{userId}/block")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> BlockUser(int userId)
         {
             try
@@ -105,7 +106,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{userId}/unblock")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UnblockUser(int userId)
         {
             try
@@ -120,7 +121,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{userId}/promote-to-admin")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> PromoteToAdmin(int userId)
         {
             try
@@ -136,7 +137,7 @@ namespace backend.Controllers
 
         // change password for users
         [HttpPatch("{id}/password")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> UpdatePassword(int id, [FromBody] UpdatePasswordDto request)
         {
             try
@@ -160,7 +161,7 @@ namespace backend.Controllers
 
         // update profile information
         [HttpPut("update-personal-data")]
-        //[Authorize(Policy = "AuthorizedOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> UpdateUserDetails([FromBody] UpdatePersonalDataDto request)
         {
             try

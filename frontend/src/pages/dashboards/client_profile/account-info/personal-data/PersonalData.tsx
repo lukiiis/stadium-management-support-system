@@ -46,7 +46,7 @@ const PersonalData: React.FC<PersonalDataProps> = ({ userId }) => {
                 },
                 onError: (error: AxiosError<ApiErrorResponse>) => {
                     accountInfoContext?.setSnackbarSeverity("error");
-                    accountInfoContext?.setSnackbarMessage(error.response?.data.error || "Failed to update data");
+                    accountInfoContext?.setSnackbarMessage(error.response?.data.error || (error.status === 401 ? "Session expired, please login again" : "Failed to update data"));
                     accountInfoContext?.setShowSnackbar(true);
                 },
             }

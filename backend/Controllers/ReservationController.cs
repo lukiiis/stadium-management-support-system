@@ -34,7 +34,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("users-reservations")]
-        //[Authorize(Policy = "ClientOnly")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetReservationsByUserId([FromQuery] int userId)
         {
             try
@@ -50,6 +50,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("users-reservations-paginated")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetReservationsByUserId(
             [FromQuery] int userId,
             [FromQuery] int page = 0,
@@ -89,7 +90,7 @@ namespace backend.Controllers
 
         //create reservation (endpoint for clients)
         [HttpPost("create")]
-        //[Authorize(Policy = "ClientOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto dto)
         {
             try
@@ -104,7 +105,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("delete")]
-        //[Authorize(Policy = "ClientOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> DeleteReservation([FromQuery] int reservationId)
         {
             try
@@ -149,7 +150,7 @@ namespace backend.Controllers
 
         //update reservation payment status
         [HttpPut("update-payment-status/{reservationId}")]
-        //[Authorize(Policy = "ClientOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> UpdatePaymentStatus(int reservationId)
         {
             try

@@ -3,7 +3,12 @@ import axiosInstance from "../../../config/axiosConfig";
 import { UserDto } from "../../../shared/types/models/user";
 
 const fetchUserById = async (userId: number): Promise<UserDto> => {
-    const response = await axiosInstance.get<UserDto>(`/users/id/${userId}`);
+    const token = localStorage.getItem("token");
+    const response = await axiosInstance.get<UserDto>(`/users/id/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
     return response.data;
 };
 

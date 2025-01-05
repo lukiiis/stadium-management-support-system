@@ -1,5 +1,6 @@
 ﻿using backend.DTOs.Address;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -11,6 +12,7 @@ namespace backend.Controllers
         private readonly IAddressService _addressService = addressService;
 
         [HttpPost("create")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> CreateAddress([FromBody] CreateAddressDto createAddressDto)
         {
             try
@@ -25,6 +27,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("update")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> UpdateAddress([FromBody] UpdateAddressDto updateAddressDto)
         {
             try
@@ -45,6 +48,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("by-user/{userId}")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetAddressByUserId(int userId)
         {
             try
@@ -58,6 +62,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{addressId}")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetAddressById(int addressId)
         {
             var address = await _addressService.GetAddressByIdAsync(addressId);

@@ -12,7 +12,7 @@ namespace backend.Controllers
         private readonly IReservationTimesheetsService _reservationTimesheetsService = reservationTimesheetsService;
 
         [HttpPost("create")]
-        //[Authorize(Policy = "EmployeeOnly")]
+        [Authorize(Policy = "EmployeeOnly")]
         public async Task<IActionResult> CreateReservationTimesheet(CreateReservationTimesheetDto dto)
         {
             try
@@ -27,7 +27,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("update")]
-        //[Authorize(Policy = "EmployeeOnly")]
+        [Authorize(Policy = "EmployeeOnly")]
         public async Task<IActionResult> UpdateReservationTimesheet(UpdateReservationTimesheetDto dto)
         {
             try
@@ -42,7 +42,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("all-paginated")]
-        //[Authorize(Policy = "EmployeeOnly")]
+        [Authorize(Policy = "EmployeeOnly")]
         public async Task<IActionResult> GetAllTimesheetsPaginated(int page = 1, int pageSize = 10)
         {
             try

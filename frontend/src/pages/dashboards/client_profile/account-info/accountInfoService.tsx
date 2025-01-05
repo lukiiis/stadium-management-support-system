@@ -26,7 +26,12 @@ export const useGetUserData = (userId: number) => {
 }
 
 export const fetchUserData = async (userId: number) => {
-    const res = await axiosInstance.get(`/users/id/${userId}`);
+    const token = localStorage.getItem("token");
+    const res = await axiosInstance.get(`/users/id/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     return res.data;
 };
 
@@ -38,13 +43,23 @@ export const useUpdateData = () => {
             console.log(data)
         },
         onError: (error: AxiosError<ApiErrorResponse>) => {
-            console.log(error)
+            console.log(error);
+            if (error.status === 401) {
+                localStorage.clear();
+                window.location.reload();
+            }
         },
     })
 }
 
 const updateData = async (data: EditUserData) => {
-    const res = await axiosInstance.put(`/users/update-personal-data`, data);
+    const token = localStorage.getItem("token");
+    console.log("Token from function", token);
+    const res = await axiosInstance.put(`/users/update-personal-data`, data, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     return res.data;
 }
 
@@ -63,7 +78,12 @@ export const useChangePassword = () => {
 }
 
 const changePassword = async (data: { userId: number; passwordData: ChangePasswordData }) => {
-    const res = await axiosInstance.patch(`/users/${data.userId}/password`, data.passwordData);
+    const token = localStorage.getItem("token");
+    const res = await axiosInstance.patch(`/users/${data.userId}/password`, data.passwordData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     return res.data;
 };
 
@@ -79,7 +99,12 @@ export const useGetAddressData = (userId: number) => {
 }
 
 export const fetchAddressData = async (userId: number) => {
-    const res = await axiosInstance.get(`/addresses/by-user/${userId}`);
+    const token = localStorage.getItem("token");
+    const res = await axiosInstance.get(`/addresses/by-user/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     return res.data;
 };
 
@@ -98,7 +123,12 @@ export const useCreateAddress = () => {
 }
 
 const createAddressPost = async (data: CreateAddressData) => {
-    const res = await axiosInstance.post(`/addresses/create`, data);
+    const token = localStorage.getItem("token");
+    const res = await axiosInstance.post(`/addresses/create`, data, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     return res.data;
 }
 
@@ -117,6 +147,11 @@ export const useUpdateAddress = () => {
 }
 
 const updateAddressPost = async (data: UpdateAddressData) => {
-    const res = await axiosInstance.put(`/addresses/update`, data);
+    const token = localStorage.getItem("token");
+    const res = await axiosInstance.put(`/addresses/update`, data, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     return res.data;
 }

@@ -14,7 +14,7 @@ namespace backend.Controllers
 
         //add tournament by an employee
         [HttpPost("create")]
-        //[Authorize(Policy = "EmployeeOnly")]
+        [Authorize(Policy = "EmployeeOnly")]
         public async Task<IActionResult> CreateTournament(CreateTournamentDto dto)
         {
             try
@@ -33,7 +33,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("join")]
-        //[Authorize(Policy = "ClientOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> JoinTournament([FromBody] JoinTournamentDto dto)
         {
             try
@@ -48,7 +48,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("leave")]
-        //[Authorize(Policy = "ClientOnly")]
+        [Authorize(Policy = "ClientOnly")]
         public async Task<IActionResult> LeaveTournament([FromBody] LeaveTournamentDto dto)
         {
             try
@@ -64,6 +64,7 @@ namespace backend.Controllers
 
         //get users tournaments
         [HttpGet("joined-tournaments")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetUserTournaments([FromQuery] int userId)
         {
             try
@@ -78,6 +79,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("joined-tournaments-paginated")]
+        [Authorize(Policy = "AuthorizedOnly")]
         public async Task<IActionResult> GetUserTournamentsPaginated(
             [FromQuery] int userId,
             [FromQuery] int page = 0,
