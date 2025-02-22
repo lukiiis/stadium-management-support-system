@@ -46,7 +46,7 @@ Stadium Management Support System is a comprehensive application that enables us
 
 ## Presentation
 
-### Web application
+### Web app
 
 #### Home page
 
@@ -84,5 +84,32 @@ Stadium Management Support System is a comprehensive application that enables us
 ![empl_dashboard](https://github.com/user-attachments/assets/8115872a-eeb0-48bf-b67d-3fc802cfa02f)
 
 
-### Mobile application
+### Mobile app
+
+#### Home screen
+
+![mobile1](https://github.com/user-attachments/assets/5cbbfbf6-fc56-4d8f-8e2b-c57844f7d586)
+
+#### Login screen
+
+![mobile2](https://github.com/user-attachments/assets/0738530b-424e-4bae-a16f-b9ec1cb9485a)
+
+#### Creating reservation
+
+![mobile3](https://github.com/user-attachments/assets/46034028-6de2-453b-a55f-fa877ed4846a)
+
+#### Tournaments screen
+
+![mobile4](https://github.com/user-attachments/assets/b58a7bc5-ba8c-49a2-a221-f0477ab3c66a)
+
+#### Client dashboard
+
+![mobile5](https://github.com/user-attachments/assets/59610c40-c7a6-4097-b246-b2303f55496d)
+
+![mobile6](https://github.com/user-attachments/assets/0dda78a2-2b45-45f9-8369-e1253b9af120)
+
+![mobile7](https://github.com/user-attachments/assets/a0d56329-c2a7-430b-999f-8c33d70e7751)
+
+![mobile8](https://github.com/user-attachments/assets/2c302e0d-6d24-4b33-bef0-a042051ea988)
+
 
